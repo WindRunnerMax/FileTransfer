@@ -1,0 +1,35 @@
+{
+    "name": "file-transfer",
+    "version": "1.0.0",
+    "scripts": {
+      
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/WindrunnerMax/FileTransfer.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/WindrunnerMax/FileTransfer/issues"
+    },
+    "homepage": "https://github.com/WindrunnerMax/FileTransfer",
+    "devDependencies": {
+      "@typescript-eslint/eslint-plugin": "^5.4.0",
+      "@typescript-eslint/parser": "^5.4.0",
+      "eslint": "7.11.0",
+      "eslint-config-prettier": "^8.3.0",
+      "eslint-plugin-import": "^2.25.3",
+      "eslint-plugin-prettier": "3.3.1",
+      "eslint-plugin-react": "^7.27.0",
+      "eslint-plugin-react-hooks": "^4.3.0",
+      "stylelint": "^14.8.5",
+      "stylelint-config-sass-guidelines": "^9.0.1",
+      "stylelint-config-standard": "^25.0.0",
+      "typescript": "^4.9.4",
+      "postcss": "^8.3.3",
+      "prettier": "^2.4.1"
+    }
+  }
+  
