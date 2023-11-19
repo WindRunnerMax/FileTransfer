@@ -8,12 +8,13 @@ const room = new Map<string, { socket: Socket; sdp?: string }>();
 io.on("connection", socket => {
   socket.on(SOCKET_EVENT_ENUM.JOIN_ROOM, ({ id }) => {
     if (!id) return void 0;
-    room.set(id, { socket });
-    const initialization: SocketEventParams["JOINED_ROOM"]["initialization"] = [];
+    const initialization: SocketEventParams["JOINED_MEMBER"]["initialization"] = [];
     room.forEach((value, key) => {
-      id !== key && initialization.push({ id: key, sdp: value.sdp });
-      value.socket.emit(SOCKET_EVENT_ENUM.JOINED_ROOM, { id, initialization });
+      initialization.push({ id: key, sdp: value.sdp });
+      value.socket.emit(SOCKET_EVENT_ENUM.JOINED_ROOM, { id });
     });
+    room.set(id, { socket });
+    socket.emit(SOCKET_EVENT_ENUM.JOINED_MEMBER, { initialization });
   });
 
   socket.on(SOCKET_EVENT_ENUM.SEND_OFFER, ({ origin, sdp, target }) => {
@@ -39,10 +40,14 @@ io.on("connection", socket => {
   });
 
   socket.on("disconnect", () => {
-    if (!room.has(socket.id)) return void 0;
-    room.delete(socket.id);
+    let id = "";
+    room.forEach((value, key) => {
+      if (value.socket === socket) id = key;
+    });
+    if (!id) return void 0;
+    room.delete(id);
     room.forEach(value => {
-      value.socket.emit(SOCKET_EVENT_ENUM.LEFT_ROOM, { id: socket.id });
+      value.socket.emit(SOCKET_EVENT_ENUM.LEFT_ROOM, { id });
     });
   });
 });

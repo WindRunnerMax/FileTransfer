@@ -1,8 +1,10 @@
+import { getUniqueId } from "laser-utils";
 import { SOCKET_EVENT_ENUM, SocketEventParams } from "../types/signaling-event";
 import { SignalingServer } from "./signaling";
 
 class FileTransferChannel {
-  id: string;
+  readonly id: string;
+  private sdp: string | null = null;
   public readonly connection: RTCPeerConnection;
   public readonly channel: RTCDataChannel;
   public readonly signaling: SignalingServer;
@@ -15,34 +17,37 @@ class FileTransferChannel {
         { urls: "stun:stun.l.google.com:19302" },
       ],
     });
-    this.signaling = new SignalingServer();
-    this.id = this.signaling.socket.id;
+    this.id = getUniqueId();
+    console.log("Client WebRTC ID:", this.id);
+    this.signaling = new SignalingServer(this.id);
     this.signaling.socket.on(SOCKET_EVENT_ENUM.FORWARD_OFFER, this.onReceiveOffer);
     this.signaling.socket.on(SOCKET_EVENT_ENUM.FORWARD_ANSWER, this.onReceiveAnswer);
     const channel = connection.createDataChannel("FileTransfer", {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
+      negotiated: true, // 双向通信 // 不需要等待`offer`端的`ondatachannel`事件
+      id: 777, // 通道id
     });
     this.channel = channel;
     this.connection = connection;
   }
 
-  createRemoteConnection = async (target: string, sdp?: string) => {
-    if (sdp) {
+  createRemoteConnection = async (target: string) => {
+    console.log("Send Offer To:", target);
+    if (this.sdp) {
       this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, {
         origin: this.id,
-        sdp,
+        sdp: this.sdp,
         target,
       });
-      return sdp;
     }
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
-        sdp = JSON.stringify(this.connection.localDescription);
-        if (sdp) {
+        this.sdp = JSON.stringify(this.connection.localDescription);
+        if (this.sdp) {
           this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, {
             origin: this.id,
-            sdp,
+            sdp: this.sdp,
             target,
           });
         }
@@ -50,11 +55,11 @@ class FileTransferChannel {
     };
     const offer = await this.connection.createOffer();
     await this.connection.setLocalDescription(offer);
-    return sdp;
   };
 
   onReceiveOffer = async (params: SocketEventParams["FORWARD_OFFER"]) => {
     const { sdp, origin } = params;
+    console.log("Receive Offer From:", origin);
     const offer = JSON.parse(sdp);
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
@@ -71,7 +76,8 @@ class FileTransferChannel {
   };
 
   onReceiveAnswer = async (params: SocketEventParams["FORWARD_ANSWER"]) => {
-    const { sdp } = params;
+    const { sdp, origin } = params;
+    console.log("Receive Answer From:", origin);
     const answer = JSON.parse(sdp);
     if (!this.connection.currentRemoteDescription) {
       this.connection.setRemoteDescription(answer);

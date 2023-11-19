@@ -6,6 +6,7 @@ const EVENT_BASE = [
   "SEND_ANSWER",
   // SERVER
   "JOINED_ROOM",
+  "JOINED_MEMBER",
   "LEFT_ROOM",
   "FORWARD_OFFER",
   "FORWARD_ANSWER",
@@ -22,7 +23,8 @@ export interface SocketEventParams {
   [SOCKET_EVENT_ENUM.SEND_OFFER]: { origin: string; target: string; sdp: string };
   [SOCKET_EVENT_ENUM.SEND_ANSWER]: { origin: string; target: string; sdp: string };
   // SERVER
-  [SOCKET_EVENT_ENUM.JOINED_ROOM]: { id: string; initialization: { id: string; sdp?: string }[] };
+  [SOCKET_EVENT_ENUM.JOINED_ROOM]: { id: string };
+  [SOCKET_EVENT_ENUM.JOINED_MEMBER]: { initialization: { id: string; sdp?: string }[] };
   [SOCKET_EVENT_ENUM.LEFT_ROOM]: { id: string };
   [SOCKET_EVENT_ENUM.FORWARD_OFFER]: { origin: string; target: string; sdp: string };
   [SOCKET_EVENT_ENUM.FORWARD_ANSWER]: { origin: string; target: string; sdp: string };
