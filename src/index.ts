@@ -23,4 +23,6 @@ window.rtc = rtc;
 // https://juejin.cn/post/6950234563683713037
 // https://juejin.cn/post/7171836076246433799
 // https://github.com/wangrongding/frontend-park
+// https://socket.io/zh-CN/docs/v4/server-socket-instance/
+// https://developer.mozilla.org/zh-CN/docs/Web/API/RTCPeerConnection/createDataChannel
 // https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API/Simple_RTCDataChannel_sample

@@ -3,7 +3,7 @@ import { SOCKET_EVENT_ENUM, SocketEventParams } from "../types/signaling-event";
 import { SignalingServer } from "./signaling";
 
 class FileTransferChannel {
-  readonly id: string;
+  public readonly id: string;
   private sdp: string | null = null;
   public readonly connection: RTCPeerConnection;
   public readonly channel: RTCDataChannel;
@@ -26,7 +26,7 @@ class FileTransferChannel {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
       negotiated: true, // 双向通信 // 不需要等待`offer`端的`ondatachannel`事件
-      id: 777, // 通道id
+      id: 777, // 通道`id`
     });
     this.channel = channel;
     this.connection = connection;
