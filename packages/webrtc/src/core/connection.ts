@@ -6,17 +6,15 @@ export class WebRTCConnection {
   private rtc: WebRTC | null = null;
   private signaling: SignalingServer;
   public onReady: WebRTCConnectionCallback = () => void 0;
-  constructor(private options: WebRTCConnectionOptions) {
+  constructor(options: WebRTCConnectionOptions) {
     this.signaling = new SignalingServer(options.wss);
     this.signaling.socket.on("connect", this.onConnection);
   }
 
   private onConnection = () => {
-    this.rtc = new WebRTC({
-      id: this.signaling.socket.id,
-      signaling: this.signaling,
-      ice: this.options.ice,
-    });
+    if (!this.rtc) {
+      this.rtc = new WebRTC({ id: this.signaling.socket.id, signaling: this.signaling });
+    }
     this.onReady({ rtc: this.rtc, signaling: this.signaling });
   };
 

@@ -22,9 +22,5 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl":".",
-  },
-  "include": [
-    "./src/**/*",
-    "./server/*"
-  ]
+  }
 }

@@ -1,0 +1,45 @@
+{
+  "name": "file-transfer-websocket",
+  "version": "1.0.0",
+  "scripts": {
+    "build:fe": "rspack build",
+    "dev:fe": "rspack build --watch",
+    "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
+    "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WindrunnerMax/FileTransfer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WindrunnerMax/FileTransfer/issues"
+  },
+  "homepage": "https://github.com/WindrunnerMax/FileTransfer",
+  "dependencies": {
+    "laser-utils": "0.0.2-alpha.6",
+    "socket.io": "4.7.2",
+    "socket.io-client": "4.7.2"
+  },
+  "devDependencies": {
+    "@rspack/cli": "0.2.5",
+    "@rspack/plugin-html": "0.2.5",
+    "@types/react": "17.0.1",
+    "@types/react-dom": "17.0.1",
+    "@typescript-eslint/eslint-plugin": "5.4.0",
+    "@typescript-eslint/parser": "5.4.0",
+    "concurrently": "8.2.2",
+    "esbuild": "0.19.6",
+    "express": "4.18.2",
+    "less": "3.0.0",
+    "less-loader": "6.0.0",
+    "postcss": "8.3.3",
+    "prettier": "2.4.1",
+    "rollup": "2.18.2",
+    "rollup-plugin-esbuild": "6.1.0",
+    "sass": "1.52.3",
+    "sass-loader": "13.3.2"
+  }
+}

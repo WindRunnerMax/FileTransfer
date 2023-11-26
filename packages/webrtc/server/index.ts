@@ -45,14 +45,9 @@ io.on("connection", socket => {
   });
 
   socket.on("disconnect", () => {
-    let id = "";
-    room.forEach((value, key) => {
-      if (value.socket === socket) id = key;
-    });
-    if (!id) return void 0;
-    room.delete(id);
+    room.delete(socket.id);
     room.forEach(value => {
-      value.socket.emit(SOCKET_EVENT_ENUM.LEFT_ROOM, { id });
+      value.socket.emit(SOCKET_EVENT_ENUM.LEFT_ROOM, { id: socket.id });
     });
   });
 });
