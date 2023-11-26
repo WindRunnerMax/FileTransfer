@@ -1,8 +1,13 @@
+import http from "http";
+import express from "express";
 import process from "process";
 import { Server, Socket } from "socket.io";
 import { SOCKET_EVENT_ENUM, SocketHandler, SocketEventParams } from "../src/types/signaling-event";
 
-const io = new Server<SocketHandler, SocketHandler>(3000);
+const app = express();
+app.use(express.static("build/static"));
+const httpServer = http.createServer(app);
+const io = new Server<SocketHandler, SocketHandler>(httpServer);
 
 const room = new Map<string, { socket: Socket; sdp?: string }>();
 io.on("connection", socket => {
@@ -62,4 +67,6 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-console.log("Listening on port 3000...");
+httpServer.listen(3000, () => {
+  console.log("Listening on port http://localhost:3000 ...");
+});

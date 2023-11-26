@@ -19,6 +19,8 @@ rtc.onMessage(v => console.log("On Channel Message", v));
 // @ts-expect-error
 window.rtc = rtc;
 
+// WebRTC -> CodeSandbox
+// WebSocket -> LocalHost
 // https://github.com/RobinLinus/snapdrop
 // https://juejin.cn/post/6950234563683713037
 // https://juejin.cn/post/7171836076246433799
