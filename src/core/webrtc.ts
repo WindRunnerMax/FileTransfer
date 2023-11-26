@@ -1,25 +1,27 @@
-import { getUniqueId } from "laser-utils";
-import { SOCKET_EVENT_ENUM, SocketEventParams } from "../types/signaling-event";
+import { SOCKET_EVENT_ENUM, SocketEventParams } from "../types/signaling";
 import { SignalingServer } from "./signaling";
+import { WebRTCOptions } from "../types/webrtc";
 
-class FileTransferChannel {
+export class WebRTC {
   public readonly id: string;
   private sdp: string | null = null;
-  public readonly connection: RTCPeerConnection;
-  public readonly channel: RTCDataChannel;
-  public readonly signaling: SignalingServer;
-  constructor() {
+  private readonly connection: RTCPeerConnection;
+  private readonly channel: RTCDataChannel;
+  private readonly signaling: SignalingServer;
+  constructor(options: WebRTCOptions) {
     const connection = new RTCPeerConnection({
-      iceServers: [
-        // 开放的`stun`服务器
-        { urls: "stun:stun.counterpath.net:3478" },
-        { urls: "stun:stun.stunprotocol.org" },
-        { urls: "stun:stun.l.google.com:19302" },
-      ],
+      iceServers: options.ice
+        ? [{ urls: options.ice }]
+        : [
+            // 开放的`stun`服务器
+            { urls: "stun:stun.counterpath.net:3478" },
+            { urls: "stun:stun.stunprotocol.org" },
+            { urls: "stun:stun.l.google.com:19302" },
+          ],
     });
-    this.id = getUniqueId();
+    this.id = options.id;
+    this.signaling = options.signaling;
     console.log("Client WebRTC ID:", this.id);
-    this.signaling = new SignalingServer(this.id);
     this.signaling.socket.on(SOCKET_EVENT_ENUM.FORWARD_OFFER, this.onReceiveOffer);
     this.signaling.socket.on(SOCKET_EVENT_ENUM.FORWARD_ANSWER, this.onReceiveAnswer);
     const channel = connection.createDataChannel("FileTransfer", {
@@ -32,7 +34,7 @@ class FileTransferChannel {
     this.connection = connection;
   }
 
-  createRemoteConnection = async (target: string) => {
+  public createRemoteConnection = async (target: string) => {
     console.log("Send Offer To:", target);
     if (this.sdp) {
       this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, {
@@ -57,7 +59,7 @@ class FileTransferChannel {
     await this.connection.setLocalDescription(offer);
   };
 
-  onReceiveOffer = async (params: SocketEventParams["FORWARD_OFFER"]) => {
+  private onReceiveOffer = async (params: SocketEventParams["FORWARD_OFFER"]) => {
     const { sdp, origin } = params;
     console.log("Receive Offer From:", origin);
     const offer = JSON.parse(sdp);
@@ -75,7 +77,7 @@ class FileTransferChannel {
     await this.connection.setLocalDescription(answer);
   };
 
-  onReceiveAnswer = async (params: SocketEventParams["FORWARD_ANSWER"]) => {
+  private onReceiveAnswer = async (params: SocketEventParams["FORWARD_ANSWER"]) => {
     const { sdp, origin } = params;
     console.log("Receive Answer From:", origin);
     const answer = JSON.parse(sdp);
@@ -84,27 +86,27 @@ class FileTransferChannel {
     }
   };
 
-  onOpen = (callback: (this: RTCDataChannel, event: Event) => void) => {
+  public onOpen = (callback: (this: RTCDataChannel, event: Event) => void) => {
     this.channel.onopen = callback;
   };
 
-  onMessage = (callback: (this: RTCDataChannel, event: MessageEvent) => void) => {
+  public onMessage = (callback: (this: RTCDataChannel, event: MessageEvent) => void) => {
     this.channel.onmessage = callback;
   };
 
-  onError = (callback: (this: RTCDataChannel, event: Event) => void) => {
+  public onError = (callback: (this: RTCDataChannel, event: Event) => void) => {
     this.channel.onerror = callback;
   };
 
-  onClose = (callback: (this: RTCDataChannel, event: Event) => void) => {
+  public onClose = (callback: (this: RTCDataChannel, event: Event) => void) => {
     this.channel.onclose = callback;
   };
 
-  destroy = () => {
+  public destroy = () => {
+    this.signaling.socket.off(SOCKET_EVENT_ENUM.FORWARD_OFFER, this.onReceiveOffer);
+    this.signaling.socket.off(SOCKET_EVENT_ENUM.FORWARD_ANSWER, this.onReceiveAnswer);
     this.channel.close();
     this.connection.close();
     this.signaling.destroy();
   };
 }
-
-export const rtc = new FileTransferChannel();

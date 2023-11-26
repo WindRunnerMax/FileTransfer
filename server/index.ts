@@ -2,7 +2,7 @@ import http from "http";
 import express from "express";
 import process from "process";
 import { Server, Socket } from "socket.io";
-import { SOCKET_EVENT_ENUM, SocketHandler, SocketEventParams } from "../src/types/signaling-event";
+import { SOCKET_EVENT_ENUM, SocketHandler, SocketEventParams } from "../src/types/signaling";
 
 const app = express();
 app.use(express.static("build/static"));
