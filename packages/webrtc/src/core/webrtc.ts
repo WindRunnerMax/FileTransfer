@@ -37,21 +37,16 @@ export class WebRTC {
   public createRemoteConnection = async (target: string) => {
     console.log("Send Offer To:", target);
     if (this.sdp) {
-      this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, {
-        origin: this.id,
-        sdp: this.sdp,
-        target,
-      });
+      const payload = { origin: this.id, sdp: this.sdp, target };
+      this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, payload);
+      return void 0;
     }
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
         this.sdp = JSON.stringify(this.connection.localDescription);
         if (this.sdp) {
-          this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, {
-            origin: this.id,
-            sdp: this.sdp,
-            target,
-          });
+          const payload = { origin: this.id, sdp: this.sdp, target };
+          this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, payload);
         }
       }
     };
@@ -110,3 +105,7 @@ export class WebRTC {
     this.signaling.destroy();
   };
 }
+
+// Reference
+// https://developer.mozilla.org/zh-CN/docs/Web/API/RTCPeerConnection/createDataChannel
+// https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API/Simple_RTCDataChannel_sample

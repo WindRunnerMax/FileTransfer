@@ -11,7 +11,7 @@ const EVENT_BASE = [
   "FORWARD_OFFER",
   "FORWARD_ANSWER",
 ] as const;
-type SocketEventKeys = (typeof EVENT_BASE)[number];
+type SocketEventKeys = typeof EVENT_BASE[number];
 export const SOCKET_EVENT_ENUM = EVENT_BASE.reduce(
   (acc, cur) => ({ ...acc, [cur]: cur }),
   {} as { [K in SocketEventKeys]: K }
