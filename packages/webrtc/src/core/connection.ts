@@ -15,11 +15,29 @@ export class WebRTCConnection {
     this.signaling.socket.on("connect", this.onConnection);
   }
 
+  public onOpen: (ev: Event) => void = () => null;
+  public onMessage: (ev: MessageEvent<unknown>) => void = () => null;
+  public onError: (ev: Event) => void = () => null;
+
+  private reopenWebRTC = () => {
+    this.rtc = new WebRTC({
+      id: this.id,
+      signaling: this.signaling,
+      onOpen: this.onOpen,
+      onMessage: this.onMessage,
+      onError: this.onError,
+      onClose: () => {
+        this.rtc && this.rtc.destroy();
+        this.reopenWebRTC();
+      },
+    });
+  };
+
   private onConnection = () => {
     if (!this.rtc) {
-      this.rtc = new WebRTC({ id: this.id, signaling: this.signaling });
+      this.reopenWebRTC();
     }
-    this.onReady({ rtc: this.rtc, signaling: this.signaling });
+    this.onReady({ rtc: this.rtc as WebRTC, signaling: this.signaling });
   };
 
   public destroy = () => {

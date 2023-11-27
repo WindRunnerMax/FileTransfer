@@ -3,4 +3,12 @@ import type { WebRTC } from "../core/webrtc";
 
 export type WebRTCConnectionOptions = { wss: string; ice?: string };
 export type WebRTCConnectionCallback = (p: { rtc: WebRTC; signaling: SignalingServer }) => void;
-export type WebRTCOptions = { ice?: string; signaling: SignalingServer; id: string };
+export type WebRTCOptions = {
+  ice?: string;
+  signaling: SignalingServer;
+  id: string;
+  onOpen?: (event: Event) => void;
+  onMessage?: (event: MessageEvent) => void;
+  onError?: (event: Event) => void;
+  onClose?: (event: Event) => void;
+};

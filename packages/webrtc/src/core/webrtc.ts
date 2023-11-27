@@ -27,11 +27,16 @@ export class WebRTC {
     const channel = connection.createDataChannel("FileTransfer", {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
-      negotiated: true, // 双向通信 // 不需要等待`offer`端的`ondatachannel`事件
-      id: 777, // 通道`id`
     });
     this.channel = channel;
     this.connection = connection;
+    this.connection.ondatachannel = event => {
+      const channel = event.channel;
+      channel.onopen = options.onOpen || null;
+      channel.onmessage = options.onMessage || null;
+      channel.onerror = options.onError || null;
+      channel.onclose = options.onClose || null;
+    };
   }
 
   public createRemoteConnection = async (target: string) => {
@@ -82,28 +87,11 @@ export class WebRTC {
     }
   };
 
-  public onOpen = (callback: (this: RTCDataChannel, event: Event) => void) => {
-    this.channel.onopen = callback;
-  };
-
-  public onMessage = (callback: (this: RTCDataChannel, event: MessageEvent) => void) => {
-    this.channel.onmessage = callback;
-  };
-
-  public onError = (callback: (this: RTCDataChannel, event: Event) => void) => {
-    this.channel.onerror = callback;
-  };
-
-  public onClose = (callback: (this: RTCDataChannel, event: Event) => void) => {
-    this.channel.onclose = callback;
-  };
-
   public destroy = () => {
     this.signaling.socket.off(SOCKET_EVENT_ENUM.FORWARD_OFFER, this.onReceiveOffer);
     this.signaling.socket.off(SOCKET_EVENT_ENUM.FORWARD_ANSWER, this.onReceiveAnswer);
     this.channel.close();
     this.connection.close();
-    this.signaling.destroy();
   };
 }
 
