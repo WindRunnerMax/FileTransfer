@@ -6,7 +6,7 @@ connection.onOpen = v => console.log("On Channel Open", v);
 connection.onError = v => console.log("On Channel Error", v);
 connection.onMessage = v => document.write(v.data as string);
 
-connection.onReady = ({ rtc, signaling }) => {
+connection.onReady = ({ signaling, createConnection, sendMessage, closeConnection }) => {
   signaling.socket.on(SOCKET_EVENT_ENUM.JOINED_ROOM, ({ id }) => {
     console.log("JOIN_ROOM", id);
   });
@@ -21,7 +21,13 @@ connection.onReady = ({ rtc, signaling }) => {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
-  window.rtc = rtc;
+  window.createConnection = createConnection;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  window.sendMessage = sendMessage;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  window.closeConnection = closeConnection;
 };
 
 // WebRTC -> CodeSandbox/CloudFlare

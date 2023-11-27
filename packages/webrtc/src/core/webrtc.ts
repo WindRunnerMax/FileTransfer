@@ -6,8 +6,8 @@ export class WebRTC {
   public readonly id: string;
   private sdp: string | null = null;
   private readonly connection: RTCPeerConnection;
-  private readonly channel: RTCDataChannel;
   private readonly signaling: SignalingServer;
+  public readonly channel: RTCDataChannel;
   constructor(options: WebRTCOptions) {
     const connection = new RTCPeerConnection({
       iceServers: options.ice

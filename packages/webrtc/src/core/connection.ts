@@ -19,7 +19,7 @@ export class WebRTCConnection {
   public onMessage: (ev: MessageEvent<unknown>) => void = () => null;
   public onError: (ev: Event) => void = () => null;
 
-  private reopenWebRTC = () => {
+  private buildWebRTC = () => {
     this.rtc = new WebRTC({
       id: this.id,
       signaling: this.signaling,
@@ -28,16 +28,27 @@ export class WebRTCConnection {
       onError: this.onError,
       onClose: () => {
         this.rtc && this.rtc.destroy();
-        this.reopenWebRTC();
+        this.buildWebRTC();
       },
     });
   };
 
   private onConnection = () => {
     if (!this.rtc) {
-      this.reopenWebRTC();
+      this.buildWebRTC();
     }
-    this.onReady({ rtc: this.rtc as WebRTC, signaling: this.signaling });
+    this.onReady({
+      signaling: this.signaling,
+      createConnection: id => {
+        this.rtc && this.rtc.createRemoteConnection(id);
+      },
+      sendMessage: message => {
+        this.rtc && this.rtc.channel.send(message);
+      },
+      closeConnection: () => {
+        this.rtc && this.rtc.destroy();
+      },
+    });
   };
 
   public destroy = () => {
