@@ -10,7 +10,7 @@ const httpServer = http.createServer(app);
 const io = new Server<SocketHandler, SocketHandler>(httpServer);
 
 const authenticate = new WeakMap<Socket, string>();
-const rooms = new Map<string, { socket: Socket; sdp?: string }>();
+const rooms = new Map<string, { socket: Socket }>();
 
 io.on("connection", socket => {
   socket.on(SOCKET_EVENT_ENUM.JOIN_ROOM, ({ id }) => {
@@ -18,7 +18,7 @@ io.on("connection", socket => {
     authenticate.set(socket, id);
     const initialization: SocketEventParams["JOINED_MEMBER"]["initialization"] = [];
     rooms.forEach((value, key) => {
-      initialization.push({ id: key, sdp: value.sdp });
+      initialization.push({ id: key });
       value.socket.emit(SOCKET_EVENT_ENUM.JOINED_ROOM, { id });
     });
     rooms.set(id, { socket });
@@ -27,7 +27,7 @@ io.on("connection", socket => {
 
   socket.on(SOCKET_EVENT_ENUM.SEND_OFFER, ({ origin, sdp, target }) => {
     if (authenticate.get(socket) !== origin) return void 0;
-    rooms.set(origin, { socket, sdp });
+    rooms.set(origin, { socket });
     const targetSocket = rooms.get(target)?.socket;
     if (targetSocket) {
       targetSocket.emit(SOCKET_EVENT_ENUM.FORWARD_OFFER, { origin, sdp });

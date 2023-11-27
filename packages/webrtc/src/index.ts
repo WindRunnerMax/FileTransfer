@@ -1,7 +1,7 @@
 import { WebRTCConnection } from "./core/connection";
 import { SOCKET_EVENT_ENUM } from "./types/signaling";
 
-const connection = new WebRTCConnection({ wss: "localhost:3000" });
+const connection = new WebRTCConnection({ wss: location.host });
 connection.onReady = ({ rtc, signaling }) => {
   signaling.socket.on(SOCKET_EVENT_ENUM.JOINED_ROOM, ({ id }) => {
     console.log("JOIN_ROOM", id);
@@ -18,7 +18,7 @@ connection.onReady = ({ rtc, signaling }) => {
   rtc.onOpen(v => console.log("On Channel Open", v));
   rtc.onClose(v => console.log("On Channel Close", v));
   rtc.onError(v => console.log("On Channel Error", v));
-  rtc.onMessage(v => console.log("On Channel Message", v));
+  rtc.onMessage(v => document.write(v.data));
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error

@@ -60,6 +60,7 @@ export class WebRTC {
     const offer = JSON.parse(sdp);
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
+        console.log("Send Answer To:", origin);
         this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_ANSWER, {
           origin: this.id,
           sdp: JSON.stringify(this.connection.localDescription),
