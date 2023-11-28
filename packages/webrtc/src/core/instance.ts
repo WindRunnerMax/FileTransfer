@@ -4,10 +4,9 @@ import { WebRTCInstanceOptions } from "../types/webrtc";
 
 export class WebRTCInstance {
   public readonly id: string;
-  private sdp: string | null = null;
+  public readonly channel: RTCDataChannel;
   private readonly connection: RTCPeerConnection;
   private readonly signaling: SignalingServer;
-  public readonly channel: RTCDataChannel;
   constructor(options: WebRTCInstanceOptions) {
     const connection = new RTCPeerConnection({
       iceServers: options.ice
@@ -41,16 +40,12 @@ export class WebRTCInstance {
 
   public createRemoteConnection = async (target: string) => {
     console.log("Send Offer To:", target);
-    if (this.sdp) {
-      const payload = { origin: this.id, sdp: this.sdp, target };
-      this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, payload);
-      return void 0;
-    }
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
-        this.sdp = JSON.stringify(this.connection.localDescription);
-        if (this.sdp) {
-          const payload = { origin: this.id, sdp: this.sdp, target };
+        const sdp = JSON.stringify(this.connection.localDescription);
+        if (sdp) {
+          this.connection.onicecandidate = null;
+          const payload = { origin: this.id, sdp: sdp, target };
           this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_OFFER, payload);
         }
       }
@@ -66,6 +61,7 @@ export class WebRTCInstance {
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
         console.log("Send Answer To:", origin);
+        this.connection.onicecandidate = null;
         this.signaling.socket.emit(SOCKET_EVENT_ENUM.SEND_ANSWER, {
           origin: this.id,
           sdp: JSON.stringify(this.connection.localDescription),

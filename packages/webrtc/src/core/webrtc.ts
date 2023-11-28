@@ -20,10 +20,11 @@ export class WebRTC {
   public onError: (ev: Event) => void = () => null;
   public onClose: (ev: Event) => void = () => null;
 
-  private createWebRTCInstance = () => {
+  private createInstance = () => {
     const onClose = (e: Event) => {
       this.instance?.destroy();
-      this.createWebRTCInstance();
+      const rtc = this.createInstance();
+      this.instance = rtc;
       this.onClose(e);
     };
     return new WebRTCInstance({
@@ -38,7 +39,7 @@ export class WebRTC {
 
   private onConnection = () => {
     if (!this.instance) {
-      this.instance = this.createWebRTCInstance();
+      this.instance = this.createInstance();
     }
     const onConnect = (id: string) => {
       this.instance?.createRemoteConnection(id);
