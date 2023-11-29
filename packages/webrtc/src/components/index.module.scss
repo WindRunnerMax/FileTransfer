@@ -1,5 +1,15 @@
 body,
 .container {
   height: 100vh;
+  margin: 0;
+  padding: 0;
   width: 100vw;
+}
+
+.github {
+  color: var(--color-text-1);
+  font-size: 23px;
+  position: fixed;
+  right: 12px;
+  top: 6px;
 }
