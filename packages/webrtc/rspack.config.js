@@ -9,7 +9,7 @@ const isDev = process.env.NODE_ENV === "development";
 module.exports = {
   context: __dirname,
   entry: {
-    index: "./src/index.ts",
+    index: "./src/index.tsx",
   },
   plugins: [
     new HtmlPlugin({

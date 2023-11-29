@@ -36,11 +36,11 @@ importers:
     specifiers:
       '@rspack/cli': 0.2.5
       '@rspack/plugin-html': 0.2.5
-      '@types/react': 17.0.1
-      '@types/react-dom': 17.0.1
+      '@types/react': ^17.0.0
+      '@types/react-dom': ^17.0.0
       '@typescript-eslint/eslint-plugin': 5.4.0
       '@typescript-eslint/parser': 5.4.0
-      concurrently: ^8.2.2
+      concurrently: 8.2.2
       esbuild: 0.19.6
       express: 4.18.2
       laser-utils: 0.0.2-alpha.6
@@ -48,6 +48,8 @@ importers:
       less-loader: 6.0.0
       postcss: 8.3.3
       prettier: 2.4.1
+      react: 17.0.1
+      react-dom: 17.0.1
       rollup: 2.18.2
       rollup-plugin-esbuild: 6.1.0
       sass: 1.52.3
@@ -56,12 +58,14 @@ importers:
       socket.io-client: 4.7.2
     dependencies:
       laser-utils: registry.npmmirror.com/laser-utils/0.0.2-alpha.6
+      react: registry.npmmirror.com/react/17.0.1
+      react-dom: registry.npmmirror.com/react-dom/17.0.1_react@17.0.1
       socket.io: registry.npmmirror.com/socket.io/4.7.2
       socket.io-client: registry.npmmirror.com/socket.io-client/4.7.2
     devDependencies:
       '@rspack/cli': registry.npmmirror.com/@rspack/cli/0.2.5_esbuild@0.19.6
       '@rspack/plugin-html': registry.npmmirror.com/@rspack/plugin-html/0.2.5
-      '@types/react': registry.npmmirror.com/@types/react/17.0.1
+      '@types/react': registry.npmmirror.com/@types/react/17.0.70
       '@types/react-dom': registry.npmmirror.com/@types/react-dom/17.0.1
       '@typescript-eslint/eslint-plugin': registry.npmmirror.com/@typescript-eslint/eslint-plugin/5.4.0_7680366b7354ea82bdb029a46ad3f7ff
       '@typescript-eslint/parser': registry.npmmirror.com/@typescript-eslint/parser/5.4.0_eslint@7.11.0+typescript@5.3.2
@@ -81,10 +85,11 @@ importers:
     specifiers:
       '@rspack/cli': 0.2.5
       '@rspack/plugin-html': 0.2.5
-      '@types/react': 17.0.1
-      '@types/react-dom': 17.0.1
+      '@types/react': 17.0.2
+      '@types/react-dom': 17.0.2
       '@typescript-eslint/eslint-plugin': 5.4.0
       '@typescript-eslint/parser': 5.4.0
+      concurrently: 8.2.2
       esbuild: 0.19.6
       express: 4.18.2
       laser-utils: 0.0.2-alpha.6
@@ -92,6 +97,8 @@ importers:
       less-loader: 6.0.0
       postcss: 8.3.3
       prettier: 2.4.1
+      react: 17.0.2
+      react-dom: 17.0.2
       rollup: 2.18.2
       rollup-plugin-esbuild: 6.1.0
       sass: 1.52.3
@@ -100,15 +107,18 @@ importers:
       socket.io-client: 4.7.2
     dependencies:
       laser-utils: registry.npmmirror.com/laser-utils/0.0.2-alpha.6
+      react: registry.npmmirror.com/react/17.0.2
+      react-dom: registry.npmmirror.com/react-dom/17.0.2_react@17.0.2
       socket.io: registry.npmmirror.com/socket.io/4.7.2
       socket.io-client: registry.npmmirror.com/socket.io-client/4.7.2
     devDependencies:
       '@rspack/cli': registry.npmmirror.com/@rspack/cli/0.2.5_esbuild@0.19.6
       '@rspack/plugin-html': registry.npmmirror.com/@rspack/plugin-html/0.2.5
-      '@types/react': registry.npmmirror.com/@types/react/17.0.1
-      '@types/react-dom': registry.npmmirror.com/@types/react-dom/17.0.1
+      '@types/react': registry.npmmirror.com/@types/react/17.0.2
+      '@types/react-dom': registry.npmmirror.com/@types/react-dom/17.0.2
       '@typescript-eslint/eslint-plugin': registry.npmmirror.com/@typescript-eslint/eslint-plugin/5.4.0_7680366b7354ea82bdb029a46ad3f7ff
       '@typescript-eslint/parser': registry.npmmirror.com/@typescript-eslint/parser/5.4.0_eslint@7.11.0+typescript@5.3.2
+      concurrently: registry.npmmirror.com/concurrently/8.2.2
       esbuild: registry.npmmirror.com/esbuild/0.19.6
       express: registry.npmmirror.com/express/4.18.2
       less: registry.npmmirror.com/less/3.0.0
@@ -1133,10 +1143,18 @@ packages:
       '@types/react': registry.npmmirror.com/@types/react/17.0.70
     dev: true
 
-  registry.npmmirror.com/@types/react/17.0.1:
-    resolution: {integrity: sha512-w8t9f53B2ei4jeOqf/gxtc2Sswnc3LBK5s0DyJcg5xd10tMHXts2N31cKjWfH9IC/JvEPa/YF1U4YeP1t4R6HQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/react/-/react-17.0.1.tgz}
+  registry.npmmirror.com/@types/react-dom/17.0.2:
+    resolution: {integrity: sha512-Icd9KEgdnFfJs39KyRyr0jQ7EKhq8U6CcHRMGAS45fp5qgUvxL3ujUCfWFttUK2UErqZNj97t9gsVPNAqcwoCg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/react-dom/-/react-dom-17.0.2.tgz}
+    name: '@types/react-dom'
+    version: 17.0.2
+    dependencies:
+      '@types/react': registry.npmmirror.com/@types/react/17.0.70
+    dev: true
+
+  registry.npmmirror.com/@types/react/17.0.2:
+    resolution: {integrity: sha512-Xt40xQsrkdvjn1EyWe1Bc0dJLcil/9x2vAuW7ya+PuQip4UYUaXyhzWmAbwRsdMgwOFHpfp7/FFZebDU6Y8VHA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/react/-/react-17.0.2.tgz}
     name: '@types/react'
-    version: 17.0.1
+    version: 17.0.2
     dependencies:
       '@types/prop-types': registry.npmmirror.com/@types/prop-types/15.7.10
       csstype: registry.npmmirror.com/csstype/3.1.2
@@ -4654,7 +4672,6 @@ packages:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/js-tokens/-/js-tokens-4.0.0.tgz}
     name: js-tokens
     version: 4.0.0
-    dev: true
 
   registry.npmmirror.com/js-yaml/3.14.1:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/js-yaml/-/js-yaml-3.14.1.tgz}
@@ -4959,7 +4976,6 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: registry.npmmirror.com/js-tokens/4.0.0
-    dev: true
 
   registry.npmmirror.com/lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/lower-case/-/lower-case-2.0.2.tgz}
@@ -5849,6 +5865,34 @@ packages:
       unpipe: registry.npmmirror.com/unpipe/1.0.0
     dev: true
 
+  registry.npmmirror.com/react-dom/17.0.1_react@17.0.1:
+    resolution: {integrity: sha512-6eV150oJZ9U2t9svnsspTMrWNyHc6chX0KzDeAOXftRa8bNeOKTTfCJ7KorIwenkHd2xqVTBTCZd79yk/lx/Ug==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react-dom/-/react-dom-17.0.1.tgz}
+    id: registry.npmmirror.com/react-dom/17.0.1
+    name: react-dom
+    version: 17.0.1
+    peerDependencies:
+      react: 17.0.1
+    dependencies:
+      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
+      object-assign: registry.npmmirror.com/object-assign/4.1.1
+      react: registry.npmmirror.com/react/17.0.1
+      scheduler: registry.npmmirror.com/scheduler/0.20.2
+    dev: false
+
+  registry.npmmirror.com/react-dom/17.0.2_react@17.0.2:
+    resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react-dom/-/react-dom-17.0.2.tgz}
+    id: registry.npmmirror.com/react-dom/17.0.2
+    name: react-dom
+    version: 17.0.2
+    peerDependencies:
+      react: 17.0.2
+    dependencies:
+      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
+      object-assign: registry.npmmirror.com/object-assign/4.1.1
+      react: registry.npmmirror.com/react/17.0.2
+      scheduler: registry.npmmirror.com/scheduler/0.20.2
+    dev: false
+
   registry.npmmirror.com/react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react-is/-/react-is-16.13.1.tgz}
     name: react-is
@@ -5861,6 +5905,26 @@ packages:
     version: 0.14.0
     engines: {node: '>=0.10.0'}
     dev: true
+
+  registry.npmmirror.com/react/17.0.1:
+    resolution: {integrity: sha512-lG9c9UuMHdcAexXtigOZLX8exLWkW0Ku29qPRU8uhF2R9BN96dLCt0psvzPLlHc5OWkgymP3qwTRgbnw5BKx3w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react/-/react-17.0.1.tgz}
+    name: react
+    version: 17.0.1
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
+      object-assign: registry.npmmirror.com/object-assign/4.1.1
+    dev: false
+
+  registry.npmmirror.com/react/17.0.2:
+    resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react/-/react-17.0.2.tgz}
+    name: react
+    version: 17.0.2
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
+      object-assign: registry.npmmirror.com/object-assign/4.1.1
+    dev: false
 
   registry.npmmirror.com/read-pkg-up/7.0.1:
     resolution: {integrity: sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/read-pkg-up/-/read-pkg-up-7.0.1.tgz}
@@ -6219,6 +6283,15 @@ packages:
       immutable: registry.npmmirror.com/immutable/4.3.4
       source-map-js: registry.npmmirror.com/source-map-js/1.0.2
     dev: true
+
+  registry.npmmirror.com/scheduler/0.20.2:
+    resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/scheduler/-/scheduler-0.20.2.tgz}
+    name: scheduler
+    version: 0.20.2
+    dependencies:
+      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
+      object-assign: registry.npmmirror.com/object-assign/4.1.1
+    dev: false
 
   registry.npmmirror.com/schema-utils/2.7.1:
     resolution: {integrity: sha512-SHiNtMOUGWBQJwzISiVYKu82GiV4QYGePp3odlY1tuKO7gPtphAT5R/py0fA6xtbgLL/RvtJZnU9b8s0F1q0Xg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/schema-utils/-/schema-utils-2.7.1.tgz}
