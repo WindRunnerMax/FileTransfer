@@ -17,8 +17,7 @@ export const drawingBackdrop = () => {
     height = window.innerHeight;
     canvas.width = width;
     canvas.height = height;
-    let offset = height > 380 ? 100 : 65;
-    offset = height > 800 ? 116 : offset;
+    const offset = 135;
     x = width / 2;
     y = height - offset;
     degree = Math.max(width, height, 1000) / 13;

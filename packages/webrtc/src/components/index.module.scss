@@ -1,9 +1,47 @@
 body,
 .container {
+  align-items: end;
+  display: flex;
   height: 100vh;
+  justify-content: center;
   margin: 0;
   padding: 0;
   width: 100vw;
+
+  .content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+
+  .boardCastIcon {
+    color: rgba(var(--arcoblue-6), 0.8);
+    font-size: 60px;
+  }
+
+  .manualEntry {
+    margin-top: 10px;
+    width: 260px;
+
+    :global {
+      .arco-btn-primary {
+        background-color: rgba(var(--arcoblue-6), 0.9);
+      }
+    }
+  }
+}
+
+.prompt {
+  color: rgba(var(--arcoblue-6), 0.8);
+  font-size: 20px;
+  left: 0;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 40%;
+  width: 100%;
 }
 
 .github {
