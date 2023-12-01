@@ -19,7 +19,7 @@ export class WebRTC {
 
   public onOpen: (ev: Event) => void = () => null;
   public onMessage: (ev: MessageEvent<unknown>) => void = () => null;
-  public onError: (ev: Event) => void = () => null;
+  public onError: (ev: RTCErrorEvent) => void = () => null;
   public onClose: (ev: Event) => void = () => null;
 
   private createInstance = () => {
@@ -66,6 +66,7 @@ export class WebRTC {
     this.signaling.socket.off("connect", this.onConnection);
     this.signaling.destroy();
     this.instance?.destroy();
+    this.instance = null;
   };
 }
 

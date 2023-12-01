@@ -33,6 +33,7 @@ export class WebRTCInstance {
       const channel = event.channel;
       channel.onopen = options.onOpen || null;
       channel.onmessage = options.onMessage || null;
+      // @ts-expect-error RTCErrorEvent
       channel.onerror = options.onError || null;
       channel.onclose = options.onClose || null;
     };

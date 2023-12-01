@@ -25,7 +25,7 @@ io.on("connection", socket => {
     authenticate.set(socket, id);
     const initialization: SocketEventParams["JOINED_MEMBER"]["initialization"] = [];
     mapper.forEach((value, key) => {
-      initialization.push({ id: key, device });
+      initialization.push({ id: key, device: value.device });
       value.socket.emit(SERVER_EVENT.JOINED_ROOM, { id, device });
     });
     mapper.set(id, { socket, device, state: CONNECTION_STATE.NORMAL });

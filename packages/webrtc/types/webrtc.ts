@@ -13,6 +13,6 @@ export type WebRTCInstanceOptions = {
   id: string;
   onOpen?: (event: Event) => void;
   onMessage?: (event: MessageEvent) => void;
-  onError?: (event: Event) => void;
+  onError?: (event: RTCErrorEvent) => void;
   onClose?: (event: Event) => void;
 };
