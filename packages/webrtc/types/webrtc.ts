@@ -1,14 +1,12 @@
-import type { SignalingServer } from "../core/signaling";
+import type { SignalingServer } from "../src/core/signaling";
 
 export type WebRTCOptions = { wss: string; ice?: string };
-export type WebRTCCallback = (p: {
-  signaling: SignalingServer;
-  rtc: {
-    connect: (id: string) => void;
-    send: (message: string) => void;
-    close: () => void;
-  };
-}) => void;
+export type WebRTCApi = {
+  connect: (id: string) => void;
+  send: (message: string) => void;
+  close: () => void;
+};
+export type WebRTCCallback = (p: { signaling: SignalingServer; rtc: WebRTCApi }) => void;
 export type WebRTCInstanceOptions = {
   ice?: string;
   signaling: SignalingServer;

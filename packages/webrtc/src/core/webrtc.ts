@@ -1,4 +1,4 @@
-import { WebRTCCallback, WebRTCOptions } from "../types/webrtc";
+import { WebRTCCallback, WebRTCOptions } from "../../types/webrtc";
 import { WebRTCInstance } from "./instance";
 import { SignalingServer } from "./signaling";
 import { getUniqueId } from "laser-utils";
@@ -6,11 +6,13 @@ import { getUniqueId } from "laser-utils";
 export class WebRTC {
   public readonly id: string;
   private instance: WebRTCInstance | null = null;
-  private signaling: SignalingServer;
+  public readonly signaling: SignalingServer;
   public onReady: WebRTCCallback = () => void 0;
   constructor(options: WebRTCOptions) {
+    const STORAGE_KEY = "WEBRTC-ID";
     // https://socket.io/docs/v4/server-socket-instance/#socketid
-    this.id = getUniqueId(20);
+    this.id = sessionStorage?.getItem(STORAGE_KEY) || getUniqueId(20);
+    sessionStorage?.setItem(STORAGE_KEY, this.id);
     this.signaling = new SignalingServer(options.wss, this.id);
     this.signaling.socket.on("connect", this.onConnection);
   }

@@ -1,5 +1,15 @@
 import io, { Socket } from "socket.io-client";
-import { CLINT_EVENT, ClientHandler, ServerHandler } from "../types/signaling";
+import {
+  CLINT_EVENT,
+  ClientEventKeys,
+  ClientHandler,
+  ServerEventKeys,
+  ServerFn,
+  ServerHandler,
+  SocketEventParams,
+} from "../../types/signaling";
+import { isMobile } from "../utils/is";
+import { DEVICE_TYPE } from "../../types/client";
 
 export class SignalingServer {
   public readonly socket: Socket<ServerHandler, ClientHandler>;
@@ -10,13 +20,31 @@ export class SignalingServer {
     this.socket.on("disconnect", this.onDisconnect);
   }
 
+  public on = <T extends ServerEventKeys>(key: T, cb: ServerFn<T>) => {
+    // @ts-expect-error unknown
+    this.socket.on(key, cb);
+  };
+
+  public off = <T extends ServerEventKeys>(key: T, cb: ServerFn<T>) => {
+    // @ts-expect-error unknown
+    this.socket.off(key, cb);
+  };
+
+  public emit = <T extends ClientEventKeys>(key: T, payload: SocketEventParams[T]) => {
+    // @ts-expect-error unknown
+    this.socket.emit(key, payload);
+  };
+
   private onConnect = () => {
     // https://socket.io/docs/v4/server-socket-instance/#socketid
-    this.socket.emit(CLINT_EVENT.JOIN_ROOM, { id: this.id });
+    this.emit(CLINT_EVENT.JOIN_ROOM, {
+      id: this.id,
+      device: isMobile() ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.PC,
+    });
   };
 
   private onDisconnect = () => {
-    this.socket.emit(CLINT_EVENT.LEAVE_ROOM, { id: this.id });
+    this.emit(CLINT_EVENT.LEAVE_ROOM, { id: this.id });
   };
 
   public destroy = () => {

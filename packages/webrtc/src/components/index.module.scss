@@ -29,6 +29,9 @@ body,
 }
 
 .prompt {
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  animation-name: scale-in;
   color: rgba(var(--arcoblue-6), 0.8);
   font-size: 20px;
   left: 0;
@@ -36,6 +39,7 @@ body,
   right: 0;
   text-align: center;
   top: 40%;
+  user-select: none;
   width: 100%;
 }
 
@@ -45,4 +49,56 @@ body,
   position: fixed;
   right: 12px;
   top: 6px;
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.deviceGroup {
+  display: flex;
+  font-size: 14px;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 40%;
+  user-select: none;
+  width: 100%;
+
+  .device {
+    align-items: center;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+    animation-name: scale-in;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+
+
+    .icon {
+      align-items: center;
+      background-color: rgba(var(--arcoblue-6), 0.8);
+      border-radius: 70px;
+      color: #fff;
+      display: flex;
+      font-size: 30px;
+      height: 70px;
+      justify-content: center;
+      width: 70px;
+    }
+
+    .name {
+      color: var(--color-text-1);
+      margin-top: 6px;
+    }
+  }
 }

@@ -1,42 +1,42 @@
 import http from "http";
 import express from "express";
 import process from "process";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import {
   CLINT_EVENT,
   SERVER_EVENT,
   ServerHandler,
   ClientHandler,
   SocketEventParams,
-} from "../src/types/signaling";
+} from "../types/signaling";
+import { CONNECTION_STATE, Member, ServerSocket } from "../types/server";
 
 const app = express();
 app.use(express.static("build/static"));
 const httpServer = http.createServer(app);
 const io = new Server<ClientHandler, ServerHandler>(httpServer);
 
-const authenticate = new WeakMap<Socket, string>();
-const mapper = new Map<string, { socket: Socket }>();
+const authenticate = new WeakMap<ServerSocket, string>();
+const mapper = new Map<string, Member>();
 
 io.on("connection", socket => {
-  socket.on(CLINT_EVENT.JOIN_ROOM, ({ id }) => {
+  socket.on(CLINT_EVENT.JOIN_ROOM, ({ id, device }) => {
     if (!id) return void 0;
     authenticate.set(socket, id);
     const initialization: SocketEventParams["JOINED_MEMBER"]["initialization"] = [];
     mapper.forEach((value, key) => {
-      initialization.push({ id: key });
-      value.socket.emit(SERVER_EVENT.JOINED_ROOM, { id });
+      initialization.push({ id: key, device });
+      value.socket.emit(SERVER_EVENT.JOINED_ROOM, { id, device });
     });
-    mapper.set(id, { socket });
+    mapper.set(id, { socket, device, state: CONNECTION_STATE.NORMAL });
     socket.emit(SERVER_EVENT.JOINED_MEMBER, { initialization });
   });
 
   socket.on(CLINT_EVENT.SEND_OFFER, ({ origin, sdp, target }) => {
     if (authenticate.get(socket) !== origin) return void 0;
-    mapper.set(origin, { socket });
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
-      targetSocket.emit(SERVER_EVENT.FORWARD_OFFER, { origin, sdp });
+      targetSocket.emit(SERVER_EVENT.FORWARD_OFFER, { origin, sdp, target });
     }
   });
 
@@ -44,7 +44,7 @@ io.on("connection", socket => {
     if (authenticate.get(socket) !== origin) return void 0;
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
-      targetSocket.emit(SERVER_EVENT.FORWARD_ANSWER, { origin, sdp });
+      targetSocket.emit(SERVER_EVENT.FORWARD_ANSWER, { origin, sdp, target });
     }
   });
 

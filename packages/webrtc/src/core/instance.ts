@@ -1,6 +1,6 @@
-import { CLINT_EVENT, SERVER_EVENT, SocketEventParams } from "../types/signaling";
+import { CLINT_EVENT, SERVER_EVENT, SocketEventParams } from "../../types/signaling";
 import { SignalingServer } from "./signaling";
-import { WebRTCInstanceOptions } from "../types/webrtc";
+import { WebRTCInstanceOptions } from "../../types/webrtc";
 
 export class WebRTCInstance {
   public readonly id: string;
@@ -21,8 +21,8 @@ export class WebRTCInstance {
     this.id = options.id;
     this.signaling = options.signaling;
     console.log("Client WebRTC ID:", this.id);
-    this.signaling.socket.on(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
-    this.signaling.socket.on(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
+    this.signaling.on(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
+    this.signaling.on(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
     const channel = connection.createDataChannel("FileTransfer", {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
@@ -46,7 +46,7 @@ export class WebRTCInstance {
         if (sdp) {
           this.connection.onicecandidate = null;
           const payload = { origin: this.id, sdp: sdp, target };
-          this.signaling.socket.emit(CLINT_EVENT.SEND_OFFER, payload);
+          this.signaling.emit(CLINT_EVENT.SEND_OFFER, payload);
         }
       }
     };
@@ -62,7 +62,7 @@ export class WebRTCInstance {
       if (event.candidate) {
         console.log("Send Answer To:", origin);
         this.connection.onicecandidate = null;
-        this.signaling.socket.emit(CLINT_EVENT.SEND_ANSWER, {
+        this.signaling.emit(CLINT_EVENT.SEND_ANSWER, {
           origin: this.id,
           sdp: JSON.stringify(this.connection.localDescription),
           target: origin,
@@ -84,8 +84,8 @@ export class WebRTCInstance {
   };
 
   public destroy = () => {
-    this.signaling.socket.off(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
-    this.signaling.socket.off(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
+    this.signaling.off(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
+    this.signaling.off(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
     this.channel.close();
     this.connection.close();
   };
