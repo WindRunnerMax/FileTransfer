@@ -1,8 +1,8 @@
 import io, { Socket } from "socket.io-client";
-import { SOCKET_EVENT_ENUM, SocketHandler } from "../types/signaling";
+import { CLINT_EVENT, ClientHandler, ServerHandler } from "../types/signaling";
 
 export class SignalingServer {
-  public readonly socket: Socket<SocketHandler, SocketHandler>;
+  public readonly socket: Socket<ServerHandler, ClientHandler>;
   constructor(wss: string, private id: string) {
     const socket = io(wss, { transports: ["websocket"] });
     this.socket = socket;
@@ -12,15 +12,15 @@ export class SignalingServer {
 
   private onConnect = () => {
     // https://socket.io/docs/v4/server-socket-instance/#socketid
-    this.socket.emit(SOCKET_EVENT_ENUM.JOIN_ROOM, { id: this.id });
+    this.socket.emit(CLINT_EVENT.JOIN_ROOM, { id: this.id });
   };
 
   private onDisconnect = () => {
-    this.socket.emit(SOCKET_EVENT_ENUM.LEAVE_ROOM, { id: this.id });
+    this.socket.emit(CLINT_EVENT.LEAVE_ROOM, { id: this.id });
   };
 
   public destroy = () => {
-    this.socket.emit(SOCKET_EVENT_ENUM.LEAVE_ROOM, { id: this.id });
+    this.socket.emit(CLINT_EVENT.LEAVE_ROOM, { id: this.id });
     this.socket.off("connect", this.onConnect);
     this.socket.off("disconnect", this.onDisconnect);
     this.socket.close();

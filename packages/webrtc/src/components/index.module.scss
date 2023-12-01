@@ -22,14 +22,9 @@ body,
   }
 
   .manualEntry {
-    margin-top: 10px;
-    width: 260px;
-
-    :global {
-      .arco-btn-primary {
-        background-color: rgba(var(--arcoblue-6), 0.9);
-      }
-    }
+    color: rgba(var(--arcoblue-6), 0.8);
+    cursor: pointer;
+    margin-top: 5px;
   }
 }
 

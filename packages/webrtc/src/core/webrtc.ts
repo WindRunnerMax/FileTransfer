@@ -4,7 +4,7 @@ import { SignalingServer } from "./signaling";
 import { getUniqueId } from "laser-utils";
 
 export class WebRTC {
-  private readonly id: string;
+  public readonly id: string;
   private instance: WebRTCInstance | null = null;
   private signaling: SignalingServer;
   public onReady: WebRTCCallback = () => void 0;

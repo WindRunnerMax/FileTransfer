@@ -1,8 +1,7 @@
 import styles from "./index.module.scss";
-import React, { FC } from "react";
-import { IconGithub, IconRight } from "@arco-design/web-react/icon";
+import { FC } from "react";
+import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon } from "./icon";
-import { Input } from "@arco-design/web-react";
 import { getUniqueId } from "laser-utils";
 
 export const App: FC = () => {
@@ -11,13 +10,7 @@ export const App: FC = () => {
       <div className={styles.content}>
         <div className={styles.boardCastIcon}>{BoardCastIcon}</div>
         <div>Local ID: {getUniqueId(20)}</div>
-        <div className={styles.manualEntry}>
-          <Input.Search
-            size="mini"
-            searchButton={<IconRight />}
-            placeholder="Enter Another ID To Connect"
-          ></Input.Search>
-        </div>
+        <div className={styles.manualEntry}>Request To Establish P2P Connection By ID</div>
       </div>
       <div className={styles.prompt}>Open another device on the LAN to transfer files</div>
       <a
