@@ -67,6 +67,7 @@ export class WebRTC {
         connect: onConnect,
         send: onSendMessage,
         close: onClose,
+        getInstance: () => this.instance,
       },
     });
   };

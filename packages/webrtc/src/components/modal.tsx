@@ -1,12 +1,13 @@
 import { WebRTCApi } from "../../types/webrtc";
 import styles from "./index.module.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { CONNECTION_STATE, TextMessageType, TransferListItem } from "../../types/client";
+import { CONNECTION_STATE, TransferListItem } from "../../types/client";
 import { Button, Input, Modal } from "@arco-design/web-react";
 import { IconDriveFile, IconSend } from "@arco-design/web-react/icon";
 import { WebRTC } from "../core/webrtc";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
-import { cs, decodeJSON, encodeJSON, isString } from "laser-utils";
+import { cs, isString } from "laser-utils";
+import { decodeJSON, encodeJSON } from "../utils/json";
 
 export const TransferModal: FC<{
   connection: React.MutableRefObject<WebRTC | null>;
@@ -19,10 +20,11 @@ export const TransferModal: FC<{
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }> = ({ connection, rtc, state, peerId, visible, setVisible }) => {
+  const listRef = useRef<HTMLDivElement>(null);
+  const fileSlice = useRef<ArrayBuffer[]>([]);
   const [transferring, setTransferring] = useState(false);
   const [text, setText] = useState("");
   const [list, setList] = useState<TransferListItem[]>([]);
-  const ref = useRef<HTMLDivElement>(null);
 
   const onCancel = () => {
     rtc.current?.close();
@@ -30,8 +32,8 @@ export const TransferModal: FC<{
   };
 
   const onScroll = () => {
-    if (ref.current) {
-      const el = ref.current;
+    if (listRef.current) {
+      const el = listRef.current;
       Promise.resolve().then(() => {
         el.scrollTop = el.scrollHeight;
       });
@@ -41,9 +43,13 @@ export const TransferModal: FC<{
   const onMessage = useMemoizedFn((event: MessageEvent<string | ArrayBuffer>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
-      const data = decodeJSON<TextMessageType>(event.data);
+      const data = decodeJSON(event.data);
       if (data && data.type === "text") {
-        setList([...list, { type: "text", from: "peer", data: data.data }]);
+        setList([...list, { from: "peer", ...data }]);
+      } else if (data?.type === "file") {
+        setTransferring(true);
+        fileSlice.current = [];
+        setList([...list, { from: "peer", progress: 0, ...data }]);
       }
     }
     onScroll();
@@ -51,7 +57,6 @@ export const TransferModal: FC<{
 
   useEffect(() => {
     const current = connection.current;
-    console.log("current", current);
     current && (current.onMessage = onMessage);
     return () => {
       const noop = () => null;
@@ -60,13 +65,66 @@ export const TransferModal: FC<{
   }, [connection, onMessage]);
 
   const onSendText = () => {
-    const str = encodeJSON({ type: "text", data: text } as TextMessageType);
+    const str = encodeJSON({ type: "text", data: text });
     if (str && rtc.current && text) {
       rtc.current?.send(str);
       setList([...list, { type: "text", from: "self", data: text }]);
       setText("");
       onScroll();
     }
+  };
+
+  //   const updateFileProgress = (progress: number) => {
+  //     const last = list[list.length - 1];
+  //     if (last && last.type === "file") {
+  //       last.progress = progress;
+  //       setList([...list]);
+  //     }
+  //   };
+
+  const sendFilesBySlice = async (file: File) => {
+    const channel = rtc.current?.getInstance()?.channel;
+    if (!channel) return void 0;
+    const chunkSize = 64000; // 64 KB
+    const name = file.name;
+    const size = Math.ceil(file.size / chunkSize);
+    const info = { type: "file", from: "self", name, size, progress: 0 } as TransferListItem;
+    channel.send(encodeJSON(info));
+    setList([...list, info]);
+    onScroll();
+    setTransferring(true);
+    let offset = 0;
+    while (offset < file.size) {
+      const slice = file.slice(offset, offset + chunkSize);
+      const buffer = await slice.arrayBuffer();
+      if (channel.bufferedAmount > 65535) {
+        await new Promise(resolve => {
+          channel.onbufferedamountlow = () => {
+            console.warn(`BufferedAmount: ${channel.bufferedAmount}`);
+            resolve(0);
+          };
+        });
+      }
+      channel.send(buffer);
+      offset = offset + buffer.byteLength;
+    }
+    setTransferring(false);
+  };
+
+  const onSendFile = () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("class", styles.fileInput);
+    input.setAttribute("accept", "*");
+    document.body.append(input);
+    input.onchange = e => {
+      const target = e.target as HTMLInputElement;
+      document.body.removeChild(input);
+      const files = target.files;
+      const file = files && files[0];
+      file && sendFilesBySlice(file);
+    };
+    input.click();
   };
 
   return (
@@ -95,7 +153,7 @@ export const TransferModal: FC<{
       onCancel={onCancel}
       maskClosable={false}
     >
-      <div className={styles.modalContent} ref={ref}>
+      <div className={styles.modalContent} ref={listRef}>
         {list.map((item, index) => (
           <div
             key={index}
@@ -113,6 +171,7 @@ export const TransferModal: FC<{
           type="primary"
           icon={<IconDriveFile />}
           className={styles.sendFile}
+          onClick={onSendFile}
         >
           File
         </Button>

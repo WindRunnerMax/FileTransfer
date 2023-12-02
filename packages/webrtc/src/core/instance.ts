@@ -5,7 +5,7 @@ import { WebRTCInstanceOptions } from "../../types/webrtc";
 export class WebRTCInstance {
   public readonly id: string;
   public readonly channel: RTCDataChannel;
-  private readonly connection: RTCPeerConnection;
+  public readonly connection: RTCPeerConnection;
   private readonly signaling: SignalingServer;
   constructor(options: WebRTCInstanceOptions) {
     const connection = new RTCPeerConnection({
