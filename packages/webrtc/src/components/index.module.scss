@@ -118,5 +118,72 @@ body,
 }
 
 .modal {
+  box-sizing: border-box;
+  max-height: 100%;
   max-width: 100%;
+
+  :global {
+    .arco-modal-content {
+      padding: 0;
+    }
+  }
+
+  .title {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    .dot {
+      border-radius: 5px;
+      height: 7px;
+      margin-right: 7px;
+      margin-top: 1px;
+      width: 7px;
+    }
+  }
+
+  .modalContent {
+    box-sizing: border-box;
+    height: 500px;
+    overflow-y: auto;
+    padding: 5px 10px;
+
+    .messageItem {
+      display: flex;
+
+      &.alignRight {
+        justify-content: flex-end;
+
+        .messageContent {
+          background-color: rgba(var(--arcoblue-6), 0.8);
+        }
+      }
+    }
+
+    .messageContent {
+      background-color: rgba(var(--green-7), 0.8);
+      border-radius: 10px;
+      box-sizing: border-box;
+      color: #fff;
+      margin-top: 20px;
+      max-width: 80%;
+      padding: 10px;
+    }
+  }
+
+  .modalFooter {
+    align-items: center;
+    border-top: 1px solid var(--color-border-1);
+    display: flex;
+    height: 60px;
+    padding: 5px 10px;
+
+    .sendFile {
+      margin-right: 10px;
+
+      &:focus-visible {
+        box-shadow: none;
+      }
+    }
+  }
 }

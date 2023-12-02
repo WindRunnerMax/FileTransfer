@@ -3,7 +3,7 @@ import type { SignalingServer } from "../src/core/signaling";
 export type WebRTCOptions = { wss: string; ice?: string };
 export type WebRTCApi = {
   connect: (id: string) => void;
-  send: (message: string) => void;
+  send: (message: string | ArrayBuffer) => void;
   close: () => void;
 };
 export type WebRTCCallback = (p: { signaling: SignalingServer; rtc: WebRTCApi }) => void;

@@ -4,26 +4,25 @@ import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon, ComputerIcon, PhoneIcon } from "./icon";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { WebRTC } from "../core/webrtc";
-import { Message, Modal } from "@arco-design/web-react";
 import { WebRTCApi } from "../../types/webrtc";
 import { SERVER_EVENT, ServerFn } from "../../types/signaling";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
+import { TransferModal } from "./modal";
 
 export const App: FC = () => {
   const rtc = useRef<WebRTCApi | null>(null);
+  const connection = useRef<WebRTC | null>(null);
   const [id, setId] = useState("");
   const [peerId, setPeerId] = useState("");
   const [visible, setVisible] = useState(false);
-  const [state, setState] = useState(CONNECTION_STATE.INIT);
   const [members, setMembers] = useState<Member[]>([]);
+  const [state, setState] = useState(CONNECTION_STATE.INIT);
 
+  // === RTC Connection Event ===
   const onOpen = useMemoizedFn(event => {
     console.log("OnOpen", event);
     setVisible(true);
-    setState(CONNECTION_STATE.LINKED);
-  });
-  const onMessage = useMemoizedFn((e: MessageEvent) => {
-    Message.success(e.data as string);
+    setState(CONNECTION_STATE.CONNECTED);
   });
   const onClose = useMemoizedFn((event: Event) => {
     console.log("OnClose", event);
@@ -53,54 +52,39 @@ export const App: FC = () => {
     setPeerId(origin);
   });
 
+  // === RTC Connection INIT ===
   useLayoutEffect(() => {
-    const connection = new WebRTC({ wss: location.host });
-    connection.onOpen = onOpen;
-    connection.onMessage = onMessage;
-    connection.onClose = onClose;
-    connection.onError = onError;
-    connection.signaling.on(SERVER_EVENT.JOINED_ROOM, onJoinRoom);
-    connection.signaling.on(SERVER_EVENT.JOINED_MEMBER, onJoinedMember);
-    connection.signaling.on(SERVER_EVENT.LEFT_ROOM, onLeftRoom);
-    connection.signaling.on(SERVER_EVENT.FORWARD_OFFER, onReceiveOffer);
-    connection.onReady = ({ rtc: instance }) => {
+    const webrtc = new WebRTC({ wss: location.host });
+    webrtc.onOpen = onOpen;
+    webrtc.onClose = onClose;
+    webrtc.onError = onError;
+    webrtc.signaling.on(SERVER_EVENT.JOINED_ROOM, onJoinRoom);
+    webrtc.signaling.on(SERVER_EVENT.JOINED_MEMBER, onJoinedMember);
+    webrtc.signaling.on(SERVER_EVENT.LEFT_ROOM, onLeftRoom);
+    webrtc.signaling.on(SERVER_EVENT.FORWARD_OFFER, onReceiveOffer);
+    webrtc.onReady = ({ rtc: instance }) => {
       rtc.current = instance;
       setState(CONNECTION_STATE.READY);
     };
-    setId(connection.id);
+    setId(webrtc.id);
+    connection.current = webrtc;
     return () => {
-      connection.signaling.off(SERVER_EVENT.JOINED_ROOM, onJoinRoom);
-      connection.signaling.off(SERVER_EVENT.JOINED_MEMBER, onJoinedMember);
-      connection.signaling.off(SERVER_EVENT.LEFT_ROOM, onLeftRoom);
-      connection.signaling.off(SERVER_EVENT.FORWARD_OFFER, onReceiveOffer);
-      connection.destroy();
+      webrtc.signaling.off(SERVER_EVENT.JOINED_ROOM, onJoinRoom);
+      webrtc.signaling.off(SERVER_EVENT.JOINED_MEMBER, onJoinedMember);
+      webrtc.signaling.off(SERVER_EVENT.LEFT_ROOM, onLeftRoom);
+      webrtc.signaling.off(SERVER_EVENT.FORWARD_OFFER, onReceiveOffer);
+      webrtc.destroy();
     };
-  }, [onClose, onError, onJoinRoom, onJoinedMember, onLeftRoom, onMessage, onOpen, onReceiveOffer]);
+  }, [onClose, onError, onJoinRoom, onJoinedMember, onLeftRoom, onOpen, onReceiveOffer]);
 
   const onPeerConnection = (member: Member) => {
     if (rtc.current) {
       rtc.current.connect(member.id);
       setVisible(true);
       setPeerId(member.id);
+      setState(CONNECTION_STATE.CONNECTING);
     }
   };
-
-  const onCancel = () => {
-    rtc.current?.close();
-  };
-
-  const TransferModel = (
-    <Modal
-      className={styles.modal}
-      title={peerId ? "Connect: " + peerId : "Please Establish Connection"}
-      visible={visible}
-      footer={null}
-      onCancel={onCancel}
-      maskClosable={false}
-    >
-      <p>Some content...</p>
-    </Modal>
-  );
 
   return (
     <div className={styles.container}>
@@ -129,7 +113,19 @@ export const App: FC = () => {
       >
         <IconGithub />
       </a>
-      {TransferModel}
+      {visible && (
+        <TransferModal
+          connection={connection}
+          rtc={rtc}
+          id={id}
+          setId={setId}
+          peerId={peerId}
+          setPeerId={setPeerId}
+          state={state}
+          visible={visible}
+          setVisible={setVisible}
+        ></TransferModal>
+      )}
     </div>
   );
 };

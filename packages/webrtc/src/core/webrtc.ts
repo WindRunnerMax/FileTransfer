@@ -17,12 +17,21 @@ export class WebRTC {
     this.signaling.socket.on("connect", this.onConnection);
   }
 
-  public onOpen: (ev: Event) => void = () => null;
-  public onMessage: (ev: MessageEvent<unknown>) => void = () => null;
-  public onError: (ev: RTCErrorEvent) => void = () => null;
-  public onClose: (ev: Event) => void = () => null;
+  public onOpen: (event: Event) => void = () => null;
+  public onMessage: (event: MessageEvent<string | ArrayBuffer>) => void = () => null;
+  public onError: (event: RTCErrorEvent) => void = () => null;
+  public onClose: (event: Event) => void = () => null;
 
   private createInstance = () => {
+    const onOpen = (e: Event) => {
+      this.onOpen(e);
+    };
+    const onMessage = (event: MessageEvent<string | ArrayBuffer>) => {
+      this.onMessage(event);
+    };
+    const onError = (event: RTCErrorEvent) => {
+      this.onError(event);
+    };
     const onClose = (e: Event) => {
       this.instance?.destroy();
       const rtc = this.createInstance();
@@ -32,9 +41,9 @@ export class WebRTC {
     return new WebRTCInstance({
       id: this.id,
       signaling: this.signaling,
-      onOpen: this.onOpen,
-      onMessage: this.onMessage,
-      onError: this.onError,
+      onOpen: onOpen,
+      onMessage: onMessage,
+      onError: onError,
       onClose: onClose,
     });
   };
@@ -46,8 +55,8 @@ export class WebRTC {
     const onConnect = (id: string) => {
       this.instance?.createRemoteConnection(id);
     };
-    const onSendMessage = (message: string) => {
-      this.instance?.channel.send(message);
+    const onSendMessage = (message: string | Blob | ArrayBuffer | ArrayBufferView) => {
+      this.instance?.channel.send(message as Blob);
     };
     const onClose = () => {
       this.instance?.destroy();
