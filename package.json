@@ -1,7 +1,9 @@
 {
   "name": "file-transfer",
   "version": "1.0.0",
-  "scripts": {},
+  "scripts": {
+    "dev:webrtc": "pnpm --filter file-transfer-webrtc run dev"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WindrunnerMax/FileTransfer.git"

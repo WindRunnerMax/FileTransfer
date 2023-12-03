@@ -125,7 +125,7 @@ body,
 .modal {
   box-sizing: border-box;
   max-height: 100%;
-  max-width: 100%;
+  max-width: 96%;
 
   :global {
     .arco-modal-content {
@@ -197,6 +197,9 @@ body,
       .fileName {
         font-size: 14px;
         margin-bottom: 3px;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
+        word-break: break-word;
       }
 
       .fileIcon {
