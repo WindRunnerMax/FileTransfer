@@ -57,6 +57,7 @@ export class WebRTCInstance {
 
   private onReceiveOffer = async (params: SocketEventParams["FORWARD_OFFER"]) => {
     const { sdp, origin } = params;
+    if (this.channel.readyState !== "connecting") return void 0;
     console.log("Receive Offer From:", origin);
     const offer = JSON.parse(sdp);
     this.connection.onicecandidate = async event => {

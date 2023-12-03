@@ -7,4 +7,9 @@ export enum CONNECTION_STATE {
   "NORMAL",
   "LINKED",
 }
-export type Member = { socket: ServerSocket; device: DEVICE_TYPE; state: CONNECTION_STATE };
+export type Member = {
+  socket: ServerSocket;
+  device: DEVICE_TYPE;
+  state: CONNECTION_STATE;
+  ip: string;
+};

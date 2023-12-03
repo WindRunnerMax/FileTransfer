@@ -1,5 +1,6 @@
 import { Member } from "webrtc/types/server";
 import os from "os";
+import http from "http";
 
 export const updateMember = <T extends keyof Member>(
   map: Map<string, Member>,
@@ -28,4 +29,22 @@ export const getLocalIp = () => {
     }
   }
   return result;
+};
+
+export const getIpByRequest = (request: http.IncomingMessage) => {
+  let ip = "";
+  if (request.headers["x-forwarded-for"]) {
+    ip = request.headers["x-forwarded-for"].toString().split(/\s*,\s*/)[0];
+  } else {
+    ip = request.socket.remoteAddress || "";
+  }
+  // 本地部署应用时，`ip`地址可能是`::1`或`::ffff:`
+  if (ip === "::1" || ip === "::ffff:127.0.0.1" || !ip) {
+    ip = "127.0.0.1";
+  }
+  // 局域网部署应用时，`ip`地址可能是`192.168.x.x`
+  if (ip.startsWith("::ffff:192.168") || ip.startsWith("192.168")) {
+    ip = "192.168.0.0";
+  }
+  return ip;
 };
