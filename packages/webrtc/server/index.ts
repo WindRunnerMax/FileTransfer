@@ -10,6 +10,7 @@ import {
   SocketEventParams,
 } from "../types/signaling";
 import { CONNECTION_STATE, Member, ServerSocket } from "../types/server";
+import { getLocalIp } from "./utils";
 
 const app = express();
 app.use(express.static("build/static"));
@@ -77,8 +78,13 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-httpServer.listen(3000, () => {
-  console.log("Listening on port http://localhost:3000 ...");
+const PORT = 3000;
+httpServer.listen(PORT, () => {
+  const ip = getLocalIp();
+  console.log(`Listening on port http://localhost:${PORT} ...`);
+  ip.forEach(item => {
+    console.log(`Listening on port http://${item}:${PORT} ...`);
+  });
 });
 
 // Reference

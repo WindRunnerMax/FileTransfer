@@ -2,12 +2,13 @@ import { WebRTCApi } from "../../types/webrtc";
 import styles from "./index.module.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { CONNECTION_STATE, TransferListItem } from "../../types/client";
-import { Button, Input, Modal } from "@arco-design/web-react";
-import { IconDriveFile, IconSend } from "@arco-design/web-react/icon";
+import { Button, Input, Modal, Progress } from "@arco-design/web-react";
+import { IconFile, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { WebRTC } from "../core/webrtc";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
-import { cs, isString } from "laser-utils";
+import { cs, getUniqueId, isString } from "laser-utils";
 import { decodeJSON, encodeJSON } from "../utils/json";
+import { formatBytes } from "../utils/format";
 
 export const TransferModal: FC<{
   connection: React.MutableRefObject<WebRTC | null>;
@@ -21,7 +22,8 @@ export const TransferModal: FC<{
   setVisible: (visible: boolean) => void;
 }> = ({ connection, rtc, state, peerId, visible, setVisible }) => {
   const listRef = useRef<HTMLDivElement>(null);
-  const fileSlice = useRef<ArrayBuffer[]>([]);
+  const fileMapper = useRef<Record<string, ArrayBuffer[]>>({});
+  const fileState = useRef<{ id: string; current: number; total: number }>();
   const [transferring, setTransferring] = useState(false);
   const [text, setText] = useState("");
   const [list, setList] = useState<TransferListItem[]>([]);
@@ -40,6 +42,14 @@ export const TransferModal: FC<{
     }
   };
 
+  const updateFileProgress = (id: string, progress: number, newList = list) => {
+    const last = newList.find(item => item.type === "file" && item.id === id);
+    if (last && last.type === "file") {
+      last.progress = progress;
+      setList([...newList]);
+    }
+  };
+
   const onMessage = useMemoizedFn((event: MessageEvent<string | ArrayBuffer>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
@@ -48,8 +58,26 @@ export const TransferModal: FC<{
         setList([...list, { from: "peer", ...data }]);
       } else if (data?.type === "file") {
         setTransferring(true);
-        fileSlice.current = [];
+        fileState.current = { id: data.id, current: 0, total: data.total };
         setList([...list, { from: "peer", progress: 0, ...data }]);
+      } else if (data?.type === "file-finish") {
+        updateFileProgress(data.id, 100);
+        setTransferring(false);
+      }
+    } else if (event.data instanceof ArrayBuffer) {
+      const state = fileState.current;
+      if (state) {
+        const mapper = fileMapper.current;
+        if (!mapper[state.id]) mapper[state.id] = [];
+        mapper[state.id].push(event.data);
+        state.current++;
+        const progress = Math.floor((state.current / state.total) * 100);
+        updateFileProgress(state.id, progress);
+        if (progress === 100) {
+          setTransferring(false);
+          fileState.current = void 0;
+          rtc.current?.send(encodeJSON({ type: "file-finish", id: state.id }));
+        }
       }
     }
     onScroll();
@@ -74,41 +102,34 @@ export const TransferModal: FC<{
     }
   };
 
-  //   const updateFileProgress = (progress: number) => {
-  //     const last = list[list.length - 1];
-  //     if (last && last.type === "file") {
-  //       last.progress = progress;
-  //       setList([...list]);
-  //     }
-  //   };
-
   const sendFilesBySlice = async (file: File) => {
     const channel = rtc.current?.getInstance()?.channel;
     if (!channel) return void 0;
     const chunkSize = 64000; // 64 KB
     const name = file.name;
-    const size = Math.ceil(file.size / chunkSize);
-    const info = { type: "file", from: "self", name, size, progress: 0 } as TransferListItem;
-    channel.send(encodeJSON(info));
-    setList([...list, info]);
+    const id = getUniqueId();
+    const size = file.size;
+    const total = Math.ceil(file.size / chunkSize);
+    channel.send(encodeJSON({ type: "file", name, id, size, total }));
+    const newList = [...list, { type: "file", from: "self", name, size, progress: 0, id } as const];
+    setList(newList);
     onScroll();
     setTransferring(true);
     let offset = 0;
     while (offset < file.size) {
       const slice = file.slice(offset, offset + chunkSize);
       const buffer = await slice.arrayBuffer();
-      if (channel.bufferedAmount > 65535) {
+      if (channel.bufferedAmount >= chunkSize) {
         await new Promise(resolve => {
-          channel.onbufferedamountlow = () => {
-            console.warn(`BufferedAmount: ${channel.bufferedAmount}`);
-            resolve(0);
-          };
+          channel.onbufferedamountlow = () => resolve(0);
         });
       }
+      const arrayBuffer = await slice.arrayBuffer();
+      fileMapper.current[id] = [...(fileMapper.current[id] || []), arrayBuffer];
       channel.send(buffer);
       offset = offset + buffer.byteLength;
+      updateFileProgress(id, Math.floor((offset / size) * 100), newList);
     }
-    setTransferring(false);
   };
 
   const onSendFile = () => {
@@ -125,6 +146,17 @@ export const TransferModal: FC<{
       file && sendFilesBySlice(file);
     };
     input.click();
+  };
+
+  const onDownloadFile = (id: string, fileName: string) => {
+    const data = fileMapper.current[id] || new Blob();
+    const blob = new Blob(data, { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -160,7 +192,28 @@ export const TransferModal: FC<{
             className={cs(styles.messageItem, item.from === "self" && styles.alignRight)}
           >
             <div className={styles.messageContent}>
-              {item.type === "text" ? <span>{item.data}</span> : <></>}
+              {item.type === "text" ? (
+                <span>{item.data}</span>
+              ) : (
+                <div className={styles.fileMessage}>
+                  <div className={styles.fileInfo}>
+                    <div>
+                      <div className={styles.fileName}>
+                        <IconFile className={styles.fileIcon} />
+                        {item.name}
+                      </div>
+                      <div>{formatBytes(item.size)}</div>
+                    </div>
+                    <div
+                      className={cs(styles.fileDownload, item.progress !== 100 && styles.disable)}
+                      onClick={() => item.progress === 100 && onDownloadFile(item.id, item.name)}
+                    >
+                      <IconToBottom />
+                    </div>
+                  </div>
+                  <Progress color="#fff" trailColor="#aaa" percent={item.progress}></Progress>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -169,7 +222,7 @@ export const TransferModal: FC<{
         <Button
           disabled={transferring}
           type="primary"
-          icon={<IconDriveFile />}
+          icon={<IconFile />}
           className={styles.sendFile}
           onClick={onSendFile}
         >

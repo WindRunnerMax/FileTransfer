@@ -12,8 +12,16 @@ export type Member = { id: string; device: DEVICE_TYPE };
 
 export type TextMessageType =
   | { type: "text"; data: string }
-  | { type: "file"; size: number; name: string };
+  | { type: "file"; size: number; name: string; id: string; total: number }
+  | { type: "file-finish"; id: string };
 
 export type TransferListItem =
   | { type: "text"; data: string; from: "self" | "peer" }
-  | { type: "file"; size: number; name: string; progress: number; from: "self" | "peer" };
+  | {
+      type: "file";
+      size: number;
+      name: string;
+      progress: number;
+      id: string;
+      from: "self" | "peer";
+    };
