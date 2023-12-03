@@ -45,6 +45,7 @@ export const App: FC = () => {
   const onLeftRoom: ServerFn<typeof SERVER_EVENT.LEFT_ROOM> = useMemoizedFn(event => {
     const { id } = event;
     console.log("LEFT ROOM", id);
+    if (id === peerId) rtc.current?.close();
     setMembers(members.filter(member => member.id !== id));
   });
   const onReceiveOffer: ServerFn<typeof SERVER_EVENT.FORWARD_OFFER> = useMemoizedFn(event => {

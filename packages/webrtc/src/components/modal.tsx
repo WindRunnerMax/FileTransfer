@@ -103,9 +103,10 @@ export const TransferModal: FC<{
   };
 
   const sendFilesBySlice = async (file: File) => {
-    const channel = rtc.current?.getInstance()?.channel;
+    const instance = rtc.current?.getInstance();
+    const channel = instance?.channel;
     if (!channel) return void 0;
-    const chunkSize = 64000; // 64 KB
+    const chunkSize = instance.connection.sctp?.maxMessageSize || 64000; // 64 KB
     const name = file.name;
     const id = getUniqueId();
     const size = file.size;
