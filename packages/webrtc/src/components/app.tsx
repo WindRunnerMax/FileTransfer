@@ -54,9 +54,11 @@ export const App: FC = () => {
   });
   const onReceiveOffer: ServerFn<typeof SERVER_EVENT.FORWARD_OFFER> = useMemoizedFn(event => {
     const { origin } = event;
-    setPeerId(origin);
-    setVisible(true);
-    setState(CONNECTION_STATE.CONNECTING);
+    if (!peerId && !visible) {
+      setPeerId(origin);
+      setVisible(true);
+      setState(CONNECTION_STATE.CONNECTING);
+    }
   });
 
   // === RTC Connection INIT ===

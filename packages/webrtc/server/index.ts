@@ -55,7 +55,7 @@ io.on("connection", socket => {
   socket.on(CLINT_EVENT.SEND_ANSWER, ({ origin, sdp, target }) => {
     // 验证
     if (authenticate.get(socket) !== origin) return void 0;
-    // 转发`Answer`
+    // 转发`Answer` // TODO: 记录状态
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
       targetSocket.emit(SERVER_EVENT.FORWARD_ANSWER, { origin, sdp, target });

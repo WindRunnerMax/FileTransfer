@@ -1,12 +1,7 @@
 {
   "name": "file-transfer-websocket",
   "version": "1.0.0",
-  "scripts": {
-    "build:fe": "rspack build",
-    "dev:fe": "rspack build --watch",
-    "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
-    "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\""
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WindrunnerMax/FileTransfer.git"
