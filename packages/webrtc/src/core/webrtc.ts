@@ -53,7 +53,13 @@ export class WebRTC {
       this.instance = this.createInstance();
     }
     const onConnect = (id: string) => {
-      this.instance?.createRemoteConnection(id);
+      if (
+        this.instance?.channel.readyState !== "connecting" ||
+        this.instance.connection.signalingState === "closed"
+      ) {
+        this.instance = this.createInstance();
+      }
+      this.instance.createRemoteConnection(id);
     };
     const onSendMessage = (message: string | Blob | ArrayBuffer | ArrayBufferView) => {
       this.instance?.channel.send(message as Blob);
@@ -79,7 +85,3 @@ export class WebRTC {
     this.instance = null;
   };
 }
-
-// Reference
-// https://juejin.cn/post/6950234563683713037
-// https://juejin.cn/post/7171836076246433799

@@ -9,14 +9,10 @@ export class WebRTCInstance {
   private readonly signaling: SignalingServer;
   constructor(options: WebRTCInstanceOptions) {
     const connection = new RTCPeerConnection({
+      // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
       iceServers: options.ice
         ? [{ urls: options.ice }]
-        : [
-            // 开放的`stun`服务器
-            { urls: "stun:stun.counterpath.net:3478" },
-            { urls: "stun:stun.stunprotocol.org" },
-            { urls: "stun:stun.l.google.com:19302" },
-          ],
+        : [{ urls: "stun:stun.l.google.com:19302" }],
     });
     this.id = options.id;
     this.signaling = options.signaling;
@@ -44,6 +40,7 @@ export class WebRTCInstance {
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
         const sdp = JSON.stringify(this.connection.localDescription);
+        console.log("Offer sdp", sdp);
         if (sdp) {
           this.connection.onicecandidate = null;
           const payload = { origin: this.id, sdp: sdp, target };
@@ -64,9 +61,11 @@ export class WebRTCInstance {
       if (event.candidate) {
         console.log("Send Answer To:", origin);
         this.connection.onicecandidate = null;
+        const sdp = JSON.stringify(this.connection.localDescription);
+        console.log("Answer SDP:", sdp);
         this.signaling.emit(CLINT_EVENT.SEND_ANSWER, {
           origin: this.id,
-          sdp: JSON.stringify(this.connection.localDescription),
+          sdp: sdp,
           target: origin,
         });
       }
@@ -92,7 +91,3 @@ export class WebRTCInstance {
     this.connection.close();
   };
 }
-
-// Reference
-// https://developer.mozilla.org/zh-CN/docs/Web/API/RTCPeerConnection/createDataChannel
-// https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API/Simple_RTCDataChannel_sample

@@ -5,7 +5,3 @@ import { drawingBackdrop } from "./components/canvas";
 
 window.addEventListener("DOMContentLoaded", drawingBackdrop);
 ReactDOM.render(<App></App>, document.getElementById("root"));
-
-// Reference
-// https://github.com/RobinLinus/snapdrop
-// https://github.com/wangrongding/frontend-park

@@ -125,6 +125,3 @@ httpServer.listen(PORT, () => {
     console.log(`Listening on port http://${item}:${PORT} ...`);
   });
 });
-
-// Reference
-// https://socket.io/zh-CN/docs/v4/server-socket-instance/

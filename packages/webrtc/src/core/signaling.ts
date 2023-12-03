@@ -54,6 +54,3 @@ export class SignalingServer {
     this.socket.close();
   };
 }
-
-// Reference
-// https://socket.io/zh-CN/docs/v4/client-socket-instance/

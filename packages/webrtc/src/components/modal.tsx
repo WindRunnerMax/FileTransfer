@@ -3,7 +3,7 @@ import styles from "./index.module.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { CONNECTION_STATE, TransferListItem } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
-import { IconFile, IconSend, IconToBottom } from "@arco-design/web-react/icon";
+import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { WebRTC } from "../core/webrtc";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { cs, getUniqueId, isString } from "laser-utils";
@@ -18,14 +18,16 @@ export const TransferModal: FC<{
   peerId: string;
   setPeerId: (id: string) => void;
   state: CONNECTION_STATE;
+  setState: (state: CONNECTION_STATE) => void;
   visible: boolean;
   setVisible: (visible: boolean) => void;
-}> = ({ connection, rtc, state, peerId, visible, setVisible }) => {
+}> = ({ connection, rtc, state, peerId, visible, setVisible, setPeerId, setState }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const fileMapper = useRef<Record<string, ArrayBuffer[]>>({});
   const fileState = useRef<{ id: string; current: number; total: number }>();
   const [transferring, setTransferring] = useState(false);
   const [text, setText] = useState("");
+  const [toConnectId, setToConnectId] = useState("");
   const [list, setList] = useState<TransferListItem[]>([]);
 
   const onCancel = () => {
@@ -160,6 +162,16 @@ export const TransferModal: FC<{
     URL.revokeObjectURL(url);
   };
 
+  const enableTransfer = state === CONNECTION_STATE.CONNECTED && !transferring;
+
+  const onConnectPeer = () => {
+    if (toConnectId && rtc.current) {
+      rtc.current.connect(toConnectId);
+      setPeerId(toConnectId);
+      setState(CONNECTION_STATE.CONNECTING);
+    }
+  };
+
   return (
     <Modal
       className={styles.modal}
@@ -220,32 +232,55 @@ export const TransferModal: FC<{
         ))}
       </div>
       <div className={styles.modalFooter}>
-        <Button
-          disabled={transferring}
-          type="primary"
-          icon={<IconFile />}
-          className={styles.sendFile}
-          onClick={onSendFile}
-        >
-          File
-        </Button>
-        <Input
-          value={text}
-          onChange={setText}
-          disabled={transferring}
-          allowClear
-          placeholder="Send Message"
-          onPressEnter={onSendText}
-        />
-        <Button
-          onClick={onSendText}
-          disabled={transferring}
-          type="primary"
-          status="success"
-          icon={<IconSend />}
-        >
-          Send
-        </Button>
+        {peerId ? (
+          <>
+            <Button
+              disabled={!enableTransfer}
+              type="primary"
+              icon={<IconFile />}
+              className={styles.sendFile}
+              onClick={onSendFile}
+            >
+              File
+            </Button>
+            <Input
+              value={text}
+              onChange={setText}
+              disabled={!enableTransfer}
+              allowClear
+              placeholder="Send Message"
+              onPressEnter={onSendText}
+            />
+            <Button
+              onClick={onSendText}
+              disabled={!enableTransfer}
+              type="primary"
+              status="success"
+              icon={<IconSend />}
+            >
+              Send
+            </Button>
+          </>
+        ) : (
+          <>
+            <Input
+              value={toConnectId}
+              disabled={state === CONNECTION_STATE.CONNECTING}
+              onChange={setToConnectId}
+              allowClear
+              placeholder="Peer ID"
+              onPressEnter={onSendText}
+            />
+            <Button
+              onClick={onConnectPeer}
+              disabled={!toConnectId || state === CONNECTION_STATE.CONNECTING}
+              type="primary"
+              icon={<IconRight />}
+            >
+              Connect
+            </Button>
+          </>
+        )}
       </div>
     </Modal>
   );

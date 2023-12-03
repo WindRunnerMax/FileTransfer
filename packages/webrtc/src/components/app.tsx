@@ -40,17 +40,23 @@ export const App: FC = () => {
   const onJoinedMember: ServerFn<typeof SERVER_EVENT.JOINED_MEMBER> = useMemoizedFn(event => {
     const { initialization } = event;
     console.log("JOINED MEMBER", initialization);
-    setMembers([...members, ...initialization]);
+    setMembers([...initialization]);
   });
   const onLeftRoom: ServerFn<typeof SERVER_EVENT.LEFT_ROOM> = useMemoizedFn(event => {
     const { id } = event;
     console.log("LEFT ROOM", id);
-    if (id === peerId) rtc.current?.close();
+    if (id === peerId) {
+      rtc.current?.close();
+      setVisible(false);
+      setPeerId("");
+    }
     setMembers(members.filter(member => member.id !== id));
   });
   const onReceiveOffer: ServerFn<typeof SERVER_EVENT.FORWARD_OFFER> = useMemoizedFn(event => {
     const { origin } = event;
     setPeerId(origin);
+    setVisible(true);
+    setState(CONNECTION_STATE.CONNECTING);
   });
 
   // === RTC Connection INIT ===
@@ -87,12 +93,19 @@ export const App: FC = () => {
     }
   };
 
+  const onManualRequest = () => {
+    setPeerId("");
+    setVisible(true);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.boardCastIcon}>{BoardCastIcon}</div>
         <div>Local ID: {id}</div>
-        <div className={styles.manualEntry}>Request To Establish P2P Connection By ID</div>
+        <div className={styles.manualEntry} onClick={onManualRequest}>
+          Request To Establish P2P Connection By ID
+        </div>
       </div>
       {state === CONNECTION_STATE.READY && members.length === 0 && (
         <div className={styles.prompt}>Open another device on the LAN to transfer files</div>
@@ -123,6 +136,7 @@ export const App: FC = () => {
           peerId={peerId}
           setPeerId={setPeerId}
           state={state}
+          setState={setState}
           visible={visible}
           setVisible={setVisible}
         ></TransferModal>
