@@ -21,6 +21,7 @@ export class WebRTC {
   public onMessage: (event: MessageEvent<string | ArrayBuffer>) => void = () => null;
   public onError: (event: RTCErrorEvent) => void = () => null;
   public onClose: (event: Event) => void = () => null;
+  public onConnectionStateChange: (pc: RTCPeerConnection) => void = () => null;
 
   private createInstance = () => {
     const onOpen = (e: Event) => {
@@ -38,6 +39,9 @@ export class WebRTC {
       this.instance = rtc;
       this.onClose(e);
     };
+    const onConnectionStateChange = (pc: RTCPeerConnection) => {
+      this.onConnectionStateChange(pc);
+    };
     return new WebRTCInstance({
       id: this.id,
       signaling: this.signaling,
@@ -45,6 +49,7 @@ export class WebRTC {
       onMessage: onMessage,
       onError: onError,
       onClose: onClose,
+      onConnectionStateChange,
     });
   };
 
@@ -54,8 +59,8 @@ export class WebRTC {
     }
     const onConnect = (id: string) => {
       if (
-        this.instance?.channel.readyState !== "connecting" ||
-        this.instance.connection.signalingState === "closed" ||
+        !this.instance ||
+        this.instance.connection.remoteDescription ||
         this.instance.connection.currentLocalDescription
       ) {
         this.instance = this.createInstance();

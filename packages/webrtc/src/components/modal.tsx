@@ -85,14 +85,37 @@ export const TransferModal: FC<{
     onScroll();
   });
 
+  const onConnectionStateChange = useMemoizedFn((pc: RTCPeerConnection) => {
+    switch (pc.connectionState) {
+      case "new":
+      case "connecting":
+        setState(CONNECTION_STATE.CONNECTING);
+        break;
+      case "connected":
+        setState(CONNECTION_STATE.CONNECTED);
+        break;
+      case "disconnected":
+      case "closed":
+      case "failed":
+        setState(CONNECTION_STATE.READY);
+        break;
+    }
+  });
+
   useEffect(() => {
     const current = connection.current;
-    current && (current.onMessage = onMessage);
+    if (current) {
+      current.onMessage = onMessage;
+      current.onConnectionStateChange = onConnectionStateChange;
+    }
     return () => {
       const noop = () => null;
-      current && (current.onMessage = noop);
+      if (current) {
+        current.onMessage = noop;
+        current.onConnectionStateChange = noop;
+      }
     };
-  }, [connection, onMessage]);
+  }, [connection, onConnectionStateChange, onMessage]);
 
   const onSendText = () => {
     const str = encodeJSON({ type: "text", data: text });
@@ -191,9 +214,13 @@ export const TransferModal: FC<{
             }}
           ></div>
           {peerId
-            ? state === CONNECTION_STATE.CONNECTING
+            ? state === CONNECTION_STATE.READY
+              ? "Disconnected: " + peerId
+              : state === CONNECTION_STATE.CONNECTING
               ? "Connecting: " + peerId
-              : "Connected: " + peerId
+              : state === CONNECTION_STATE.CONNECTED
+              ? "Connected: " + peerId
+              : "Unknown State: " + peerId
             : "Please Establish Connection"}
         </div>
       }

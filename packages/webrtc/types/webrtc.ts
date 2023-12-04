@@ -17,4 +17,5 @@ export type WebRTCInstanceOptions = {
   onMessage?: (event: MessageEvent) => void;
   onError?: (event: RTCErrorEvent) => void;
   onClose?: (event: Event) => void;
+  onConnectionStateChange: (pc: RTCPeerConnection) => void;
 };

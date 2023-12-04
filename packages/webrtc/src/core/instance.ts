@@ -33,6 +33,9 @@ export class WebRTCInstance {
       channel.onerror = options.onError || null;
       channel.onclose = options.onClose || null;
     };
+    this.connection.onconnectionstatechange = () => {
+      options.onConnectionStateChange(connection);
+    };
   }
 
   public createRemoteConnection = async (target: string) => {
