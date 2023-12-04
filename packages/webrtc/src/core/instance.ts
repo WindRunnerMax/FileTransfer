@@ -12,13 +12,11 @@ export class WebRTCInstance {
       // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
       iceServers: options.ice
         ? [{ urls: options.ice }]
-        : [{ urls: "stun:stun.l.google.com:19302" }],
+        : [{ urls: ["stun:stunserver.stunprotocol.org:3478", "stun:stun.l.google.com:19302"] }],
     });
     this.id = options.id;
     this.signaling = options.signaling;
     console.log("Client WebRTC ID:", this.id);
-    this.signaling.on(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
-    this.signaling.on(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
     const channel = connection.createDataChannel("FileTransfer", {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
@@ -36,50 +34,53 @@ export class WebRTCInstance {
     this.connection.onconnectionstatechange = () => {
       options.onConnectionStateChange(connection);
     };
+    this.signaling.on(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
+    this.signaling.on(SERVER_EVENT.FORWARD_ICE, this.onReceiveIce);
+    this.signaling.on(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
   }
 
   public createRemoteConnection = async (target: string) => {
     console.log("Send Offer To:", target);
     this.connection.onicecandidate = async event => {
-      if (event.candidate) {
-        const sdp = JSON.stringify(this.connection.localDescription);
-        console.log("Offer sdp", event.candidate);
-        if (sdp) {
-          const payload = { origin: this.id, sdp: sdp, target };
-          this.signaling.emit(CLINT_EVENT.SEND_OFFER, payload);
-        }
-      }
+      if (!event.candidate) return void 0;
+      console.log("Local ICE", event.candidate);
+      const payload = { origin: this.id, ice: event.candidate, target };
+      this.signaling.emit(CLINT_EVENT.SEND_ICE, payload);
     };
     const offer = await this.connection.createOffer();
     await this.connection.setLocalDescription(offer);
+    console.log("Offer SDP", offer);
+    const payload = { origin: this.id, offer, target };
+    this.signaling.emit(CLINT_EVENT.SEND_OFFER, payload);
   };
 
   private onReceiveOffer = async (params: SocketEventParams["FORWARD_OFFER"]) => {
-    const { sdp, origin } = params;
+    const { offer, origin } = params;
+    console.log("Receive Offer From:", origin, offer);
     if (this.channel.readyState !== "connecting") return void 0;
-    console.log("Receive Offer From:", origin);
-    const offer = JSON.parse(sdp);
     this.connection.onicecandidate = async event => {
-      if (event.candidate) {
-        console.log("Send Answer To:", origin);
-        const sdp = JSON.stringify(this.connection.localDescription);
-        console.log("Answer SDP:", event.candidate);
-        this.signaling.emit(CLINT_EVENT.SEND_ANSWER, {
-          origin: this.id,
-          sdp: sdp,
-          target: origin,
-        });
-      }
+      if (!event.candidate) return void 0;
+      console.log("Local ICE", event.candidate);
+      const payload = { origin: this.id, ice: event.candidate, target: origin };
+      this.signaling.emit(CLINT_EVENT.SEND_ICE, payload);
     };
     await this.connection.setRemoteDescription(offer);
     const answer = await this.connection.createAnswer();
     await this.connection.setLocalDescription(answer);
+    console.log("Answer SDP", answer);
+    const payload = { origin: this.id, answer, target: origin };
+    this.signaling.emit(CLINT_EVENT.SEND_ANSWER, payload);
+  };
+
+  private onReceiveIce = async (params: SocketEventParams["FORWARD_ICE"]) => {
+    const { ice, origin } = params;
+    console.log("Receive ICE From:", origin, ice);
+    await this.connection.addIceCandidate(ice);
   };
 
   private onReceiveAnswer = async (params: SocketEventParams["FORWARD_ANSWER"]) => {
-    const { sdp, origin } = params;
-    console.log("Receive Answer From:", origin);
-    const answer = JSON.parse(sdp);
+    const { answer, origin } = params;
+    console.log("Receive Answer From:", origin, answer);
     if (!this.connection.currentRemoteDescription) {
       this.connection.setRemoteDescription(answer);
     }
@@ -87,6 +88,7 @@ export class WebRTCInstance {
 
   public destroy = () => {
     this.signaling.off(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
+    this.signaling.off(SERVER_EVENT.FORWARD_ICE, this.onReceiveIce);
     this.signaling.off(SERVER_EVENT.FORWARD_ANSWER, this.onReceiveAnswer);
     this.channel.close();
     this.connection.close();

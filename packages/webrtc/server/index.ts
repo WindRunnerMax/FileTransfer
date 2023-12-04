@@ -42,23 +42,33 @@ io.on("connection", socket => {
     socket.emit(SERVER_EVENT.JOINED_MEMBER, { initialization });
   });
 
-  socket.on(CLINT_EVENT.SEND_OFFER, ({ origin, sdp, target }) => {
+  socket.on(CLINT_EVENT.SEND_OFFER, ({ origin, offer, target }) => {
     // 验证
     if (authenticate.get(socket) !== origin) return void 0;
     // 转发`Offer`
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
-      targetSocket.emit(SERVER_EVENT.FORWARD_OFFER, { origin, sdp, target });
+      targetSocket.emit(SERVER_EVENT.FORWARD_OFFER, { origin, offer, target });
     }
   });
 
-  socket.on(CLINT_EVENT.SEND_ANSWER, ({ origin, sdp, target }) => {
+  socket.on(CLINT_EVENT.SEND_ICE, ({ origin, ice, target }) => {
+    // 验证
+    if (authenticate.get(socket) !== origin) return void 0;
+    // 转发`Offer`
+    const targetSocket = mapper.get(target)?.socket;
+    if (targetSocket) {
+      targetSocket.emit(SERVER_EVENT.FORWARD_ICE, { origin, ice, target });
+    }
+  });
+
+  socket.on(CLINT_EVENT.SEND_ANSWER, ({ origin, answer, target }) => {
     // 验证
     if (authenticate.get(socket) !== origin) return void 0;
     // 转发`Answer` // TODO: 记录状态
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
-      targetSocket.emit(SERVER_EVENT.FORWARD_ANSWER, { origin, sdp, target });
+      targetSocket.emit(SERVER_EVENT.FORWARD_ANSWER, { origin, answer, target });
     }
   });
 
