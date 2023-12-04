@@ -55,7 +55,8 @@ export class WebRTC {
     const onConnect = (id: string) => {
       if (
         this.instance?.channel.readyState !== "connecting" ||
-        this.instance.connection.signalingState === "closed"
+        this.instance.connection.signalingState === "closed" ||
+        this.instance.connection.currentLocalDescription
       ) {
         this.instance = this.createInstance();
       }
@@ -66,6 +67,7 @@ export class WebRTC {
     };
     const onClose = () => {
       this.instance?.destroy();
+      this.instance = this.createInstance();
     };
     this.onReady({
       signaling: this.signaling,

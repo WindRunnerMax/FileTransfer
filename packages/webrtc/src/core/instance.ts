@@ -40,9 +40,8 @@ export class WebRTCInstance {
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
         const sdp = JSON.stringify(this.connection.localDescription);
-        console.log("Offer sdp", sdp);
+        console.log("Offer sdp", event.candidate);
         if (sdp) {
-          this.connection.onicecandidate = null;
           const payload = { origin: this.id, sdp: sdp, target };
           this.signaling.emit(CLINT_EVENT.SEND_OFFER, payload);
         }
@@ -60,9 +59,8 @@ export class WebRTCInstance {
     this.connection.onicecandidate = async event => {
       if (event.candidate) {
         console.log("Send Answer To:", origin);
-        this.connection.onicecandidate = null;
         const sdp = JSON.stringify(this.connection.localDescription);
-        console.log("Answer SDP:", sdp);
+        console.log("Answer SDP:", event.candidate);
         this.signaling.emit(CLINT_EVENT.SEND_ANSWER, {
           origin: this.id,
           sdp: sdp,

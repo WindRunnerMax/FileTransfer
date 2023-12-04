@@ -190,7 +190,11 @@ export const TransferModal: FC<{
                   : "rgb(var(--gray-6))",
             }}
           ></div>
-          {peerId ? "Connect: " + peerId : "Please Establish Connection"}
+          {peerId
+            ? state === CONNECTION_STATE.CONNECTING
+              ? "Connecting: " + peerId
+              : "Connected: " + peerId
+            : "Please Establish Connection"}
         </div>
       }
       visible={visible}
