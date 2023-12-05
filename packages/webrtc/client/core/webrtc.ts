@@ -60,8 +60,8 @@ export class WebRTC {
     const onConnect = (id: string) => {
       if (
         !this.instance ||
-        this.instance.connection.remoteDescription ||
-        this.instance.connection.currentLocalDescription
+        this.instance.connection.currentLocalDescription ||
+        this.instance.connection.currentRemoteDescription
       ) {
         this.instance = this.createInstance();
       }
