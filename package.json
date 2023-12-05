@@ -2,7 +2,8 @@
   "name": "file-transfer",
   "version": "1.0.0",
   "scripts": {
-    "dev:webrtc": "pnpm --filter file-transfer-webrtc run dev"
+    "dev:webrtc": "pnpm --filter file-transfer-webrtc run dev",
+    "deploy:webrtc": "pnpm --filter file-transfer-webrtc run deploy"
   },
   "repository": {
     "type": "git",

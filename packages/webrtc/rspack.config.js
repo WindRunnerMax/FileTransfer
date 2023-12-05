@@ -9,7 +9,7 @@ const isDev = process.env.NODE_ENV === "development";
 module.exports = {
   context: __dirname,
   entry: {
-    index: "./src/index.tsx",
+    index: "./client/index.tsx",
   },
   plugins: [
     new HtmlPlugin({
@@ -19,7 +19,7 @@ module.exports = {
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "./client"),
     },
   },
   builtins: {

@@ -9,6 +9,7 @@ export default async () => {
       file: "./build/server.js",
       format: "cjs",
     },
+    external: ["socket.io", "http", "os", "express", "process"],
     plugins: [
       esbuild({
         exclude: [/node_modules/],
