@@ -1,4 +1,4 @@
-import { Member } from "webrtc/types/server";
+import { Member } from "../types/server";
 import os from "os";
 import http from "http";
 

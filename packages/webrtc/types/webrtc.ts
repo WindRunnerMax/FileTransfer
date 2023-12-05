@@ -1,5 +1,5 @@
-import type { WebRTCInstance } from "webrtc/src/core/instance";
-import type { SignalingServer } from "../src/core/signaling";
+import type { WebRTCInstance } from "../client/core/instance";
+import type { SignalingServer } from "../client/core/signaling";
 
 export type WebRTCOptions = { wss: string; ice?: string };
 export type WebRTCApi = {

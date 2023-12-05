@@ -1,7 +1,7 @@
 import { WebRTCApi } from "../../types/webrtc";
 import styles from "./index.module.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { CONNECTION_STATE, TransferListItem } from "../../types/client";
+import { CONNECTION_STATE, ChunkType, TransferListItem } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { WebRTC } from "../core/webrtc";
@@ -23,7 +23,7 @@ export const TransferModal: FC<{
   setVisible: (visible: boolean) => void;
 }> = ({ connection, rtc, state, peerId, visible, setVisible, setPeerId, setState }) => {
   const listRef = useRef<HTMLDivElement>(null);
-  const fileMapper = useRef<Record<string, ArrayBuffer[]>>({});
+  const fileMapper = useRef<Record<string, ChunkType[]>>({});
   const fileState = useRef<{ id: string; current: number; total: number }>();
   const [transferring, setTransferring] = useState(false);
   const [text, setText] = useState("");
@@ -52,7 +52,7 @@ export const TransferModal: FC<{
     }
   };
 
-  const onMessage = useMemoizedFn((event: MessageEvent<string | ArrayBuffer>) => {
+  const onMessage = useMemoizedFn((event: MessageEvent<string | ChunkType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
       const data = decodeJSON(event.data);
@@ -66,7 +66,7 @@ export const TransferModal: FC<{
         updateFileProgress(data.id, 100);
         setTransferring(false);
       }
-    } else if (event.data instanceof ArrayBuffer) {
+    } else {
       const state = fileState.current;
       if (state) {
         const mapper = fileMapper.current;
