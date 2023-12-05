@@ -9,6 +9,7 @@ export class WebRTCInstance {
   private readonly signaling: SignalingServer;
   constructor(options: WebRTCInstanceOptions) {
     const connection = new RTCPeerConnection({
+      // https://icetest.info/
       // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
       iceServers: options.ice
         ? [{ urls: options.ice }]

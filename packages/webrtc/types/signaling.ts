@@ -81,8 +81,15 @@ export interface SocketEventParams {
   };
 }
 
-// TODO: CALLBACK
-export type ClientFn<T extends ClientEventKeys> = (payload: SocketEventParams[T]) => void;
+// TODO: Callback
+export type CallBackState = { code: number; message: string };
+export type ClientFn<T extends ClientEventKeys> = (
+  payload: SocketEventParams[T],
+  callback?: (state: CallBackState) => void
+) => void;
 export type ClientHandler = { [K in ClientEventKeys]: ClientFn<K> };
-export type ServerFn<T extends ServerEventKeys> = (payload: SocketEventParams[T]) => void;
+export type ServerFn<T extends ServerEventKeys> = (
+  payload: SocketEventParams[T],
+  callback?: (state: CallBackState) => void
+) => void;
 export type ServerHandler = { [K in ServerEventKeys]: ServerFn<K> };

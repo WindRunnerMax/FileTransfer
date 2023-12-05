@@ -3,7 +3,7 @@ File Transfer Base On WebRTC
 
 https://github.com/WindrunnerMax/FileTransfer/assets/33169019/58fb71de-d92a-435b-870e-30745c173b3e
 
-## Development
+## Develop
 
 ```bash
 $ pnpm install

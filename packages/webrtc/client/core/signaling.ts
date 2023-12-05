@@ -1,6 +1,7 @@
 import io, { Socket } from "socket.io-client";
 import {
   CLINT_EVENT,
+  CallBackState,
   ClientEventKeys,
   ClientHandler,
   ServerEventKeys,
@@ -30,9 +31,13 @@ export class SignalingServer {
     this.socket.off(key, cb);
   };
 
-  public emit = <T extends ClientEventKeys>(key: T, payload: SocketEventParams[T]) => {
+  public emit = <T extends ClientEventKeys>(
+    key: T,
+    payload: SocketEventParams[T],
+    callback?: (state: CallBackState) => void
+  ) => {
     // @ts-expect-error unknown
-    this.socket.emit(key, payload);
+    this.socket.emit(key, payload, callback);
   };
 
   private onConnect = () => {
