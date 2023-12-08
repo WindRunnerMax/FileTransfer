@@ -1,15 +1,15 @@
 # FileTransfer
 File Transfer Base On WebRTC
 
-https://github.com/WindrunnerMax/FileTransfer/assets/33169019/b8d4943b-4f09-4c94-a7d6-4f130e907bf7
+https://github.com/WindrunnerMax/FileTransfer/assets/33169019/b1d8d455-84e9-47c1-aa22-2fc77ffa10d1
 
-## Develop
+## Development
 
 ```bash
 $ pnpm install
 $ npm run dev:webrtc
 ```
-## Deploy
+## Deployment
 
 ```bash 
 $ pnpm install
