@@ -6,7 +6,8 @@
     "dev:fe": "rspack build --watch",
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
-    "deploy": "rm -rf build && npm run build:fe && npm run server"
+    "build": "rm -rf build && npm run build:fe && rollup -c rollup.server.js",
+    "deploy": "npm run build && node build/server.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "@types/react-dom": "17.0.2",
     "@typescript-eslint/eslint-plugin": "5.4.0",
     "@typescript-eslint/parser": "5.4.0",
+    "copy-webpack-plugin": "5",
     "concurrently": "8.2.2",
     "esbuild": "0.19.6",
     "express": "4.18.2",

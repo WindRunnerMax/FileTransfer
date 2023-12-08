@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev:webrtc": "pnpm --filter file-transfer-webrtc run dev",
+    "build:webrtc": "pnpm --filter file-transfer-webrtc run build",
     "deploy:webrtc": "pnpm --filter file-transfer-webrtc run deploy"
   },
   "repository": {

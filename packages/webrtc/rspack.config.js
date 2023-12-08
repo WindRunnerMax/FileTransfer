@@ -1,5 +1,6 @@
 const path = require("path");
 const { default: HtmlPlugin } = require("@rspack/plugin-html");
+const CopyPlugin = require("copy-webpack-plugin");
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -12,6 +13,7 @@ module.exports = {
     index: "./client/index.tsx",
   },
   plugins: [
+    new CopyPlugin([{ from: "public", to: "." }]),
     new HtmlPlugin({
       filename: "index.html",
       template: "./public/index.html",
