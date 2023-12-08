@@ -8,6 +8,8 @@ import { WebRTCApi } from "../../types/webrtc";
 import { SERVER_EVENT, ServerFn } from "../../types/signaling";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
 import { TransferModal } from "./modal";
+import { Message } from "@arco-design/web-react";
+import { ERROR_TYPE } from "../../types/server";
 
 export const App: FC = () => {
   const rtc = useRef<WebRTCApi | null>(null);
@@ -60,6 +62,15 @@ export const App: FC = () => {
       setState(CONNECTION_STATE.CONNECTING);
     }
   });
+  const onNotifyError: ServerFn<typeof SERVER_EVENT.NOTIFY_ERROR> = useMemoizedFn(event => {
+    const { code, message } = event;
+    Message.error(message);
+    switch (code) {
+      case ERROR_TYPE.PEER_BUSY:
+        setState(CONNECTION_STATE.READY);
+        break;
+    }
+  });
 
   // === RTC Connection INIT ===
   useLayoutEffect(() => {
@@ -71,6 +82,7 @@ export const App: FC = () => {
     webrtc.signaling.on(SERVER_EVENT.JOINED_MEMBER, onJoinedMember);
     webrtc.signaling.on(SERVER_EVENT.LEFT_ROOM, onLeftRoom);
     webrtc.signaling.on(SERVER_EVENT.FORWARD_OFFER, onReceiveOffer);
+    webrtc.signaling.on(SERVER_EVENT.NOTIFY_ERROR, onNotifyError);
     webrtc.onReady = ({ rtc: instance }) => {
       rtc.current = instance;
       setState(CONNECTION_STATE.READY);
@@ -82,9 +94,19 @@ export const App: FC = () => {
       webrtc.signaling.off(SERVER_EVENT.JOINED_MEMBER, onJoinedMember);
       webrtc.signaling.off(SERVER_EVENT.LEFT_ROOM, onLeftRoom);
       webrtc.signaling.off(SERVER_EVENT.FORWARD_OFFER, onReceiveOffer);
+      webrtc.signaling.off(SERVER_EVENT.NOTIFY_ERROR, onNotifyError);
       webrtc.destroy();
     };
-  }, [onClose, onError, onJoinRoom, onJoinedMember, onLeftRoom, onOpen, onReceiveOffer]);
+  }, [
+    onClose,
+    onError,
+    onJoinRoom,
+    onJoinedMember,
+    onLeftRoom,
+    onNotifyError,
+    onOpen,
+    onReceiveOffer,
+  ]);
 
   const onPeerConnection = (member: Member) => {
     if (rtc.current) {

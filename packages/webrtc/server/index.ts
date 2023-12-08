@@ -9,7 +9,7 @@ import {
   ClientHandler,
   SocketEventParams,
 } from "../types/signaling";
-import { CONNECTION_STATE, Member, ServerSocket } from "../types/server";
+import { ERROR_TYPE, Member, ServerSocket } from "../types/server";
 import { getIpByRequest, getLocalIp } from "./utils";
 
 const app = express();
@@ -30,7 +30,7 @@ io.on("connection", socket => {
     const ip = getIpByRequest(socket.request);
     const room = rooms.get(ip) || [];
     rooms.set(ip, [...room, id]);
-    mapper.set(id, { socket, device, state: CONNECTION_STATE.NORMAL, ip });
+    mapper.set(id, { socket, device, ip });
     // 房间通知消息
     const initialization: SocketEventParams["JOINED_MEMBER"]["initialization"] = [];
     room.forEach(key => {
@@ -45,6 +45,12 @@ io.on("connection", socket => {
   socket.on(CLINT_EVENT.SEND_OFFER, ({ origin, offer, target }) => {
     // 验证
     if (authenticate.get(socket) !== origin) return void 0;
+    if (!mapper.has(target)) {
+      socket.emit(SERVER_EVENT.NOTIFY_ERROR, {
+        code: ERROR_TYPE.PEER_NOT_FOUND,
+        message: `Peer ${target} Not Found`,
+      });
+    }
     // 转发`Offer`
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
@@ -65,10 +71,20 @@ io.on("connection", socket => {
   socket.on(CLINT_EVENT.SEND_ANSWER, ({ origin, answer, target }) => {
     // 验证
     if (authenticate.get(socket) !== origin) return void 0;
-    // 转发`Answer` // TODO: 记录状态
+    // 转发`Answer`
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
       targetSocket.emit(SERVER_EVENT.FORWARD_ANSWER, { origin, answer, target });
+    }
+  });
+
+  socket.on(CLINT_EVENT.SEND_ERROR, ({ origin, code, message, target }) => {
+    // 验证
+    if (authenticate.get(socket) !== origin) return void 0;
+    // 转发`Error`
+    const targetSocket = mapper.get(target)?.socket;
+    if (targetSocket) {
+      targetSocket.emit(SERVER_EVENT.NOTIFY_ERROR, { code, message });
     }
   });
 

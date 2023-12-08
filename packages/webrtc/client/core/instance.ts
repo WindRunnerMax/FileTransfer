@@ -1,6 +1,7 @@
 import { CLINT_EVENT, SERVER_EVENT, SocketEventParams } from "../../types/signaling";
 import { SignalingServer } from "./signaling";
 import { WebRTCInstanceOptions } from "../../types/webrtc";
+import { ERROR_TYPE } from "../../types/server";
 
 export class WebRTCInstance {
   public readonly id: string;
@@ -58,7 +59,15 @@ export class WebRTCInstance {
   private onReceiveOffer = async (params: SocketEventParams["FORWARD_OFFER"]) => {
     const { offer, origin } = params;
     console.log("Receive Offer From:", origin, offer);
-    if (this.channel.readyState !== "connecting") return void 0;
+    if (this.connection.currentLocalDescription || this.connection.currentRemoteDescription) {
+      this.signaling.emit(CLINT_EVENT.SEND_ERROR, {
+        origin: this.id,
+        target: origin,
+        code: ERROR_TYPE.PEER_BUSY,
+        message: `Peer ${this.id} is Busy`,
+      });
+      return void 0;
+    }
     this.connection.onicecandidate = async event => {
       if (!event.candidate) return void 0;
       console.log("Local ICE", event.candidate);

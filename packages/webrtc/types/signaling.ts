@@ -1,4 +1,5 @@
 import type { DEVICE_TYPE } from "./client";
+import type { ERROR_TYPE } from "./server";
 
 const CLINT_EVENT_BASE = [
   "JOIN_ROOM",
@@ -6,6 +7,7 @@ const CLINT_EVENT_BASE = [
   "SEND_OFFER",
   "SEND_ANSWER",
   "SEND_ICE",
+  "SEND_ERROR",
 ] as const;
 export type ClientEventKeys = typeof CLINT_EVENT_BASE[number];
 export const CLINT_EVENT = CLINT_EVENT_BASE.reduce(
@@ -19,6 +21,7 @@ const SERVER_EVENT_BASE = [
   "FORWARD_OFFER",
   "FORWARD_ANSWER",
   "FORWARD_ICE",
+  "NOTIFY_ERROR",
 ] as const;
 export type ServerEventKeys = typeof SERVER_EVENT_BASE[number];
 export const SERVER_EVENT = SERVER_EVENT_BASE.reduce(
@@ -49,6 +52,12 @@ export interface SocketEventParams {
     target: string;
     ice: RTCIceCandidateInit;
   };
+  [CLINT_EVENT.SEND_ERROR]: {
+    origin: string;
+    target: string;
+    code: ERROR_TYPE;
+    message: string;
+  };
 
   // SERVER
   [SERVER_EVENT.JOINED_ROOM]: {
@@ -78,6 +87,10 @@ export interface SocketEventParams {
     origin: string;
     target: string;
     ice: RTCIceCandidateInit;
+  };
+  [SERVER_EVENT.NOTIFY_ERROR]: {
+    code: ERROR_TYPE;
+    message: string;
   };
 }
 

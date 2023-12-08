@@ -32,6 +32,7 @@ export const TransferModal: FC<{
 
   const onCancel = () => {
     rtc.current?.close();
+    setState(CONNECTION_STATE.READY);
     setVisible(false);
   };
 
