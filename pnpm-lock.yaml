@@ -87,6 +87,7 @@ importers:
 
   packages/websocket:
     specifiers:
+      '@arco-design/web-react': ^2.56.1
       '@rspack/cli': 0.2.5
       '@rspack/plugin-html': 0.2.5
       '@types/react': 17.0.2
@@ -110,6 +111,7 @@ importers:
       socket.io: 4.7.2
       socket.io-client: 4.7.2
     dependencies:
+      '@arco-design/web-react': registry.npmmirror.com/@arco-design/web-react/2.56.1_0607d8bab5983684f0a746a30ac1a448
       laser-utils: registry.npmmirror.com/laser-utils/0.0.2-alpha.6
       react: registry.npmmirror.com/react/17.0.2
       react-dom: registry.npmmirror.com/react-dom/17.0.2_react@17.0.2

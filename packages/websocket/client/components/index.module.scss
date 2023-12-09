@@ -1,0 +1,259 @@
+// === Page ===
+body,
+html {
+  color: var(--color-text-1);
+  height: 100%;
+}
+
+// === Main ===
+body,
+.container {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+
+  .content {
+    align-items: center;
+    bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    left: 50%;
+    max-width: 100%;
+    position: fixed;
+    transform: translateX(-50%);
+  }
+
+  .boardCastIcon {
+    color: rgba(var(--arcoblue-6), 0.8);
+    font-size: 60px;
+    text-align: center;
+  }
+
+  .manualEntry {
+    color: rgba(var(--arcoblue-6), 0.8);
+    cursor: pointer;
+    margin-top: 5px;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+
+.prompt {
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  animation-name: scale-in;
+  color: rgba(var(--arcoblue-6), 0.8);
+  font-size: 20px;
+  left: 0;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 40%;
+  user-select: none;
+  width: 100%;
+}
+
+// === Banner ===
+.github {
+  color: var(--color-text-1);
+  font-size: 23px;
+  position: fixed;
+  right: 12px;
+  top: 6px;
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// === Device ===
+.deviceGroup {
+  display: flex;
+  font-size: 14px;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 40%;
+  user-select: none;
+  width: 100%;
+
+  .device {
+    align-items: center;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+    animation-name: scale-in;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
+    flex-wrap: wrap;
+    margin: 20px;
+
+    .icon {
+      align-items: center;
+      background-color: rgba(var(--arcoblue-6), 0.8);
+      border-radius: 70px;
+      color: #fff;
+      display: flex;
+      font-size: 35px;
+      height: 70px;
+      justify-content: center;
+      width: 70px;
+    }
+
+    .name {
+      color: var(--color-text-1);
+      margin-top: 6px;
+    }
+  }
+}
+
+// === Modal ===
+.modal {
+  box-sizing: border-box;
+  max-height: 100%;
+  max-width: 96%;
+
+  :global {
+    .arco-modal-content {
+      padding: 0;
+    }
+  }
+
+  .title {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    .dot {
+      border-radius: 5px;
+      height: 7px;
+      margin-right: 7px;
+      margin-top: 1px;
+      width: 7px;
+    }
+  }
+
+  .modalContent {
+    box-sizing: border-box;
+    height: 500px;
+    overflow-y: auto;
+    padding: 5px 10px;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      background-color: transparent;
+      height: 0;
+      width: 0;
+    }
+
+    .messageItem {
+      display: flex;
+
+      &.alignRight {
+        justify-content: flex-end;
+
+        .messageContent {
+          background-color: rgba(var(--arcoblue-6), 0.8);
+        }
+      }
+    }
+
+    .messageContent {
+      background-color: rgba(var(--green-7), 0.8);
+      border-radius: 10px;
+      box-sizing: border-box;
+      color: #fff;
+      margin-top: 20px;
+      max-width: 80%;
+      padding: 10px;
+    }
+
+    .fileMessage {
+      max-width: 100%;
+      min-width: 160px;
+      padding: 0 5px;
+
+      .fileInfo {
+        align-items: center;
+        display: flex;
+        font-size: 12px;
+        justify-content: space-between;
+      }
+
+      .fileName {
+        font-size: 14px;
+        margin-bottom: 3px;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .fileIcon {
+        margin-right: 3px;
+      }
+
+      .fileDownload {
+        align-items: center;
+        border: 1px solid #fff;
+        border-radius: 20px;
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        font-size: 16px;
+        height: 26px;
+        justify-content: center;
+        margin-left: 20px;
+        width: 26px;
+
+        &.disable {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+      }
+
+      :global {
+        .arco-progress-line-text {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .modalFooter {
+    align-items: center;
+    border-top: 1px solid var(--color-border-1);
+    display: flex;
+    height: 60px;
+    padding: 5px 10px;
+
+    .sendFile {
+      margin-right: 10px;
+
+      &:focus-visible {
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+// === Misc ===
+.fileInput {
+  left: -1000px;
+  position: fixed;
+  top: -1000px;
+}
