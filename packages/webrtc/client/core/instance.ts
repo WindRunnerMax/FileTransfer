@@ -64,7 +64,7 @@ export class WebRTCInstance {
         origin: this.id,
         target: origin,
         code: ERROR_TYPE.PEER_BUSY,
-        message: `Peer ${this.id} is Busy`,
+        message: `Peer ${this.id} Is Busy`,
       });
       return void 0;
     }

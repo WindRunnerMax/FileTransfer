@@ -132,7 +132,7 @@ export const App: FC = () => {
         </div>
       </div>
       {state === CONNECTION_STATE.READY && members.length === 0 && (
-        <div className={styles.prompt}>Open another device on the LAN to transfer files</div>
+        <div className={styles.prompt}>Open Another Device On The LAN To Transfer Files</div>
       )}
       <div className={styles.deviceGroup}>
         {members.map(member => (

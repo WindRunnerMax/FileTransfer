@@ -1,7 +1,13 @@
 import type { DEVICE_TYPE } from "./client";
-import type { SHAKE_HANDS } from "./server";
+import type { ERROR_TYPE, SHAKE_HANDS } from "./server";
 
-const CLINT_EVENT_BASE = ["JOIN_ROOM", "LEAVE_ROOM", "SEND_REQUEST", "SEND_RESPONSE"] as const;
+const CLINT_EVENT_BASE = [
+  "JOIN_ROOM",
+  "LEAVE_ROOM",
+  "SEND_REQUEST",
+  "SEND_RESPONSE",
+  "SEND_UNPEER",
+] as const;
 export type ClientEventKeys = typeof CLINT_EVENT_BASE[number];
 export const CLINT_EVENT = CLINT_EVENT_BASE.reduce(
   (acc, cur) => ({ ...acc, [cur]: cur }),
@@ -13,6 +19,7 @@ const SERVER_EVENT_BASE = [
   "LEFT_ROOM",
   "FORWARD_REQUEST",
   "FORWARD_RESPONSE",
+  "FORWARD_UNPEER",
 ] as const;
 export type ServerEventKeys = typeof SERVER_EVENT_BASE[number];
 export const SERVER_EVENT = SERVER_EVENT_BASE.reduce(
@@ -31,14 +38,16 @@ export interface SocketEventParams {
   [CLINT_EVENT.SEND_REQUEST]: {
     origin: string;
     target: string;
-    code: SHAKE_HANDS;
-    reason?: string;
   };
   [CLINT_EVENT.SEND_RESPONSE]: {
     origin: string;
     target: string;
     code: SHAKE_HANDS;
     reason?: string;
+  };
+  [CLINT_EVENT.SEND_UNPEER]: {
+    origin: string;
+    target: string;
   };
 
   // SERVER
@@ -58,8 +67,6 @@ export interface SocketEventParams {
   [SERVER_EVENT.FORWARD_REQUEST]: {
     origin: string;
     target: string;
-    code: SHAKE_HANDS;
-    reason?: string;
   };
   [SERVER_EVENT.FORWARD_RESPONSE]: {
     origin: string;
@@ -67,10 +74,13 @@ export interface SocketEventParams {
     code: SHAKE_HANDS;
     reason?: string;
   };
+  [SERVER_EVENT.FORWARD_UNPEER]: {
+    origin: string;
+    target: string;
+  };
 }
 
-// TODO: Callback
-export type CallBackState = { code: number; message: string };
+export type CallBackState = { code: ERROR_TYPE; message: string };
 export type ClientFn<T extends ClientEventKeys> = (
   payload: SocketEventParams[T],
   callback?: (state: CallBackState) => void
