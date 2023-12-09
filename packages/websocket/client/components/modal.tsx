@@ -107,7 +107,6 @@ export const TransferModal: FC<{
   };
 
   const sendFilesBySlice = async (files: FileList) => {
-    console.log("files", files);
     const newList = [...list];
     for (const file of files) {
       const name = file.name;
@@ -139,8 +138,9 @@ export const TransferModal: FC<{
   };
 
   const onDownloadFile = (id: string, fileName: string) => {
-    const data = fileMapper.current[id] || new Blob();
-    const blob = new Blob(data, { type: "application/octet-stream" });
+    const blob = fileMapper.current[id]
+      ? new Blob(fileMapper.current[id], { type: "application/octet-stream" })
+      : fileSource.current[id] || new Blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

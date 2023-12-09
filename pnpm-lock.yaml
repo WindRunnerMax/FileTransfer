@@ -90,6 +90,7 @@ importers:
       '@arco-design/web-react': ^2.56.1
       '@rspack/cli': 0.2.5
       '@rspack/plugin-html': 0.2.5
+      '@types/pako': ^2.0.3
       '@types/react': 17.0.2
       '@types/react-dom': 17.0.2
       '@typescript-eslint/eslint-plugin': 5.4.0
@@ -97,9 +98,11 @@ importers:
       concurrently: 8.2.2
       esbuild: 0.19.6
       express: 4.18.2
+      js-base64: ^3.7.5
       laser-utils: 0.0.2-alpha.6
       less: 3.0.0
       less-loader: 6.0.0
+      pako: ^2.1.0
       postcss: 8.3.3
       prettier: 2.4.1
       react: 17.0.2
@@ -112,7 +115,9 @@ importers:
       socket.io-client: 4.7.2
     dependencies:
       '@arco-design/web-react': registry.npmmirror.com/@arco-design/web-react/2.56.1_0607d8bab5983684f0a746a30ac1a448
+      js-base64: registry.npmmirror.com/js-base64/3.7.5
       laser-utils: registry.npmmirror.com/laser-utils/0.0.2-alpha.6
+      pako: registry.npmmirror.com/pako/2.1.0
       react: registry.npmmirror.com/react/17.0.2
       react-dom: registry.npmmirror.com/react-dom/17.0.2_react@17.0.2
       socket.io: registry.npmmirror.com/socket.io/4.7.2
@@ -120,6 +125,7 @@ importers:
     devDependencies:
       '@rspack/cli': registry.npmmirror.com/@rspack/cli/0.2.5_esbuild@0.19.6
       '@rspack/plugin-html': registry.npmmirror.com/@rspack/plugin-html/0.2.5
+      '@types/pako': registry.npmmirror.com/@types/pako/2.0.3
       '@types/react': registry.npmmirror.com/@types/react/17.0.2
       '@types/react-dom': registry.npmmirror.com/@types/react-dom/17.0.2
       '@typescript-eslint/eslint-plugin': registry.npmmirror.com/@typescript-eslint/eslint-plugin/5.4.0_7680366b7354ea82bdb029a46ad3f7ff
@@ -1151,6 +1157,12 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz}
     name: '@types/normalize-package-data'
     version: 2.4.1
+    dev: true
+
+  registry.npmmirror.com/@types/pako/2.0.3:
+    resolution: {integrity: sha512-bq0hMV9opAcrmE0Byyo0fY3Ew4tgOevJmQ9grUhpXQhYfyLJ1Kqg3P33JT5fdbT2AjeAjR51zqqVjAL/HMkx7Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/pako/-/pako-2.0.3.tgz}
+    name: '@types/pako'
+    version: 2.0.3
     dev: true
 
   registry.npmmirror.com/@types/parse-json/4.0.0:
@@ -5038,6 +5050,12 @@ packages:
       supports-color: registry.npmmirror.com/supports-color/8.1.1
     dev: true
 
+  registry.npmmirror.com/js-base64/3.7.5:
+    resolution: {integrity: sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/js-base64/-/js-base64-3.7.5.tgz}
+    name: js-base64
+    version: 3.7.5
+    dev: false
+
   registry.npmmirror.com/js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/js-tokens/-/js-tokens-4.0.0.tgz}
     name: js-tokens
@@ -5933,6 +5951,12 @@ packages:
     version: 2.2.0
     engines: {node: '>=6'}
     dev: true
+
+  registry.npmmirror.com/pako/2.1.0:
+    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/pako/-/pako-2.1.0.tgz}
+    name: pako
+    version: 2.1.0
+    dev: false
 
   registry.npmmirror.com/parallel-transform/1.2.0:
     resolution: {integrity: sha512-P2vSmIu38uIlvdcU7fDkyrxj33gTUy/ABO5ZUbGowxNCopBq/OoD42bP4UmMrJoPyk4Uqf0mu3mtWBhHCZD8yg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/parallel-transform/-/parallel-transform-1.2.0.tgz}

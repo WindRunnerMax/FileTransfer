@@ -21,6 +21,7 @@ export class SocketClient {
     // https://socket.io/docs/v4/server-socket-instance/#socketid
     this.id = sessionStorage?.getItem(STORAGE_KEY) || getUniqueId(20);
     sessionStorage?.setItem(STORAGE_KEY, this.id);
+    console.log("Client WebSocket ID:", this.id);
     const socket = io(wss, { transports: ["websocket"] });
     this.socket = socket;
     this.socket.on("connect", this.onConnect);

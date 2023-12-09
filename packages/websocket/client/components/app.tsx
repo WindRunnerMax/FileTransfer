@@ -16,7 +16,7 @@ export const App: FC = () => {
   const [peerId, setPeerId] = useState("");
   const [visible, setVisible] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
-  const [state, setState] = useState(CONNECTION_STATE.INIT);
+  const [state, setState] = useState(CONNECTION_STATE.READY);
 
   // === WebSocket Connection Event ===
   const onJoinRoom: ServerFn<typeof SERVER_EVENT.JOINED_ROOM> = useMemoizedFn(member => {

@@ -1,4 +1,6 @@
 import { CHUNK_SIZE } from "../../types/client";
+import pako from "pako";
+import { Base64 } from "js-base64";
 
 export const formatBytes = (bytes: number) => {
   if (bytes === 0) return "0 B";
@@ -7,22 +9,24 @@ export const formatBytes = (bytes: number) => {
   return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
 };
 
-export const blobToBase64 = (blob: Blob) => {
-  return new Promise<string>(resolve => {
+export const blobToBase64 = async (blob: Blob) => {
+  return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.readAsDataURL(blob);
+    reader.onload = () => {
+      const data = new Uint8Array(reader.result as ArrayBuffer);
+      const compress = pako.deflate(data);
+      resolve(Base64.fromUint8Array(compress));
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(blob);
   });
 };
 
 export const base64ToBlob = (base64: string) => {
-  const arr = base64.split(",");
-  const mime = arr[0].match(/:(.*?);/)![1];
-  const bstr = window.atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  while (n--) u8arr[n] = bstr.charCodeAt(n);
-  return new Blob([u8arr], { type: mime });
+  const bytes = Base64.toUint8Array(base64);
+  const decompress = pako.inflate(bytes);
+  const blob = new Blob([decompress]);
+  return blob;
 };
 
 export const getChunkByIndex = (file: Blob, current: number): Promise<string> => {

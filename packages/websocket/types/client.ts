@@ -2,7 +2,6 @@ export const CHUNK_SIZE = 1024 * 100; // 100KB
 
 export type Member = { id: string; device: DEVICE_TYPE };
 export enum CONNECTION_STATE {
-  "INIT",
   "READY",
   "CONNECTING",
   "CONNECTED",
