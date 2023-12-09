@@ -1,3 +1,5 @@
+export const CHUNK_SIZE = 1024 * 100; // 100KB
+
 export type Member = { id: string; device: DEVICE_TYPE };
 export enum CONNECTION_STATE {
   "INIT",
@@ -11,12 +13,15 @@ export enum DEVICE_TYPE {
 }
 
 export type ChunkType = Blob | ArrayBuffer;
+type FileType = { id: string; size: number; total: number };
+
 export type SocketMessageType =
   | { type: "text"; data: string }
-  | { type: "file-start"; size: number; name: string; id: string; total: number }
-  | { type: "file-next"; id: string; offset: number }
-  | { type: "file-chunk"; id: string; base64: string }
+  | ({ type: "file-start"; name: string } & FileType)
+  | ({ type: "file-next"; current: number } & FileType)
+  | ({ type: "file-chunk"; current: number; chunk: string } & FileType)
   | { type: "file-finish"; id: string };
+
 export type TransferListItem =
   | { type: "text"; data: string; from: "self" | "peer" }
   | {

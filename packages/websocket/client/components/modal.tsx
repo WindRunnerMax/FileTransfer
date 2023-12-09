@@ -1,6 +1,7 @@
 import styles from "./index.module.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
+  CHUNK_SIZE,
   CONNECTION_STATE,
   ChunkType,
   SocketMessageType,
@@ -9,8 +10,8 @@ import {
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
-import { cs, getUniqueId, isString } from "laser-utils";
-import { formatBytes } from "../utils/format";
+import { cs, getUniqueId } from "laser-utils";
+import { base64ToBlob, formatBytes, getChunkByIndex, onScroll } from "../utils/format";
 import { SocketClient } from "../core/socket-server";
 import { CLINT_EVENT, SERVER_EVENT, ServerFn } from "../../types/websocket";
 
@@ -26,8 +27,8 @@ export const TransferModal: FC<{
   setVisible: (visible: boolean) => void;
 }> = ({ client, state, peerId, visible, setVisible, setState, id }) => {
   const listRef = useRef<HTMLDivElement>(null);
+  const fileSource = useRef<Record<string, Blob>>({});
   const fileMapper = useRef<Record<string, ChunkType[]>>({});
-  const fileState = useRef<{ id: string; current: number; total: number }>();
   const [text, setText] = useState("");
   const [list, setList] = useState<TransferListItem[]>([]);
 
@@ -35,15 +36,6 @@ export const TransferModal: FC<{
     client.current?.emit(CLINT_EVENT.SEND_UNPEER, { target: peerId, origin: id });
     setState(CONNECTION_STATE.READY);
     setVisible(false);
-  };
-
-  const onScroll = () => {
-    if (listRef.current) {
-      const el = listRef.current;
-      Promise.resolve().then(() => {
-        el.scrollTop = el.scrollHeight;
-      });
-    }
   };
 
   const sendMessage = (message: SocketMessageType) => {
@@ -60,7 +52,43 @@ export const TransferModal: FC<{
 
   const onMessage: ServerFn<typeof SERVER_EVENT.FORWARD_MESSAGE> = useMemoizedFn(event => {
     console.log("onMessage", event);
-    onScroll();
+    if (event.origin !== peerId) return void 0;
+    const data = event.message;
+    if (data.type === "text") {
+      setList([...list, { from: "peer", ...data }]);
+    } else if (data.type === "file-start") {
+      const { id, name, size, total } = data;
+      fileMapper.current[id] = [];
+      setList([...list, { type: "file", from: "peer", name, size, progress: 0, id }]);
+      sendMessage({ type: "file-next", id, current: 0, size, total });
+    } else if (data.type === "file-chunk") {
+      const { id, current, total, size, chunk } = data;
+      const progress = Math.floor((current / total) * 100);
+      updateFileProgress(id, progress);
+      if (current >= total) {
+        sendMessage({ type: "file-finish", id });
+      } else {
+        const mapper = fileMapper.current;
+        if (!mapper[id]) mapper[id] = [];
+        mapper[id][current] = base64ToBlob(chunk);
+        sendMessage({ type: "file-next", id, current: current + 1, size, total });
+      }
+    } else if (data.type === "file-next") {
+      const { id, current, total, size } = data;
+      const progress = Math.floor((current / total) * 100);
+      updateFileProgress(id, progress);
+      const file = fileSource.current[id];
+      if (file) {
+        getChunkByIndex(file, current).then(chunk => {
+          sendMessage({ type: "file-chunk", id, current, total, size, chunk });
+        });
+      }
+    } else if (data.type === "file-finish") {
+      const { id } = data;
+      const progress = Math.floor(100);
+      updateFileProgress(id, progress);
+    }
+    onScroll(listRef);
   });
 
   useEffect(() => {
@@ -75,11 +103,23 @@ export const TransferModal: FC<{
     sendMessage({ type: "text", data: text });
     setList([...list, { type: "text", from: "self", data: text }]);
     setText("");
-    onScroll();
+    onScroll(listRef);
   };
 
   const sendFilesBySlice = async (files: FileList) => {
     console.log("files", files);
+    const newList = [...list];
+    for (const file of files) {
+      const name = file.name;
+      const id = getUniqueId();
+      const size = file.size;
+      const total = Math.ceil(file.size / CHUNK_SIZE);
+      sendMessage({ type: "file-start", id, name, size, total });
+      fileSource.current[id] = file;
+      newList.push({ type: "file", from: "self", name, size, progress: 0, id } as const);
+    }
+    setList(newList);
+    onScroll(listRef);
   };
 
   const onSendFile = () => {
