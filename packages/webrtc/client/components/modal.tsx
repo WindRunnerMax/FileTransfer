@@ -7,7 +7,7 @@ import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-re
 import { WebRTC } from "../core/webrtc";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { cs, getUniqueId, isString } from "laser-utils";
-import { decodeJSON, encodeJSON } from "../utils/json";
+import { TSON } from "../utils/tson";
 import { formatBytes } from "../utils/format";
 
 export const TransferModal: FC<{
@@ -56,7 +56,7 @@ export const TransferModal: FC<{
   const onMessage = useMemoizedFn((event: MessageEvent<string | ChunkType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
-      const data = decodeJSON(event.data);
+      const data = TSON.decode(event.data);
       if (data && data.type === "text") {
         setList([...list, { from: "peer", ...data }]);
       } else if (data?.type === "file") {
@@ -79,7 +79,7 @@ export const TransferModal: FC<{
         if (progress === 100) {
           setTransferring(false);
           fileState.current = void 0;
-          rtc.current?.send(encodeJSON({ type: "file-finish", id: state.id }));
+          rtc.current?.send(TSON.encode({ type: "file-finish", id: state.id }));
         }
       }
     }
@@ -119,7 +119,7 @@ export const TransferModal: FC<{
   }, [connection, onConnectionStateChange, onMessage]);
 
   const onSendText = () => {
-    const str = encodeJSON({ type: "text", data: text });
+    const str = TSON.encode({ type: "text", data: text });
     if (str && rtc.current && text) {
       rtc.current?.send(str);
       setList([...list, { type: "text", from: "self", data: text }]);
@@ -137,7 +137,7 @@ export const TransferModal: FC<{
     const id = getUniqueId();
     const size = file.size;
     const total = Math.ceil(file.size / chunkSize);
-    channel.send(encodeJSON({ type: "file", name, id, size, total }));
+    channel.send(TSON.encode({ type: "file", name, id, size, total }));
     const newList = [...list, { type: "file", from: "self", name, size, progress: 0, id } as const];
     setList(newList);
     onScroll();

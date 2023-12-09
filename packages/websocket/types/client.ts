@@ -11,9 +11,11 @@ export enum DEVICE_TYPE {
 }
 
 export type ChunkType = Blob | ArrayBuffer;
-export type TextMessageType =
+export type SocketMessageType =
   | { type: "text"; data: string }
-  | { type: "file"; size: number; name: string; id: string; total: number }
+  | { type: "file-start"; size: number; name: string; id: string; total: number }
+  | { type: "file-next"; id: string; offset: number }
+  | { type: "file-chunk"; id: string; base64: string }
   | { type: "file-finish"; id: string };
 export type TransferListItem =
   | { type: "text"; data: string; from: "self" | "peer" }

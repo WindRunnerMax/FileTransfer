@@ -4,5 +4,13 @@ import { TextMessageType } from "../../types/client";
 type EncodeJSONType = (value: TextMessageType) => string;
 type DecodeJSONType = (value: string) => TextMessageType | null;
 
-export const encodeJSON = EncodeJSON as EncodeJSONType;
-export const decodeJSON: DecodeJSONType = DecodeJSON;
+export const TSON = {
+  /**
+   * Object -> String
+   */
+  encode: EncodeJSON as EncodeJSONType,
+  /**
+   * String -> Object
+   */
+  decode: DecodeJSON as DecodeJSONType,
+};

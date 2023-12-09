@@ -26,14 +26,14 @@ io.on("connection", socket => {
     // 验证
     if (!id) return void 0;
     authenticate.set(socket, id);
-    // 加入房间
-    room.set(id, { socket, device, state: CONNECTION_STATE.READY });
     // 房间通知消息
     const initialization: SocketEventParams["JOINED_MEMBER"]["initialization"] = [];
     room.forEach((instance, key) => {
       initialization.push({ id: key, device: instance.device });
       instance.socket.emit(SERVER_EVENT.JOINED_ROOM, { id, device });
     });
+    // 加入房间
+    room.set(id, { socket, device, state: CONNECTION_STATE.READY });
     socket.emit(SERVER_EVENT.JOINED_MEMBER, { initialization });
   });
 
@@ -44,7 +44,7 @@ io.on("connection", socket => {
     const member = room.get(target);
     if (member) {
       if (member.state !== CONNECTION_STATE.READY) {
-        cb?.({ code: ERROR_TYPE.PEER_BUSY, message: `Peer ${target} Is Busy` });
+        cb?.({ code: ERROR_TYPE.PEER_BUSY, message: `Peer ${target} is Busy` });
         return void 0;
       }
       updateMember(room, origin, "state", CONNECTION_STATE.CONNECTING);
@@ -65,6 +65,16 @@ io.on("connection", socket => {
       peer.set(origin, target);
       peer.set(target, origin);
       targetSocket.emit(SERVER_EVENT.FORWARD_RESPONSE, { origin, code, reason, target });
+    }
+  });
+
+  socket.on(CLINT_EVENT.SEND_MESSAGE, ({ origin, message, target }) => {
+    // 验证
+    if (authenticate.get(socket) !== origin) return void 0;
+    // 转发`Message`
+    const targetSocket = room.get(target)?.socket;
+    if (targetSocket) {
+      targetSocket.emit(SERVER_EVENT.FORWARD_MESSAGE, { origin, message, target });
     }
   });
 
