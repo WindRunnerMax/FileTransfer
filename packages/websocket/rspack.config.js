@@ -63,8 +63,12 @@ module.exports = {
       },
     ],
   },
+  target: "es5",
+  devtool: isDev ? "source-map" : false,
   output: {
     publicPath: "/",
+    chunkLoading: "jsonp",
+    chunkFormat: "array-push",
     filename: isDev ? "[name].js" : "[name].[hash].js",
     path: path.resolve(__dirname, "build/static"),
   },

@@ -9,6 +9,9 @@ export class WebRTCInstance {
   public readonly connection: RTCPeerConnection;
   private readonly signaling: SignalingServer;
   constructor(options: WebRTCInstanceOptions) {
+    const RTCPeerConnection =
+      // @ts-expect-error RTCPeerConnection
+      window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     const connection = new RTCPeerConnection({
       // https://icetest.info/
       // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
