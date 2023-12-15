@@ -43,6 +43,7 @@ importers:
       '@typescript-eslint/parser': 5.4.0
       concurrently: 8.2.2
       copy-webpack-plugin: '5'
+      cross-env: ^7.0.3
       esbuild: 0.19.6
       express: 4.18.2
       laser-utils: 0.0.2-alpha.6
@@ -58,6 +59,7 @@ importers:
       sass-loader: 13.3.2
       socket.io: 4.7.2
       socket.io-client: 4.7.2
+      vconsole: ^3.15.1
     dependencies:
       '@arco-design/web-react': registry.npmmirror.com/@arco-design/web-react/2.56.1_0607d8bab5983684f0a746a30ac1a448
       laser-utils: registry.npmmirror.com/laser-utils/0.0.2-alpha.6
@@ -65,6 +67,7 @@ importers:
       react-dom: registry.npmmirror.com/react-dom/17.0.2_react@17.0.2
       socket.io: registry.npmmirror.com/socket.io/4.7.2
       socket.io-client: registry.npmmirror.com/socket.io-client/4.7.2
+      vconsole: registry.npmmirror.com/vconsole/3.15.1
     devDependencies:
       '@rspack/cli': registry.npmmirror.com/@rspack/cli/0.2.5_esbuild@0.19.6
       '@rspack/plugin-html': registry.npmmirror.com/@rspack/plugin-html/0.2.5
@@ -74,6 +77,7 @@ importers:
       '@typescript-eslint/parser': registry.npmmirror.com/@typescript-eslint/parser/5.4.0_eslint@7.11.0+typescript@5.3.2
       concurrently: registry.npmmirror.com/concurrently/8.2.2
       copy-webpack-plugin: registry.npmmirror.com/copy-webpack-plugin/5.1.2
+      cross-env: registry.npmmirror.com/cross-env/7.0.3
       esbuild: registry.npmmirror.com/esbuild/0.19.6
       express: registry.npmmirror.com/express/4.18.2
       less: registry.npmmirror.com/less/3.0.0
@@ -2660,6 +2664,13 @@ packages:
       run-queue: registry.npmmirror.com/run-queue/1.0.3
     dev: true
 
+  registry.npmmirror.com/copy-text-to-clipboard/3.2.0:
+    resolution: {integrity: sha512-RnJFp1XR/LOBDckxTib5Qjr/PMfkatD0MUCQgdpqS8MdKiNUzBjAQBEN6oUy+jW7LI93BBG3DtMB2KOOKpGs2Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/copy-text-to-clipboard/-/copy-text-to-clipboard-3.2.0.tgz}
+    name: copy-text-to-clipboard
+    version: 3.2.0
+    engines: {node: '>=12'}
+    dev: false
+
   registry.npmmirror.com/copy-webpack-plugin/5.1.2:
     resolution: {integrity: sha512-Uh7crJAco3AjBvgAy9Z75CjK8IG+gxaErro71THQ+vv/bl4HaQcpkexAY8KVW/T6D2W2IRr+couF/knIRkZMIQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/copy-webpack-plugin/-/copy-webpack-plugin-5.1.2.tgz}
     name: copy-webpack-plugin
@@ -2688,6 +2699,13 @@ packages:
     version: 3.33.3
     requiresBuild: true
     dev: true
+
+  registry.npmmirror.com/core-js/3.34.0:
+    resolution: {integrity: sha512-aDdvlDder8QmY91H88GzNi9EtQi2TjvQhpCX6B1v/dAZHU1AuLgHvRh54RiOerpEhEW46Tkf+vgAViB/CWC0ag==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/core-js/-/core-js-3.34.0.tgz}
+    name: core-js
+    version: 3.34.0
+    requiresBuild: true
+    dev: false
 
   registry.npmmirror.com/core-util-is/1.0.2:
     resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/core-util-is/-/core-util-is-1.0.2.tgz}
@@ -2723,6 +2741,16 @@ packages:
       parse-json: registry.npmmirror.com/parse-json/5.2.0
       path-type: registry.npmmirror.com/path-type/4.0.0
       yaml: registry.npmmirror.com/yaml/1.10.2
+    dev: true
+
+  registry.npmmirror.com/cross-env/7.0.3:
+    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/cross-env/-/cross-env-7.0.3.tgz}
+    name: cross-env
+    version: 7.0.3
+    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
+    hasBin: true
+    dependencies:
+      cross-spawn: registry.npmmirror.com/cross-spawn/7.0.3
     dev: true
 
   registry.npmmirror.com/cross-spawn/7.0.3:
@@ -5638,6 +5666,12 @@ packages:
       thunky: registry.npmmirror.com/thunky/1.1.0
     dev: true
 
+  registry.npmmirror.com/mutation-observer/1.0.3:
+    resolution: {integrity: sha512-M/O/4rF2h776hV7qGMZUH3utZLO/jK7p8rnNgGkjKUw8zCGjRQPxB8z6+5l8+VjRUQ3dNYu4vjqXYLr+U8ZVNA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/mutation-observer/-/mutation-observer-1.0.3.tgz}
+    name: mutation-observer
+    version: 1.0.3
+    dev: false
+
   registry.npmmirror.com/nanoid/3.3.4:
     resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/nanoid/-/nanoid-3.3.4.tgz}
     name: nanoid
@@ -8161,6 +8195,17 @@ packages:
     name: vary
     version: 1.1.2
     engines: {node: '>= 0.8'}
+
+  registry.npmmirror.com/vconsole/3.15.1:
+    resolution: {integrity: sha512-KH8XLdrq9T5YHJO/ixrjivHfmF2PC2CdVoK6RWZB4yftMykYIaXY1mxZYAic70vADM54kpMQF+dYmvl5NRNy1g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vconsole/-/vconsole-3.15.1.tgz}
+    name: vconsole
+    version: 3.15.1
+    dependencies:
+      '@babel/runtime': registry.npmmirror.com/@babel/runtime/7.23.5
+      copy-text-to-clipboard: registry.npmmirror.com/copy-text-to-clipboard/3.2.0
+      core-js: registry.npmmirror.com/core-js/3.34.0
+      mutation-observer: registry.npmmirror.com/mutation-observer/1.0.3
+    dev: false
 
   registry.npmmirror.com/verror/1.10.0:
     resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/verror/-/verror-1.10.0.tgz}
