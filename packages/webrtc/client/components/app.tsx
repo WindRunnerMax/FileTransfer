@@ -131,7 +131,7 @@ export const App: FC = () => {
           Request To Establish P2P Connection By ID
         </div>
       </div>
-      {state === CONNECTION_STATE.READY && members.length === 0 && (
+      {members.length === 0 && (
         <div className={styles.prompt}>Open Another Device On The LAN To Transfer Files</div>
       )}
       <div className={styles.deviceGroup}>

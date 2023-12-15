@@ -1,5 +1,7 @@
 # FileTransfer
 
+[GitHub](https://github.com/WindrunnerMax/FileTransfer) ｜ [DEMO](https://webrtc.touchczy.top) ｜ [BLOG](https://github.com/WindrunnerMax/EveryDay/blob/master/Plugin/基于WebRTC的局域网文件传输.md)
+
 基于`WebRTC/WebSocket`的文件传输：
 
 1. 局域网内可以互相发现，不需要手动输入对方`IP`地址等信息。
