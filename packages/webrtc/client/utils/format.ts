@@ -4,3 +4,12 @@ export const formatBytes = (bytes: number) => {
   const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
 };
+
+export const onScroll = (listRef: React.RefObject<HTMLDivElement>) => {
+  if (listRef.current) {
+    const el = listRef.current;
+    Promise.resolve().then(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+  }
+};

@@ -1,14 +1,25 @@
 import { WebRTCApi } from "../../types/webrtc";
 import styles from "./index.module.scss";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { CONNECTION_STATE, ChunkType, TransferListItem } from "../../types/client";
+import { CONNECTION_STATE, ChunkType, TextMessageType, TransferListItem } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { WebRTC } from "../core/webrtc";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { cs, getUniqueId, isString } from "laser-utils";
 import { TSON } from "../utils/tson";
-import { formatBytes } from "../utils/format";
+import { formatBytes, onScroll } from "../utils/format";
+import {
+  FILE_MAPPER,
+  FILE_SOURCE,
+  FILE_STATE,
+  ID_SIZE,
+  STEAM_TYPE,
+  destructureChunk,
+  getMaxMessageSize,
+  getNextChunk,
+  sendChunkMessage,
+} from "../utils/binary";
 
 export const TransferModal: FC<{
   connection: React.MutableRefObject<WebRTC | null>;
@@ -23,9 +34,6 @@ export const TransferModal: FC<{
   setVisible: (visible: boolean) => void;
 }> = ({ connection, rtc, state, peerId, visible, setVisible, setPeerId, setState }) => {
   const listRef = useRef<HTMLDivElement>(null);
-  const fileMapper = useRef<Record<string, ChunkType[]>>({});
-  const fileState = useRef<{ id: string; current: number; total: number }>();
-  const [transferring, setTransferring] = useState(false);
   const [text, setText] = useState("");
   const [toConnectId, setToConnectId] = useState("");
   const [list, setList] = useState<TransferListItem[]>([]);
@@ -36,13 +44,8 @@ export const TransferModal: FC<{
     setVisible(false);
   };
 
-  const onScroll = () => {
-    if (listRef.current) {
-      const el = listRef.current;
-      Promise.resolve().then(() => {
-        el.scrollTop = el.scrollHeight;
-      });
-    }
+  const sendTextMessage = (message: TextMessageType) => {
+    rtc.current?.send(TSON.encode(message));
   };
 
   const updateFileProgress = (id: string, progress: number, newList = list) => {
@@ -56,34 +59,47 @@ export const TransferModal: FC<{
   const onMessage = useMemoizedFn((event: MessageEvent<string | ChunkType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
+      // `String`
       const data = TSON.decode(event.data);
-      if (data && data.type === "text") {
+      if (!data) return void 0;
+      if (data.type === "text") {
         setList([...list, { from: "peer", ...data }]);
-      } else if (data?.type === "file") {
-        setTransferring(true);
-        fileState.current = { id: data.id, current: 0, total: data.total };
-        setList([...list, { from: "peer", progress: 0, ...data }]);
-      } else if (data?.type === "file-finish") {
-        updateFileProgress(data.id, 100);
-        setTransferring(false);
+      } else if (data.type === "file-start") {
+        const { id, name, size, total } = data;
+        FILE_STATE.set(id, { series: 0, ...data });
+        sendTextMessage({ type: "file-next", id, series: 0, size, total });
+        setList([...list, { type: "file", from: "peer", name, size, progress: 0, id }]);
+      } else if (data.type === "file-next") {
+        const { id, series, total } = data;
+        const progress = Math.floor((series / total) * 100);
+        updateFileProgress(id, progress);
+        const nextChunk = getNextChunk(rtc, id, series);
+        sendChunkMessage(rtc, nextChunk);
+      } else if (data.type === "file-finish") {
+        const { id } = data;
+        FILE_STATE.delete(id);
+        updateFileProgress(id, 100);
       }
     } else {
-      const state = fileState.current;
-      if (state) {
-        const mapper = fileMapper.current;
-        if (!mapper[state.id]) mapper[state.id] = [];
-        mapper[state.id].push(event.data);
-        state.current++;
-        const progress = Math.floor((state.current / state.total) * 100);
-        updateFileProgress(state.id, progress);
-        if (progress === 100) {
-          setTransferring(false);
-          fileState.current = void 0;
-          rtc.current?.send(TSON.encode({ type: "file-finish", id: state.id }));
+      // `Binary`
+      const blob = event.data;
+      destructureChunk(blob).then(({ id, series, data }) => {
+        const state = FILE_STATE.get(id);
+        if (!state) return void 0;
+        const { size, total } = state;
+        const progress = Math.floor((series / total) * 100);
+        updateFileProgress(id, progress);
+        if (series >= total) {
+          sendTextMessage({ type: "file-finish", id });
+        } else {
+          const mapper = FILE_MAPPER.get(id) || [];
+          mapper[series] = data;
+          FILE_MAPPER.set(id, mapper);
+          sendTextMessage({ type: "file-next", id, series: series + 1, size, total });
         }
-      }
+      });
     }
-    onScroll();
+    onScroll(listRef);
   });
 
   const onConnectionStateChange = useMemoizedFn((pc: RTCPeerConnection) => {
@@ -119,43 +135,28 @@ export const TransferModal: FC<{
   }, [connection, onConnectionStateChange, onMessage]);
 
   const onSendText = () => {
-    const str = TSON.encode({ type: "text", data: text });
-    if (str && rtc.current && text) {
-      rtc.current?.send(str);
+    if (rtc.current && text) {
+      sendTextMessage({ type: "text", data: text });
       setList([...list, { type: "text", from: "self", data: text }]);
       setText("");
-      onScroll();
+      onScroll(listRef);
     }
   };
 
-  const sendFilesBySlice = async (file: File) => {
-    const instance = rtc.current?.getInstance();
-    const channel = instance?.channel;
-    if (!channel) return void 0;
-    const chunkSize = instance.connection.sctp?.maxMessageSize || 64000;
-    const name = file.name;
-    const id = getUniqueId();
-    const size = file.size;
-    const total = Math.ceil(file.size / chunkSize);
-    channel.send(TSON.encode({ type: "file", name, id, size, total }));
-    const newList = [...list, { type: "file", from: "self", name, size, progress: 0, id } as const];
-    setList(newList);
-    onScroll();
-    setTransferring(true);
-    let offset = 0;
-    while (offset < file.size) {
-      const slice = file.slice(offset, offset + chunkSize);
-      const buffer = await slice.arrayBuffer();
-      if (channel.bufferedAmount >= chunkSize) {
-        await new Promise(resolve => {
-          channel.onbufferedamountlow = () => resolve(0);
-        });
-      }
-      fileMapper.current[id] = [...(fileMapper.current[id] || []), buffer];
-      channel.send(buffer);
-      offset = offset + buffer.byteLength;
-      updateFileProgress(id, Math.floor((offset / size) * 100), newList);
+  const sendFilesBySlice = async (files: FileList) => {
+    const maxChunkSize = getMaxMessageSize(rtc);
+    const newList = [...list];
+    for (const file of files) {
+      const name = file.name;
+      const id = getUniqueId(ID_SIZE);
+      const size = file.size;
+      const total = Math.ceil(file.size / maxChunkSize);
+      sendTextMessage({ type: "file-start", id, name, size, total });
+      FILE_SOURCE.set(id, file);
+      newList.push({ type: "file", from: "self", name, size, progress: 0, id } as const);
     }
+    setList(newList);
+    onScroll(listRef);
   };
 
   const onSendFile = () => {
@@ -167,20 +168,21 @@ export const TransferModal: FC<{
     input.setAttribute("type", "file");
     input.setAttribute("class", styles.fileInput);
     input.setAttribute("accept", "*");
+    input.setAttribute("multiple", "true");
     !exist && document.body.append(input);
     input.onchange = e => {
       const target = e.target as HTMLInputElement;
       document.body.removeChild(input);
       const files = target.files;
-      const file = files && files[0];
-      file && sendFilesBySlice(file);
+      files && sendFilesBySlice(files);
     };
     input.click();
   };
 
   const onDownloadFile = (id: string, fileName: string) => {
-    const data = fileMapper.current[id] || new Blob();
-    const blob = new Blob(data, { type: "application/octet-stream" });
+    const blob = FILE_MAPPER.get(id)
+      ? new Blob(FILE_MAPPER.get(id), { type: STEAM_TYPE })
+      : FILE_SOURCE.get(id) || new Blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -189,8 +191,6 @@ export const TransferModal: FC<{
     URL.revokeObjectURL(url);
   };
 
-  const enableTransfer = state === CONNECTION_STATE.CONNECTED && !transferring;
-
   const onConnectPeer = () => {
     if (toConnectId && rtc.current) {
       rtc.current.connect(toConnectId);
@@ -198,6 +198,8 @@ export const TransferModal: FC<{
       setState(CONNECTION_STATE.CONNECTING);
     }
   };
+
+  const enableTransfer = state === CONNECTION_STATE.CONNECTED;
 
   return (
     <Modal
