@@ -50,6 +50,7 @@ io.on("connection", socket => {
         code: ERROR_TYPE.PEER_NOT_FOUND,
         message: `Peer ${target} Not Found`,
       });
+      return void 0;
     }
     // 转发`Offer`
     const targetSocket = mapper.get(target)?.socket;
@@ -61,7 +62,7 @@ io.on("connection", socket => {
   socket.on(CLINT_EVENT.SEND_ICE, ({ origin, ice, target }) => {
     // 验证
     if (authenticate.get(socket) !== origin) return void 0;
-    // 转发`Offer`
+    // 转发`ICE`
     const targetSocket = mapper.get(target)?.socket;
     if (targetSocket) {
       targetSocket.emit(SERVER_EVENT.FORWARD_ICE, { origin, ice, target });
@@ -88,7 +89,7 @@ io.on("connection", socket => {
     }
   });
 
-  socket.on(CLINT_EVENT.LEAVE_ROOM, ({ id }) => {
+  const onLeaveRoom = (id: string) => {
     // 验证
     if (authenticate.get(socket) !== id) return void 0;
     // 退出房间
@@ -107,29 +108,15 @@ io.on("connection", socket => {
       if (!instance) return void 0;
       instance.socket.emit(SERVER_EVENT.LEFT_ROOM, { id });
     });
+  };
+
+  socket.on(CLINT_EVENT.LEAVE_ROOM, ({ id }) => {
+    onLeaveRoom(id);
   });
 
   socket.on("disconnect", () => {
-    // 验证
     const id = authenticate.get(socket);
-    // 退出房间
-    if (id) {
-      const instance = mapper.get(id);
-      if (!instance) return void 0;
-      const room = (rooms.get(instance.ip) || []).filter(key => key !== id);
-      if (room.length === 0) {
-        rooms.delete(instance.ip);
-      } else {
-        rooms.set(instance.ip, room);
-      }
-      mapper.delete(id);
-      // 房间内通知
-      room.forEach(key => {
-        const instance = mapper.get(key);
-        if (!instance) return void 0;
-        instance.socket.emit(SERVER_EVENT.LEFT_ROOM, { id });
-      });
-    }
+    id && onLeaveRoom(id);
   });
 });
 
@@ -143,7 +130,7 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 httpServer.listen(PORT, () => {
   const ip = getLocalIp();
   console.log(`Listening on port http://localhost:${PORT} ...`);

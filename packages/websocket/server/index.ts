@@ -96,7 +96,7 @@ io.on("connection", socket => {
     }
   });
 
-  socket.on(CLINT_EVENT.LEAVE_ROOM, () => {
+  const onLeaveRoom = () => {
     // 验证
     const id = authenticate.get(socket);
     if (id) {
@@ -113,26 +113,10 @@ io.on("connection", socket => {
         instance.socket.emit(SERVER_EVENT.LEFT_ROOM, { id });
       });
     }
-  });
+  };
 
-  socket.on("disconnect", () => {
-    // 验证
-    const id = authenticate.get(socket);
-    if (id) {
-      const peerId = peer.get(id);
-      peer.delete(id);
-      if (peerId) {
-        // 状态复位
-        peer.delete(peerId);
-        updateMember(room, peerId, "state", CONNECTION_STATE.READY);
-      }
-      // 退出房间
-      room.delete(id);
-      room.forEach(instance => {
-        instance.socket.emit(SERVER_EVENT.LEFT_ROOM, { id });
-      });
-    }
-  });
+  socket.on(CLINT_EVENT.LEAVE_ROOM, onLeaveRoom);
+  socket.on("disconnect", onLeaveRoom);
 });
 
 process.on("SIGINT", () => {
@@ -145,7 +129,7 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 httpServer.listen(PORT, () => {
   const ip = getLocalIp();
   console.log(`Listening on port http://localhost:${PORT} ...`);

@@ -132,7 +132,7 @@ export const TransferModal: FC<{
     const instance = rtc.current?.getInstance();
     const channel = instance?.channel;
     if (!channel) return void 0;
-    const chunkSize = instance.connection.sctp?.maxMessageSize || 64000; // 64 KB
+    const chunkSize = instance.connection.sctp?.maxMessageSize || 64000;
     const name = file.name;
     const id = getUniqueId();
     const size = file.size;
@@ -151,8 +151,7 @@ export const TransferModal: FC<{
           channel.onbufferedamountlow = () => resolve(0);
         });
       }
-      const arrayBuffer = await slice.arrayBuffer();
-      fileMapper.current[id] = [...(fileMapper.current[id] || []), arrayBuffer];
+      fileMapper.current[id] = [...(fileMapper.current[id] || []), buffer];
       channel.send(buffer);
       offset = offset + buffer.byteLength;
       updateFileProgress(id, Math.floor((offset / size) * 100), newList);
@@ -160,11 +159,15 @@ export const TransferModal: FC<{
   };
 
   const onSendFile = () => {
-    const input = document.createElement("input");
+    const KEY = "webrtc-file-input";
+    const exist = document.querySelector(`body > [data-type='${KEY}']`) as HTMLInputElement;
+    const input: HTMLInputElement = exist || document.createElement("input");
+    input.value = "";
+    input.setAttribute("data-type", KEY);
     input.setAttribute("type", "file");
     input.setAttribute("class", styles.fileInput);
     input.setAttribute("accept", "*");
-    document.body.append(input);
+    !exist && document.body.append(input);
     input.onchange = e => {
       const target = e.target as HTMLInputElement;
       document.body.removeChild(input);

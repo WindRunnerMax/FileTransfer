@@ -85,8 +85,7 @@ export const TransferModal: FC<{
       }
     } else if (data.type === "file-finish") {
       const { id } = data;
-      const progress = Math.floor(100);
-      updateFileProgress(id, progress);
+      updateFileProgress(id, 100);
     }
     onScroll(listRef);
   });
@@ -122,12 +121,16 @@ export const TransferModal: FC<{
   };
 
   const onSendFile = () => {
-    const input = document.createElement("input");
+    const KEY = "websocket-file-input";
+    const exist = document.querySelector(`body > [data-type='${KEY}']`) as HTMLInputElement;
+    const input: HTMLInputElement = exist || document.createElement("input");
+    input.value = "";
+    input.setAttribute("data-type", KEY);
     input.setAttribute("type", "file");
     input.setAttribute("class", styles.fileInput);
     input.setAttribute("accept", "*");
     input.setAttribute("multiple", "true");
-    document.body.append(input);
+    !exist && document.body.append(input);
     input.onchange = e => {
       const target = e.target as HTMLInputElement;
       document.body.removeChild(input);
