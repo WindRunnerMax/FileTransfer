@@ -31,9 +31,11 @@
     "eslint-plugin-react": "7.27.0",
     "eslint-plugin-react-hooks": "4.3.0",
     "sass": "1.52.3",
-    "stylelint": "14.8.5",
+    "stylelint": "14.7.1",
     "stylelint-config-sass-guidelines": "9.0.1",
     "stylelint-config-standard": "25.0.0",
-    "typescript": "5.3.2"
+    "typescript": "5.3.2",
+    "postcss": "8.3.3",
+    "prettier": "2.4.1"
   }
 }
