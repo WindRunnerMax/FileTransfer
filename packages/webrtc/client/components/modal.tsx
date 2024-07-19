@@ -4,7 +4,7 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { CONNECTION_STATE, ChunkType, TextMessageType, TransferListItem } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
-import { WebRTC } from "../core/webrtc";
+import { WebRTC } from "../channel/webrtc";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { cs, getUniqueId, isString } from "laser-utils";
 import { TSON } from "../utils/tson";

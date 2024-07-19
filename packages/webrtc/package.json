@@ -7,7 +7,8 @@
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
     "build": "rm -rf build && npm run build:fe && rollup -c rollup.server.js",
-    "deploy": "npm run build && node build/server.js"
+    "deploy": "npm run build && node build/server.js",
+    "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,7 @@
   },
   "homepage": "https://github.com/WindrunnerMax/FileTransfer",
   "dependencies": {
-    "@arco-design/web-react": "^2.56.1",
+    "@arco-design/web-react": "2.56.1",
     "laser-utils": "0.0.2-alpha.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -32,11 +33,12 @@
   "devDependencies": {
     "@rspack/cli": "0.2.5",
     "@rspack/plugin-html": "0.2.5",
+    "@types/express": "4.17.21",
     "@types/react": "17.0.2",
     "@types/react-dom": "17.0.2",
     "concurrently": "8.2.2",
     "copy-webpack-plugin": "5",
-    "cross-env": "^7.0.3",
+    "cross-env": "7.0.3",
     "esbuild": "0.19.6",
     "express": "4.18.2",
     "less": "3.0.0",

@@ -7,7 +7,8 @@
     "deploy:webrtc": "pnpm --filter file-transfer-webrtc run deploy",  
     "dev:websocket": "pnpm --filter file-transfer-websocket run dev",
     "build:websocket": "pnpm --filter file-transfer-websocket run build",
-    "deploy:websocket": "pnpm --filter file-transfer-websocket run deploy"
+    "deploy:websocket": "pnpm --filter file-transfer-websocket run deploy",
+    "lint:ts": "pnpm --filter '*' run lint:ts"
   },
   "repository": {
     "type": "git",

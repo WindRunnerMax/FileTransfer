@@ -12,7 +12,7 @@ import { IconFile, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { cs, getUniqueId } from "laser-utils";
 import { base64ToBlob, formatBytes, getChunkByIndex, onScroll } from "../utils/format";
-import { SocketClient } from "../core/socket-server";
+import { SocketClient } from "../channel/socket-server";
 import { CLINT_EVENT, SERVER_EVENT, ServerFn } from "../../types/websocket";
 
 export const TransferModal: FC<{

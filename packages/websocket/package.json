@@ -7,7 +7,8 @@
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
     "build": "rm -rf build && npm run build:fe && rollup -c rollup.server.js",
-    "deploy": "npm run build && node build/server.js"
+    "deploy": "npm run build && node build/server.js",
+    "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@rspack/cli": "0.2.5",
     "@rspack/plugin-html": "0.2.5",
+    "@types/express": "4.17.21",
     "@types/pako": "2.0.3",
     "@types/react": "17.0.2",
     "@types/react-dom": "17.0.2",

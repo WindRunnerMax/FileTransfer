@@ -57,7 +57,7 @@ importers:
   packages/webrtc:
     dependencies:
       '@arco-design/web-react':
-        specifier: ^2.56.1
+        specifier: 2.56.1
         version: 2.56.1(@types/react@17.0.2)(react-dom@17.0.2)(react@17.0.2)
       laser-utils:
         specifier: 0.0.2-alpha.6
@@ -80,10 +80,13 @@ importers:
     devDependencies:
       '@rspack/cli':
         specifier: 0.2.5
-        version: 0.2.5(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0)
+        version: 0.2.5(@types/express@4.17.21)(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0)
       '@rspack/plugin-html':
         specifier: 0.2.5
         version: 0.2.5(@rspack/core@0.2.5)
+      '@types/express':
+        specifier: 4.17.21
+        version: 4.17.21
       '@types/react':
         specifier: 17.0.2
         version: 17.0.2
@@ -97,7 +100,7 @@ importers:
         specifier: '5'
         version: 5.1.2(webpack@5.76.0)
       cross-env:
-        specifier: ^7.0.3
+        specifier: 7.0.3
         version: 7.0.3
       esbuild:
         specifier: 0.19.6
@@ -159,10 +162,13 @@ importers:
     devDependencies:
       '@rspack/cli':
         specifier: 0.2.5
-        version: 0.2.5(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0)
+        version: 0.2.5(@types/express@4.17.21)(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0)
       '@rspack/plugin-html':
         specifier: 0.2.5
         version: 0.2.5(@rspack/core@0.2.5)
+      '@types/express':
+        specifier: 4.17.21
+        version: 4.17.21
       '@types/pako':
         specifier: 2.0.3
         version: 2.0.3
@@ -728,13 +734,13 @@ packages:
       '@rspack/binding-win32-x64-msvc': 0.2.5
     dev: true
 
-  /@rspack/cli@0.2.5(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0):
+  /@rspack/cli@0.2.5(@types/express@4.17.21)(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0):
     resolution: {integrity: sha512-JjdY9T06f9E5l47/RMQN1FsXdrWYWznjb6ZquO2F4+ATP9/tunpx/B6bFlQ/NsDRJRKOp4H3hU7msbqstHkI2Q==}
     hasBin: true
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
       '@rspack/core': 0.2.5(webpack@5.76.0)
-      '@rspack/dev-server': 0.2.5(@rspack/core@0.2.5)(esbuild@0.19.6)(react-refresh@0.14.0)
+      '@rspack/dev-server': 0.2.5(@rspack/core@0.2.5)(@types/express@4.17.21)(esbuild@0.19.6)(react-refresh@0.14.0)
       colorette: 2.0.19
       interpret: 3.1.1
       rechoir: 0.8.0
@@ -810,7 +816,7 @@ packages:
       - webpack-plugin-serve
     dev: true
 
-  /@rspack/dev-server@0.2.5(@rspack/core@0.2.5)(esbuild@0.19.6)(react-refresh@0.14.0):
+  /@rspack/dev-server@0.2.5(@rspack/core@0.2.5)(@types/express@4.17.21)(esbuild@0.19.6)(react-refresh@0.14.0):
     resolution: {integrity: sha512-4UKnwOMK1jaN35KNxAXGLQBv/NfSi11s1e/dQo1jrWz0ue0UQ/RraMavkXq0GpO668tbopJFGF/vvfFBRIXeng==}
     peerDependencies:
       '@rspack/core': '*'
@@ -820,7 +826,7 @@ packages:
       chokidar: 3.5.3
       connect-history-api-fallback: 2.0.0
       express: 4.18.1
-      http-proxy-middleware: 2.0.6(@types/express@4.17.16)
+      http-proxy-middleware: 2.0.6(@types/express@4.17.21)
       mime-types: 2.1.35
       webpack: 5.76.0(esbuild@0.19.6)
       webpack-dev-middleware: 6.0.2(webpack@5.76.0)
@@ -936,8 +942,8 @@ packages:
       '@types/range-parser': 1.2.4
     dev: true
 
-  /@types/express@4.17.16:
-    resolution: {integrity: sha512-LkKpqRZ7zqXJuvoELakaFYuETHjZkSol8EV6cNnyishutDBCCdv6+dsKPbKkCcIk57qRphOLY5sEgClw1bO3gA==}
+  /@types/express@4.17.21:
+    resolution: {integrity: sha512-ejlPM315qwLpaQlQDTjPdsUFSc6ZsP4AN6AlWnogPjQ7CVi7PYF3YVz+CY3jE2pwYf7E/7HlDAN0rV2GxTG0HQ==}
     dependencies:
       '@types/body-parser': 1.19.2
       '@types/express-serve-static-core': 4.17.33
@@ -1042,7 +1048,7 @@ packages:
   /@types/serve-index@1.9.4:
     resolution: {integrity: sha512-qLpGZ/c2fhSs5gnYsQxtDEq3Oy8SXPClIXkW5ghvAvsNuVSA8k+gCONcUCS/UjLEYvYps+e8uBtfgXgvhwfNug==}
     dependencies:
-      '@types/express': 4.17.16
+      '@types/express': 4.17.21
     dev: true
 
   /@types/serve-static@1.15.0:
@@ -3601,7 +3607,7 @@ packages:
     resolution: {integrity: sha512-SGeBX54F94Wgu5RH3X5jsDtf4eHyRogWX1XGT3b4HuW3tQPM4AaBzoUji/4AAJNXCEOWZ5O0DgZmJw1947gD5Q==}
     dev: true
 
-  /http-proxy-middleware@2.0.6(@types/express@4.17.16):
+  /http-proxy-middleware@2.0.6(@types/express@4.17.21):
     resolution: {integrity: sha512-ya/UeJ6HVBYxrgYotAZo1KvPWlgB48kUJLDePFeneHsVujFaW5WNj2NgWCAE//B1Dl02BIfYlpNgBy8Kf8Rjmw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -3610,7 +3616,7 @@ packages:
       '@types/express':
         optional: true
     dependencies:
-      '@types/express': 4.17.16
+      '@types/express': 4.17.21
       '@types/http-proxy': 1.17.14
       http-proxy: 1.18.1
       is-glob: 4.0.3
@@ -4819,6 +4825,7 @@ packages:
   /pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
+    requiresBuild: true
     dev: true
 
   /pkg-dir@3.0.0:
@@ -6541,7 +6548,7 @@ packages:
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
-      '@types/express': 4.17.16
+      '@types/express': 4.17.21
       '@types/serve-index': 1.9.4
       '@types/serve-static': 1.15.0
       '@types/sockjs': 0.3.36
@@ -6556,7 +6563,7 @@ packages:
       express: 4.18.2
       graceful-fs: 4.2.11
       html-entities: 2.4.0
-      http-proxy-middleware: 2.0.6(@types/express@4.17.16)
+      http-proxy-middleware: 2.0.6(@types/express@4.17.21)
       ipaddr.js: 2.1.0
       launch-editor: 2.6.1
       open: 8.4.2

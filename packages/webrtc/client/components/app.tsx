@@ -3,7 +3,7 @@ import { FC, useLayoutEffect, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon, ComputerIcon, PhoneIcon } from "./icon";
 import { useMemoizedFn } from "../hooks/use-memoized-fn";
-import { WebRTC } from "../core/webrtc";
+import { WebRTC } from "../channel/webrtc";
 import { WebRTCApi } from "../../types/webrtc";
 import { SERVER_EVENT, ServerFn } from "../../types/signaling";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";

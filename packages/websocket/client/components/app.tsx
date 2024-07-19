@@ -6,7 +6,7 @@ import { useMemoizedFn } from "../hooks/use-memoized-fn";
 import { CLINT_EVENT, SERVER_EVENT, ServerFn } from "../../types/websocket";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
 import { TransferModal } from "./modal";
-import { SocketClient } from "../core/socket-server";
+import { SocketClient } from "../channel/socket-server";
 import { ERROR_TYPE, SHAKE_HANDS } from "../../types/server";
 import { Message } from "@arco-design/web-react";
 
