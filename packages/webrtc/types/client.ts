@@ -1,17 +1,19 @@
+export type ChunkType = Blob | ArrayBuffer;
 export type Member = { id: string; device: DEVICE_TYPE };
+export type FileType = { id: string; size: number; total: number };
+
 export enum CONNECTION_STATE {
   "INIT",
   "READY",
   "CONNECTING",
   "CONNECTED",
 }
+
 export enum DEVICE_TYPE {
   "MOBILE",
   "PC",
 }
 
-export type ChunkType = Blob | ArrayBuffer;
-export type FileType = { id: string; size: number; total: number };
 export type TextMessageType =
   | { type: "text"; data: string }
   | { type: "file-finish"; id: string }

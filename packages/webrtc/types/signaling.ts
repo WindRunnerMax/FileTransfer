@@ -14,6 +14,7 @@ export const CLINT_EVENT = CLINT_EVENT_BASE.reduce(
   (acc, cur) => ({ ...acc, [cur]: cur }),
   {} as { [K in ClientEventKeys]: K }
 );
+
 const SERVER_EVENT_BASE = [
   "JOINED_ROOM",
   "JOINED_MEMBER",
@@ -28,6 +29,7 @@ export const SERVER_EVENT = SERVER_EVENT_BASE.reduce(
   (acc, cur) => ({ ...acc, [cur]: cur }),
   {} as { [K in ServerEventKeys]: K }
 );
+
 export interface SocketEventParams {
   // CLIENT
   [CLINT_EVENT.JOIN_ROOM]: {
@@ -94,13 +96,13 @@ export interface SocketEventParams {
   };
 }
 
-// TODO: Callback
 export type CallBackState = { code: number; message: string };
 export type ClientFn<T extends ClientEventKeys> = (
   payload: SocketEventParams[T],
   callback?: (state: CallBackState) => void
 ) => void;
 export type ClientHandler = { [K in ClientEventKeys]: ClientFn<K> };
+
 export type ServerFn<T extends ServerEventKeys> = (
   payload: SocketEventParams[T],
   callback?: (state: CallBackState) => void

@@ -1,18 +1,18 @@
 export const CHUNK_SIZE = 1024 * 256; // 256KB
-
+export type ChunkType = Blob | ArrayBuffer;
 export type Member = { id: string; device: DEVICE_TYPE };
+export type FileType = { id: string; size: number; total: number };
+
 export enum CONNECTION_STATE {
   "READY",
   "CONNECTING",
   "CONNECTED",
 }
+
 export enum DEVICE_TYPE {
   "MOBILE",
   "PC",
 }
-
-export type ChunkType = Blob | ArrayBuffer;
-type FileType = { id: string; size: number; total: number };
 
 export type SocketMessageType =
   | { type: "text"; data: string }
