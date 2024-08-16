@@ -5,7 +5,7 @@ import { CONNECTION_STATE, ChunkType, TextMessageType, TransferListItem } from "
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { WebRTC } from "../channel/webrtc";
-import { useMemoizedFn } from "../hooks/use-memoized-fn";
+import { useMemoFn } from "laser-utils";
 import { cs, getUniqueId, isString } from "laser-utils";
 import { TSON } from "../utils/tson";
 import { formatBytes, onScroll } from "../utils/format";
@@ -56,7 +56,7 @@ export const TransferModal: FC<{
     }
   };
 
-  const onMessage = useMemoizedFn((event: MessageEvent<string | ChunkType>) => {
+  const onMessage = useMemoFn((event: MessageEvent<string | ChunkType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
       // `String`
@@ -102,7 +102,7 @@ export const TransferModal: FC<{
     onScroll(listRef);
   });
 
-  const onConnectionStateChange = useMemoizedFn((pc: RTCPeerConnection) => {
+  const onConnectionStateChange = useMemoFn((pc: RTCPeerConnection) => {
     switch (pc.connectionState) {
       case "new":
       case "connecting":

@@ -2,7 +2,7 @@ import styles from "./index.module.scss";
 import { FC, useLayoutEffect, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon, ComputerIcon, PhoneIcon } from "./icon";
-import { useMemoizedFn } from "../hooks/use-memoized-fn";
+import { useMemoFn } from "laser-utils";
 import { CLINT_EVENT, SERVER_EVENT, ServerFn } from "../../types/websocket";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
 import { TransferModal } from "./modal";
@@ -19,16 +19,16 @@ export const App: FC = () => {
   const [state, setState] = useState(CONNECTION_STATE.READY);
 
   // === WebSocket Connection Event ===
-  const onJoinRoom: ServerFn<typeof SERVER_EVENT.JOINED_ROOM> = useMemoizedFn(member => {
+  const onJoinRoom: ServerFn<typeof SERVER_EVENT.JOINED_ROOM> = useMemoFn(member => {
     console.log("JOIN ROOM", member);
     setMembers([...members, member]);
   });
-  const onJoinedMember: ServerFn<typeof SERVER_EVENT.JOINED_MEMBER> = useMemoizedFn(event => {
+  const onJoinedMember: ServerFn<typeof SERVER_EVENT.JOINED_MEMBER> = useMemoFn(event => {
     const { initialization } = event;
     console.log("JOINED MEMBER", initialization);
     setMembers([...initialization]);
   });
-  const onLeftRoom: ServerFn<typeof SERVER_EVENT.LEFT_ROOM> = useMemoizedFn(event => {
+  const onLeftRoom: ServerFn<typeof SERVER_EVENT.LEFT_ROOM> = useMemoFn(event => {
     const { id } = event;
     console.log("LEFT ROOM", id);
     if (id === peerId) {
@@ -37,7 +37,7 @@ export const App: FC = () => {
     }
     setMembers(members.filter(member => member.id !== id));
   });
-  const onReceiveRequest: ServerFn<typeof SERVER_EVENT.FORWARD_REQUEST> = useMemoizedFn(event => {
+  const onReceiveRequest: ServerFn<typeof SERVER_EVENT.FORWARD_REQUEST> = useMemoFn(event => {
     console.log("RECEIVE REQUEST", event);
     const { origin } = event;
     if (!peerId && !visible) {
@@ -58,7 +58,7 @@ export const App: FC = () => {
       });
     }
   });
-  const onReceiveResponse: ServerFn<typeof SERVER_EVENT.FORWARD_RESPONSE> = useMemoizedFn(event => {
+  const onReceiveResponse: ServerFn<typeof SERVER_EVENT.FORWARD_RESPONSE> = useMemoFn(event => {
     console.log("RECEIVE RESPONSE", event);
     const { code, reason } = event;
     if (code === SHAKE_HANDS.ACCEPT) {
@@ -68,7 +68,7 @@ export const App: FC = () => {
       Message.error(reason || "Peer Rejected");
     }
   });
-  const onUnpeer: ServerFn<typeof SERVER_EVENT.FORWARD_UNPEER> = useMemoizedFn(event => {
+  const onUnpeer: ServerFn<typeof SERVER_EVENT.FORWARD_UNPEER> = useMemoFn(event => {
     console.log("UNPEER", event);
     if (event.target === id && event.origin === peerId) {
       setVisible(false);

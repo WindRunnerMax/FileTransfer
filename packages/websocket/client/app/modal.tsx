@@ -9,7 +9,7 @@ import {
 } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconSend, IconToBottom } from "@arco-design/web-react/icon";
-import { useMemoizedFn } from "../hooks/use-memoized-fn";
+import { useMemoFn } from "laser-utils";
 import { cs, getUniqueId } from "laser-utils";
 import { base64ToBlob, formatBytes, getChunkByIndex, onScroll } from "../utils/format";
 import { SocketClient } from "../channel/socket-server";
@@ -50,7 +50,7 @@ export const TransferModal: FC<{
     }
   };
 
-  const onMessage: ServerFn<typeof SERVER_EVENT.FORWARD_MESSAGE> = useMemoizedFn(event => {
+  const onMessage: ServerFn<typeof SERVER_EVENT.FORWARD_MESSAGE> = useMemoFn(event => {
     console.log("onMessage", event);
     if (event.origin !== peerId) return void 0;
     const data = event.message;

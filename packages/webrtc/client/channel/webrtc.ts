@@ -11,7 +11,7 @@ export class WebRTC {
   constructor(options: WebRTCOptions) {
     const STORAGE_KEY = "WEBRTC-ID";
     // https://socket.io/docs/v4/server-socket-instance/#socketid
-    this.id = sessionStorage?.getItem(STORAGE_KEY) || getUniqueId(20);
+    this.id = sessionStorage?.getItem(STORAGE_KEY) || getUniqueId(8);
     sessionStorage?.setItem(STORAGE_KEY, this.id);
     this.signaling = new SignalingServer(options.wss, this.id);
     this.signaling.socket.on("connect", this.onConnection);

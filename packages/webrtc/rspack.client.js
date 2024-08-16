@@ -5,7 +5,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const isDev = process.env.NODE_ENV === "development";
 
 /**
- * @type {import('@rspack/cli').Configuration}
+ * @type {import("@rspack/cli").Configuration}
  */
 module.exports = {
   context: __dirname,
@@ -13,10 +13,10 @@ module.exports = {
     index: "./client/index.tsx",
   },
   plugins: [
-    new CopyPlugin([{ from: "public", to: "." }]),
+    new CopyPlugin([{ from: "./client/static", to: "." }]),
     new HtmlPlugin({
       filename: "index.html",
-      template: "./public/index.html",
+      template: "./client/static/index.html",
     }),
   ],
   resolve: {

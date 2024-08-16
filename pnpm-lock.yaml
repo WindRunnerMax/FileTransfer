@@ -60,8 +60,8 @@ importers:
         specifier: 2.56.1
         version: 2.56.1(@types/react@17.0.2)(react-dom@17.0.2)(react@17.0.2)
       laser-utils:
-        specifier: 0.0.2-alpha.6
-        version: 0.0.2-alpha.6
+        specifier: 0.0.5-alpha.1
+        version: 0.0.5-alpha.1
       react:
         specifier: 17.0.2
         version: 17.0.2
@@ -142,8 +142,8 @@ importers:
         specifier: 3.7.5
         version: 3.7.5
       laser-utils:
-        specifier: 0.0.2-alpha.6
-        version: 0.0.2-alpha.6
+        specifier: 0.0.5-alpha.1
+        version: 0.0.5-alpha.1
       pako:
         specifier: 2.1.0
         version: 2.1.0
@@ -4107,8 +4107,8 @@ packages:
     resolution: {integrity: sha512-RTSoaUAfLvpR357vWzAz/50Q/BmHfmE6ETSWfutT0AJiw10e6CmcdYRQJlLRd95B53D0Y2aD1jSxD3V3ySF+PA==}
     dev: true
 
-  /laser-utils@0.0.2-alpha.6:
-    resolution: {integrity: sha512-zLFwKOt0LofIIjw6mnAEdqL62Wt7k0zbj8qZEr1FcfxRsXkwW/5FclH3GMtCNgYQBwCSM30g3DuFj5gk1nwZ9w==}
+  /laser-utils@0.0.5-alpha.1:
+    resolution: {integrity: sha512-iu7i7AUfCaxn2lQuITqQWujGUxBI2xRBHu3gjV17SniCslzzZQ+VDizOMjB8X//XDfoX349tkWTTRaK4HZOUlw==}
     dev: false
 
   /launch-editor@2.6.1:

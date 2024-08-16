@@ -64,6 +64,7 @@ const start = async (rtc: React.MutableRefObject<WebRTCApi | null>) => {
   }
   isSending = false;
 };
+
 export const sendChunkMessage = async (
   rtc: React.MutableRefObject<WebRTCApi | null>,
   chunk: ChunkType

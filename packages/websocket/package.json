@@ -1,9 +1,9 @@
 {
-  "name": "file-transfer-websocket",
+  "name": "@ft/websocket",
   "version": "1.0.0",
   "scripts": {
-    "build:fe": "rspack build",
-    "dev:fe": "rspack build --watch",
+    "build:fe": "rspack build -c rspack.client.js",
+    "dev:fe": "rspack build -c rspack.client.js --watch",
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
     "build": "rm -rf build && npm run build:fe && rollup -c rollup.server.js",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@arco-design/web-react": "2.56.1",
     "js-base64": "3.7.5",
-    "laser-utils": "0.0.2-alpha.6",
+    "laser-utils": "0.0.5-alpha.1",
     "pako": "2.1.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",

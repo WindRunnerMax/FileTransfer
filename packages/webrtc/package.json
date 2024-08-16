@@ -1,9 +1,9 @@
 {
-  "name": "file-transfer-webrtc",
+  "name": "@ft/webrtc",
   "version": "1.0.0",
   "scripts": {
-    "build:fe": "rspack build",
-    "dev:fe": "cross-env NODE_ENV=development rspack build --watch",
+    "build:fe": "rspack build -c rspack.client.js",
+    "dev:fe": "cross-env NODE_ENV=development rspack build -c rspack.client.js --watch",
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
     "build": "rm -rf build && npm run build:fe && rollup -c rollup.server.js",
@@ -23,7 +23,7 @@
   "homepage": "https://github.com/WindrunnerMax/FileTransfer",
   "dependencies": {
     "@arco-design/web-react": "2.56.1",
-    "laser-utils": "0.0.2-alpha.6",
+    "laser-utils": "0.0.5-alpha.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "socket.io": "4.7.2",

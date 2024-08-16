@@ -9,7 +9,7 @@ import {
   ServerHandler,
   SocketEventParams,
 } from "../../types/websocket";
-import { isMobile } from "../utils/is";
+import { IS_MOBILE } from "laser-utils";
 import { DEVICE_TYPE } from "../../types/client";
 import { getUniqueId } from "laser-utils";
 
@@ -19,7 +19,7 @@ export class SocketClient {
   constructor(wss: string) {
     const STORAGE_KEY = "WEBSOCKET-ID";
     // https://socket.io/docs/v4/server-socket-instance/#socketid
-    this.id = sessionStorage?.getItem(STORAGE_KEY) || getUniqueId(20);
+    this.id = sessionStorage?.getItem(STORAGE_KEY) || getUniqueId(8);
     sessionStorage?.setItem(STORAGE_KEY, this.id);
     console.log("Client WebSocket ID:", this.id);
     const socket = io(wss, { transports: ["websocket"] });
@@ -51,7 +51,7 @@ export class SocketClient {
     // https://socket.io/docs/v4/server-socket-instance/#socketid
     this.emit(CLINT_EVENT.JOIN_ROOM, {
       id: this.id,
-      device: isMobile() ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.PC,
+      device: IS_MOBILE ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.PC,
     });
   };
 
