@@ -23,7 +23,7 @@ export const getMaxMessageSize = (
   return maxSize - (ID_SIZE + CHUNK_SIZE);
 };
 
-export const getNextChunk = (
+export const serializeNextChunk = (
   instance: React.MutableRefObject<WebRTCApi | null>,
   id: string,
   series: number
@@ -75,7 +75,7 @@ export const sendChunkMessage = async (
   !isSending && start(rtc);
 };
 
-export const destructureChunk = async (chunk: BufferType) => {
+export const deserializeChunk = async (chunk: BufferType) => {
   const buffer = chunk instanceof Blob ? await chunk.arrayBuffer() : chunk;
   const id = new Uint8Array(buffer.slice(0, ID_SIZE));
   const series = new Uint8Array(buffer.slice(ID_SIZE, ID_SIZE + CHUNK_SIZE));

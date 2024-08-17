@@ -17,9 +17,9 @@ import {
   FILE_STATE,
   ID_SIZE,
   STEAM_TYPE,
-  destructureChunk,
+  deserializeChunk,
   getMaxMessageSize,
-  getNextChunk,
+  serializeNextChunk,
   sendChunkMessage,
 } from "../utils/binary";
 import { WorkerEvent } from "../worker/event";
@@ -96,7 +96,7 @@ export const TransferModal: FC<{
         const { id, series, total } = data;
         const progress = Math.floor((series / total) * 100);
         updateFileProgress(id, progress);
-        const nextChunk = getNextChunk(rtc, id, series);
+        const nextChunk = serializeNextChunk(rtc, id, series);
         // 通知 接收方 发送块数据
         sendChunkMessage(rtc, nextChunk);
       } else if (data.key === MESSAGE_TYPE.FILE_FINISH) {
@@ -108,7 +108,7 @@ export const TransferModal: FC<{
     } else {
       // Binary - 接收 发送方 ArrayBuffer 数据
       const blob = event.data;
-      destructureChunk(blob).then(({ id, series, data }) => {
+      deserializeChunk(blob).then(({ id, series, data }) => {
         const state = FILE_STATE.get(id);
         if (!state) return void 0;
         const { size, total } = state;
@@ -121,7 +121,7 @@ export const TransferModal: FC<{
         } else {
           // 数据块序列号 [0, TOTAL)
           if (stream) {
-            WorkerEvent.post(blob);
+            WorkerEvent.post(id, data);
           } else {
             // 在内存中存储块数据
             const mapper = FILE_MAPPER.get(id) || [];
