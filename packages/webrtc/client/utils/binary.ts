@@ -1,12 +1,14 @@
-import { ChunkType, FileType } from "../../types/client";
+import { ChunkType, FileMeta } from "../../types/client";
 import { WebRTCApi } from "../../types/webrtc";
 
-export const ID_SIZE = 12; // `12B = 96bit [A B C ...]`
-export const CHUNK_SIZE = 4; // `4B = 32bit = 2^32 = 4294967296`
+// 12B = 96bit - [A-Z] * 12
+export const ID_SIZE = 12;
+// 4B = 32bit = 2^32 = 4294967296
+export const CHUNK_SIZE = 4;
 export const STEAM_TYPE = "application/octet-stream";
-export const FILE_SOURCE: Map<string, Blob> = new Map();
+export const FILE_HANDLE: Map<string, Blob> = new Map();
 export const FILE_MAPPER: Map<string, ChunkType[]> = new Map();
-export const FILE_STATE: Map<string, FileType & { series: number }> = new Map();
+export const FILE_STATE: Map<string, FileMeta & { series: number }> = new Map();
 
 export const getMaxMessageSize = (
   rtc: React.MutableRefObject<WebRTCApi | null>,
@@ -26,7 +28,7 @@ export const getNextChunk = (
   id: string,
   series: number
 ) => {
-  const file = FILE_SOURCE.get(id);
+  const file = FILE_HANDLE.get(id);
   const chunkSize = getMaxMessageSize(instance);
   if (!file) return new Blob([new ArrayBuffer(chunkSize)]);
   const start = series * chunkSize;

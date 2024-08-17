@@ -1,7 +1,11 @@
 import path from "path";
 import esbuild from "rollup-plugin-esbuild";
+import resolve from "@rollup/plugin-node-resolve";
 
 process.env.NODE_ENV === "production";
+/**
+ * @return {import("./node_modules/rollup").RollupOptions}
+ */
 export default async () => {
   return {
     input: "./server/index.ts",
@@ -11,8 +15,8 @@ export default async () => {
     },
     external: ["socket.io", "http", "os", "express", "process"],
     plugins: [
+      resolve(),
       esbuild({
-        exclude: [/node_modules/],
         target: "esnext",
         minify: true,
         charset: "utf8",

@@ -1,9 +1,9 @@
 import styles from "./index.module.scss";
 import { FC, useLayoutEffect, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
-import { BoardCastIcon, ComputerIcon, PhoneIcon } from "./icon";
+import { BoardCastIcon, ComputerIcon, PhoneIcon } from "../layout/icon";
 import { useMemoFn } from "laser-utils";
-import { WebRTC } from "../channel/webrtc";
+import { WebRTC } from "../bridge/webrtc";
 import { WebRTCApi } from "../../types/webrtc";
 import { SERVER_EVENT, ServerFn } from "../../types/signaling";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";

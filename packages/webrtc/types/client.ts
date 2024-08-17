@@ -1,6 +1,6 @@
 export type ChunkType = Blob | ArrayBuffer;
 export type Member = { id: string; device: DEVICE_TYPE };
-export type FileType = { id: string; size: number; total: number };
+export type FileMeta = { id: string; size: number; total: number };
 
 export enum CONNECTION_STATE {
   "INIT",
@@ -17,8 +17,8 @@ export enum DEVICE_TYPE {
 export type TextMessageType =
   | { type: "text"; data: string }
   | { type: "file-finish"; id: string }
-  | ({ type: "file-start"; name: string } & FileType)
-  | ({ type: "file-next"; series: number } & FileType);
+  | ({ type: "file-start"; name: string } & FileMeta)
+  | ({ type: "file-next"; series: number } & FileMeta);
 
 export type TransferListItem =
   | { type: "text"; data: string; from: "self" | "peer" }

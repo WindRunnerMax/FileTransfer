@@ -1,12 +1,12 @@
 import styles from "./index.module.scss";
 import { FC, useLayoutEffect, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
-import { BoardCastIcon, ComputerIcon, PhoneIcon } from "./icon";
+import { BoardCastIcon, ComputerIcon, PhoneIcon } from "@ft/webrtc/client/layout/icon";
 import { useMemoFn } from "laser-utils";
 import { CLINT_EVENT, SERVER_EVENT, ServerFn } from "../../types/websocket";
 import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
 import { TransferModal } from "./modal";
-import { SocketClient } from "../channel/socket-server";
+import { SocketClient } from "../bridge/socket-server";
 import { ERROR_TYPE, SHAKE_HANDS } from "../../types/server";
 import { Message } from "@arco-design/web-react";
 

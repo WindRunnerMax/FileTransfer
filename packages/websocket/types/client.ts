@@ -1,7 +1,7 @@
 export const CHUNK_SIZE = 1024 * 256; // 256KB
 export type ChunkType = Blob | ArrayBuffer;
 export type Member = { id: string; device: DEVICE_TYPE };
-export type FileType = { id: string; size: number; total: number };
+export type FileMeta = { id: string; size: number; total: number };
 
 export enum CONNECTION_STATE {
   "READY",
@@ -16,9 +16,9 @@ export enum DEVICE_TYPE {
 
 export type SocketMessageType =
   | { type: "text"; data: string }
-  | ({ type: "file-start"; name: string } & FileType)
-  | ({ type: "file-next"; current: number } & FileType)
-  | ({ type: "file-chunk"; current: number; chunk: string } & FileType)
+  | ({ type: "file-start"; name: string } & FileMeta)
+  | ({ type: "file-next"; current: number } & FileMeta)
+  | ({ type: "file-chunk"; current: number; chunk: string } & FileMeta)
   | { type: "file-finish"; id: string };
 
 export type TransferListItem =

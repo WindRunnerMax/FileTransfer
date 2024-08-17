@@ -1,5 +1,5 @@
-import type { WebRTCInstance } from "../client/channel/instance";
-import type { SignalingServer } from "../client/channel/signaling";
+import type { WebRTCInstance } from "../client/bridge/instance";
+import type { SignalingServer } from "../client/bridge/signaling";
 
 export type WebRTCOptions = { wss: string; ice?: string };
 export type WebRTCCallback = (p: { signaling: SignalingServer; rtc: WebRTCApi }) => void;

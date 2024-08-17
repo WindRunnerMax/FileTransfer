@@ -4,14 +4,14 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { CONNECTION_STATE, ChunkType, TextMessageType, TransferListItem } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
-import { WebRTC } from "../channel/webrtc";
+import { WebRTC } from "../bridge/webrtc";
 import { useMemoFn } from "laser-utils";
 import { cs, getUniqueId, isString } from "laser-utils";
 import { TSON } from "../utils/tson";
 import { formatBytes, onScroll } from "../utils/format";
 import {
   FILE_MAPPER,
-  FILE_SOURCE,
+  FILE_HANDLE,
   FILE_STATE,
   ID_SIZE,
   STEAM_TYPE,
@@ -59,29 +59,35 @@ export const TransferModal: FC<{
   const onMessage = useMemoFn((event: MessageEvent<string | ChunkType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
-      // `String`
+      // String - 接收文本类型数据
       const data = TSON.decode(event.data);
       if (!data) return void 0;
       if (data.type === "text") {
+        // 收到 发送方 的文本消息
         setList([...list, { from: "peer", ...data }]);
       } else if (data.type === "file-start") {
+        // 收到 发送方 传输起始消息 准备接收数据
         const { id, name, size, total } = data;
         FILE_STATE.set(id, { series: 0, ...data });
+        // 通知 发送方 发送首个块
         sendTextMessage({ type: "file-next", id, series: 0, size, total });
         setList([...list, { type: "file", from: "peer", name, size, progress: 0, id }]);
       } else if (data.type === "file-next") {
+        // 收到 接收方 的准备接收消息
         const { id, series, total } = data;
         const progress = Math.floor((series / total) * 100);
         updateFileProgress(id, progress);
         const nextChunk = getNextChunk(rtc, id, series);
+        // 通知 接收方 发送块数据
         sendChunkMessage(rtc, nextChunk);
       } else if (data.type === "file-finish") {
+        // 收到 接收方 的接收完成消息
         const { id } = data;
         FILE_STATE.delete(id);
         updateFileProgress(id, 100);
       }
     } else {
-      // `Binary`
+      // Binary - 接收 发送方 ArrayBuffer 数据
       const blob = event.data;
       destructureChunk(blob).then(({ id, series, data }) => {
         const state = FILE_STATE.get(id);
@@ -90,11 +96,13 @@ export const TransferModal: FC<{
         const progress = Math.floor((series / total) * 100);
         updateFileProgress(id, progress);
         if (series >= total) {
+          // 数据接收完毕 通知 发送方 接收完毕
           sendTextMessage({ type: "file-finish", id });
         } else {
           const mapper = FILE_MAPPER.get(id) || [];
           mapper[series] = data;
           FILE_MAPPER.set(id, mapper);
+          // 通知 发送方 发送下一个序列块
           sendTextMessage({ type: "file-next", id, series: series + 1, size, total });
         }
       });
@@ -152,7 +160,7 @@ export const TransferModal: FC<{
       const size = file.size;
       const total = Math.ceil(file.size / maxChunkSize);
       sendTextMessage({ type: "file-start", id, name, size, total });
-      FILE_SOURCE.set(id, file);
+      FILE_HANDLE.set(id, file);
       newList.push({ type: "file", from: "self", name, size, progress: 0, id } as const);
     }
     setList(newList);
@@ -182,7 +190,7 @@ export const TransferModal: FC<{
   const onDownloadFile = (id: string, fileName: string) => {
     const blob = FILE_MAPPER.get(id)
       ? new Blob(FILE_MAPPER.get(id), { type: STEAM_TYPE })
-      : FILE_SOURCE.get(id) || new Blob();
+      : FILE_HANDLE.get(id) || new Blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

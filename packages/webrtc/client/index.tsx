@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom";
 import { App } from "./app/app";
 import "@arco-design/web-react/es/style/index.less";
-import { drawingBackdrop } from "./app/canvas";
+import { drawingBackdrop } from "./layout/canvas";
 import { IS_MOBILE } from "laser-utils";
 import VConsole from "vconsole";
 
