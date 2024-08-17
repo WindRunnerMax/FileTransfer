@@ -2,12 +2,13 @@ const path = require("path");
 const { default: HtmlPlugin } = require("@rspack/plugin-html");
 const CopyPlugin = require("copy-webpack-plugin");
 
+const PUBLIC_PATH = "/";
 const isDev = process.env.NODE_ENV === "development";
 
 /**
  * @type {import("@rspack/cli").Configuration}
  */
-module.exports = {
+const Main = {
   context: __dirname,
   entry: {
     index: "./client/index.tsx",
@@ -17,6 +18,7 @@ module.exports = {
     new HtmlPlugin({
       filename: "index.html",
       template: "./client/static/index.html",
+      templateParameters: { PUBLIC_PATH },
     }),
   ],
   resolve: {
@@ -27,6 +29,7 @@ module.exports = {
   builtins: {
     define: {
       "__DEV__": JSON.stringify(isDev),
+      "process.env.PUBLIC_PATH": JSON.stringify(PUBLIC_PATH),
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
     },
     pluginImport: [
@@ -66,12 +69,29 @@ module.exports = {
   target: "es5",
   devtool: isDev ? "source-map" : false,
   output: {
-    publicPath: "/",
+    publicPath: PUBLIC_PATH,
     chunkLoading: "jsonp",
     chunkFormat: "array-push",
     filename: isDev ? "[name].js" : "[name].[hash].js",
     path: path.resolve(__dirname, "build/static"),
   },
 };
+
+/**
+ * @type {import("@rspack/cli").Configuration}
+ */
+const Worker = {
+  context: __dirname,
+  entry: {
+    worker: "./client/worker/index.ts",
+  },
+  output: {
+    filename: "[name].js",
+    globalObject: "this",
+    path: path.resolve(__dirname, "build/static"),
+  },
+};
+
+module.exports = [Main, Worker];
 
 // https://www.rspack.dev/

@@ -1,7 +1,7 @@
 import type { WebRTCApi } from "../../types/webrtc";
 import styles from "../styles/index.module.scss";
 import type { FC } from "react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import type { BufferType, ConnectionState, MessageType, TransferType } from "../../types/client";
 import { CONNECTION_STATE, MESSAGE_TYPE, TRANSFER_FROM, TRANSFER_TYPE } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
@@ -24,6 +24,7 @@ import {
 } from "../utils/binary";
 
 export const TransferModal: FC<{
+  stream?: boolean;
   connection: React.MutableRefObject<WebRTC | null>;
   rtc: React.MutableRefObject<WebRTCApi | null>;
   id: string;
@@ -34,7 +35,17 @@ export const TransferModal: FC<{
   setState: (state: ConnectionState) => void;
   visible: boolean;
   setVisible: (visible: boolean) => void;
-}> = ({ connection, rtc, state, peerId, visible, setVisible, setPeerId, setState }) => {
+}> = ({
+  stream = false,
+  connection,
+  rtc,
+  state,
+  peerId,
+  visible,
+  setVisible,
+  setPeerId,
+  setState,
+}) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState("");
   const [toConnectId, setToConnectId] = useState("");
@@ -104,6 +115,7 @@ export const TransferModal: FC<{
           // 数据接收完毕 通知 发送方 接收完毕
           sendTextMessage({ key: MESSAGE_TYPE.FILE_FINISH, id });
         } else {
+          // 数据块序列号 [0, TOTAL)
           const mapper = FILE_MAPPER.get(id) || [];
           mapper[series] = data;
           FILE_MAPPER.set(id, mapper);
@@ -293,7 +305,7 @@ export const TransferModal: FC<{
       </div>
       <div className={styles.modalFooter}>
         {peerId ? (
-          <>
+          <Fragment>
             <Button
               disabled={!enableTransfer}
               type="primary"
@@ -320,9 +332,9 @@ export const TransferModal: FC<{
             >
               Send
             </Button>
-          </>
+          </Fragment>
         ) : (
-          <>
+          <Fragment>
             <Input
               value={toConnectId}
               disabled={state === CONNECTION_STATE.CONNECTING}
@@ -339,7 +351,7 @@ export const TransferModal: FC<{
             >
               Connect
             </Button>
-          </>
+          </Fragment>
         )}
       </div>
     </Modal>

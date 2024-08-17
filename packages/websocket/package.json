@@ -6,7 +6,7 @@
     "dev:fe": "rspack build -c rspack.client.js --watch",
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
-    "build": "rm -rf build && npm run build:fe && rollup -c rollup.server.js",
+    "build": "rimraf build && npm run build:fe && rollup -c rollup.server.js",
     "deploy": "npm run build && node build/server.js",
     "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit"
   },
@@ -43,6 +43,7 @@
     "esbuild": "0.19.6",
     "express": "4.18.2",
     "less": "3.0.0",
+    "rimraf": "6.0.1",
     "less-loader": "6.0.0",
     "postcss": "8.3.3",
     "prettier": "2.4.1",

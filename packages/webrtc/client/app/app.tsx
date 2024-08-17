@@ -1,6 +1,6 @@
 import styles from "../styles/index.module.scss";
 import type { FC } from "react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon, ComputerIcon, PhoneIcon } from "../layout/icon";
 import { useMemoFn } from "laser-utils";
@@ -22,6 +22,11 @@ export const App: FC = () => {
   const [visible, setVisible] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [state, setState] = useState<ConnectionState>(CONNECTION_STATE.INIT);
+
+  const streamMode = useMemo(() => {
+    const search = new URL(location.href).searchParams;
+    return search.get("mode") === "stream";
+  }, []);
 
   // === RTC Connection Event ===
   const onOpen = useMemoFn(event => {
@@ -156,6 +161,7 @@ export const App: FC = () => {
       </a>
       {visible && (
         <TransferModal
+          stream={streamMode}
           connection={connection}
           rtc={rtc}
           id={id}
