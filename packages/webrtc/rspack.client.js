@@ -1,8 +1,10 @@
 const path = require("path");
 const { default: HtmlPlugin } = require("@rspack/plugin-html");
 const CopyPlugin = require("copy-webpack-plugin");
+const { getId } = require("laser-utils");
 
 const PUBLIC_PATH = "/";
+const RANDOM_ID = getId();
 const isDev = process.env.NODE_ENV === "development";
 
 /**
@@ -18,7 +20,6 @@ const Main = {
     new HtmlPlugin({
       filename: "index.html",
       template: "./client/static/index.html",
-      templateParameters: { PUBLIC_PATH },
     }),
   ],
   resolve: {
@@ -29,6 +30,7 @@ const Main = {
   builtins: {
     define: {
       "__DEV__": JSON.stringify(isDev),
+      "process.env.RANDOM_ID": JSON.stringify(RANDOM_ID),
       "process.env.PUBLIC_PATH": JSON.stringify(PUBLIC_PATH),
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
     },
@@ -72,7 +74,7 @@ const Main = {
     publicPath: PUBLIC_PATH,
     chunkLoading: "jsonp",
     chunkFormat: "array-push",
-    filename: isDev ? "[name].js" : "[name].[hash].js",
+    filename: "[name].[hash].js",
     path: path.resolve(__dirname, "build/static"),
   },
 };
@@ -86,8 +88,8 @@ const Worker = {
     worker: "./client/worker/index.ts",
   },
   output: {
+    clean: true,
     filename: "[name].js",
-    globalObject: "this",
     path: path.resolve(__dirname, "build/static"),
   },
 };

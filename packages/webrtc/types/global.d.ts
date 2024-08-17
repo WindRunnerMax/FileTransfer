@@ -6,7 +6,8 @@ declare module "*.scss" {
 declare namespace NodeJS {
   interface ProcessEnv {
     PORT: string;
-    NODE_ENV: "development" | "production";
+    RANDOM_ID: string;
     PUBLIC_PATH: string;
+    NODE_ENV: "development" | "production";
   }
 }
