@@ -1,8 +1,8 @@
 import { decodeJSON as DecodeJSON, encodeJSON as EncodeJSON } from "laser-utils";
-import { TextMessageType } from "../../types/client";
+import type { MessageType } from "../../types/client";
 
-type EncodeJSONType = (value: TextMessageType) => string;
-type DecodeJSONType = (value: string) => TextMessageType | null;
+type EncodeJSONType = (value: MessageType) => string;
+type DecodeJSONType = (value: string) => MessageType | null;
 
 export const TSON = {
   /**

@@ -1,28 +1,27 @@
-import { Socket } from "socket.io";
-import { ClientHandler, ServerHandler } from "./websocket";
-import { DEVICE_TYPE } from "./client";
+import type { Socket } from "socket.io";
+import type { ClientHandler, ServerHandler } from "./websocket";
+import type { ConnectionState, DeviceType } from "./client";
+import type { Object } from "laser-utils";
+export type { ConnectionState } from "./client";
+export { CONNECTION_STATE } from "./client";
 
-export type ServerSocket = Socket<ClientHandler, ServerHandler>;
+export const SHAKE_HANDS = {
+  ACCEPT: "ACCEPT",
+  REJECT: "REJECT",
+} as const;
 
-export enum CONNECTION_STATE {
-  "READY",
-  "CONNECTING",
-  "CONNECTED",
-}
-
-export enum SHAKE_HANDS {
-  "ACCEPT",
-  "REJECT",
-}
-
-export enum ERROR_TYPE {
-  "NO_ERROR",
-  "PEER_BUSY",
-  "PEER_NOT_FOUND",
-}
+export const ERROR_TYPE = {
+  NO_ERROR: "NO_ERROR",
+  PEER_BUSY: "PEER_BUSY",
+  PEER_NOT_FOUND: "PEER_NOT_FOUND",
+} as const;
 
 export type Member = {
   socket: ServerSocket;
-  device: DEVICE_TYPE;
-  state: CONNECTION_STATE;
+  device: DeviceType;
+  state: ConnectionState;
 };
+
+export type ErrorType = Object.Values<typeof ERROR_TYPE>;
+export type ShakeHands = Object.Values<typeof SHAKE_HANDS>;
+export type ServerSocket = Socket<ClientHandler, ServerHandler>;

@@ -1,10 +1,13 @@
-import styles from "./index.module.scss";
-import { FC, useLayoutEffect, useRef, useState } from "react";
+import styles from "../styles/index.module.scss";
+import type { FC } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon, ComputerIcon, PhoneIcon } from "@ft/webrtc/client/layout/icon";
 import { useMemoFn } from "laser-utils";
-import { CLINT_EVENT, SERVER_EVENT, ServerFn } from "../../types/websocket";
-import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
+import type { ServerFn } from "../../types/websocket";
+import { CLINT_EVENT, SERVER_EVENT } from "../../types/websocket";
+import type { ConnectionState, Member } from "../../types/client";
+import { CONNECTION_STATE, DEVICE_TYPE } from "../../types/client";
 import { TransferModal } from "./modal";
 import { SocketClient } from "../bridge/socket-server";
 import { ERROR_TYPE, SHAKE_HANDS } from "../../types/server";
@@ -16,7 +19,7 @@ export const App: FC = () => {
   const [peerId, setPeerId] = useState("");
   const [visible, setVisible] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
-  const [state, setState] = useState(CONNECTION_STATE.READY);
+  const [state, setState] = useState<ConnectionState>(CONNECTION_STATE.READY);
 
   // === WebSocket Connection Event ===
   const onJoinRoom: ServerFn<typeof SERVER_EVENT.JOINED_ROOM> = useMemoFn(member => {

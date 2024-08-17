@@ -39,5 +39,7 @@ module.exports = {
     "no-console": "off",
     // 关闭每个函数都要显式声明返回值
     // "@typescript-eslint/explicit-module-boundary-types": "off",
+    // 偏好 import type
+    "@typescript-eslint/consistent-type-imports": "error",
   },
 };

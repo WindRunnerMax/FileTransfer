@@ -1,6 +1,6 @@
-import { Member } from "../types/server";
+import type { Member } from "../types/server";
 import os from "os";
-import http from "http";
+import type http from "http";
 
 export const updateMember = <T extends keyof Member>(
   map: Map<string, Member>,

@@ -8,7 +8,7 @@ export const drawingBackdrop = () => {
   style.top = "0";
   style.left = "0";
   const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+  if (!ctx) return void 0;
 
   let x: number, y: number, width: number, height: number, degree: number;
 

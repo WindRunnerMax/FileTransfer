@@ -1,4 +1,4 @@
-import { WebRTCCallback, WebRTCOptions } from "../../types/webrtc";
+import type { WebRTCCallback, WebRTCOptions } from "../../types/webrtc";
 import { WebRTCInstance } from "./instance";
 import { SignalingServer } from "./signaling";
 import { getUniqueId } from "laser-utils";

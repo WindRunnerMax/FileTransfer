@@ -2,14 +2,10 @@ import http from "http";
 import express from "express";
 import process from "process";
 import { Server } from "socket.io";
-import {
-  CLINT_EVENT,
-  SERVER_EVENT,
-  ServerHandler,
-  ClientHandler,
-  SocketEventParams,
-} from "../types/signaling";
-import { ERROR_TYPE, Member, ServerSocket } from "../types/server";
+import type { ServerHandler, ClientHandler, SocketEventParams } from "../types/signaling";
+import { CLINT_EVENT, SERVER_EVENT } from "../types/signaling";
+import type { Member, ServerSocket } from "../types/server";
+import { ERROR_TYPE } from "../types/server";
 import { getIpByRequest, getLocalIp } from "./utils";
 
 const app = express();

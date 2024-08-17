@@ -1,10 +1,12 @@
-import { WebRTCApi } from "../../types/webrtc";
-import styles from "./index.module.scss";
-import React, { FC, useEffect, useRef, useState } from "react";
-import { CONNECTION_STATE, ChunkType, TextMessageType, TransferListItem } from "../../types/client";
+import type { WebRTCApi } from "../../types/webrtc";
+import styles from "../styles/index.module.scss";
+import type { FC } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import type { BufferType, ConnectionState, MessageType, TransferType } from "../../types/client";
+import { CONNECTION_STATE, MESSAGE_TYPE, TRANSFER_FROM, TRANSFER_TYPE } from "../../types/client";
 import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconRight, IconSend, IconToBottom } from "@arco-design/web-react/icon";
-import { WebRTC } from "../bridge/webrtc";
+import type { WebRTC } from "../bridge/webrtc";
 import { useMemoFn } from "laser-utils";
 import { cs, getUniqueId, isString } from "laser-utils";
 import { TSON } from "../utils/tson";
@@ -28,15 +30,15 @@ export const TransferModal: FC<{
   setId: (id: string) => void;
   peerId: string;
   setPeerId: (id: string) => void;
-  state: CONNECTION_STATE;
-  setState: (state: CONNECTION_STATE) => void;
+  state: ConnectionState;
+  setState: (state: ConnectionState) => void;
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }> = ({ connection, rtc, state, peerId, visible, setVisible, setPeerId, setState }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState("");
   const [toConnectId, setToConnectId] = useState("");
-  const [list, setList] = useState<TransferListItem[]>([]);
+  const [list, setList] = useState<TransferType[]>([]);
 
   const onCancel = () => {
     rtc.current?.close();
@@ -44,43 +46,46 @@ export const TransferModal: FC<{
     setVisible(false);
   };
 
-  const sendTextMessage = (message: TextMessageType) => {
+  const sendTextMessage = (message: MessageType) => {
     rtc.current?.send(TSON.encode(message));
   };
 
   const updateFileProgress = (id: string, progress: number, newList = list) => {
-    const last = newList.find(item => item.type === "file" && item.id === id);
-    if (last && last.type === "file") {
+    const last = newList.find(item => item.key === TRANSFER_TYPE.FILE && item.id === id);
+    if (last && last.key === TRANSFER_TYPE.FILE) {
       last.progress = progress;
       setList([...newList]);
     }
   };
 
-  const onMessage = useMemoFn((event: MessageEvent<string | ChunkType>) => {
+  const onMessage = useMemoFn((event: MessageEvent<string | BufferType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
       // String - 接收文本类型数据
       const data = TSON.decode(event.data);
       if (!data) return void 0;
-      if (data.type === "text") {
+      if (data.key === MESSAGE_TYPE.TEXT) {
         // 收到 发送方 的文本消息
-        setList([...list, { from: "peer", ...data }]);
-      } else if (data.type === "file-start") {
+        setList([...list, { from: TRANSFER_FROM.PEER, ...data }]);
+      } else if (data.key === MESSAGE_TYPE.FILE_START) {
         // 收到 发送方 传输起始消息 准备接收数据
         const { id, name, size, total } = data;
         FILE_STATE.set(id, { series: 0, ...data });
         // 通知 发送方 发送首个块
-        sendTextMessage({ type: "file-next", id, series: 0, size, total });
-        setList([...list, { type: "file", from: "peer", name, size, progress: 0, id }]);
-      } else if (data.type === "file-next") {
-        // 收到 接收方 的准备接收消息
+        sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: 0, size, total });
+        setList([
+          ...list,
+          { key: TRANSFER_TYPE.FILE, from: TRANSFER_FROM.PEER, name, size, progress: 0, id },
+        ]);
+      } else if (data.key === MESSAGE_TYPE.FILE_NEXT) {
+        // 收到 接收方 的准备接收块数据消息
         const { id, series, total } = data;
         const progress = Math.floor((series / total) * 100);
         updateFileProgress(id, progress);
         const nextChunk = getNextChunk(rtc, id, series);
         // 通知 接收方 发送块数据
         sendChunkMessage(rtc, nextChunk);
-      } else if (data.type === "file-finish") {
+      } else if (data.key === MESSAGE_TYPE.FILE_FINISH) {
         // 收到 接收方 的接收完成消息
         const { id } = data;
         FILE_STATE.delete(id);
@@ -97,13 +102,13 @@ export const TransferModal: FC<{
         updateFileProgress(id, progress);
         if (series >= total) {
           // 数据接收完毕 通知 发送方 接收完毕
-          sendTextMessage({ type: "file-finish", id });
+          sendTextMessage({ key: MESSAGE_TYPE.FILE_FINISH, id });
         } else {
           const mapper = FILE_MAPPER.get(id) || [];
           mapper[series] = data;
           FILE_MAPPER.set(id, mapper);
           // 通知 发送方 发送下一个序列块
-          sendTextMessage({ type: "file-next", id, series: series + 1, size, total });
+          sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: series + 1, size, total });
         }
       });
     }
@@ -144,8 +149,8 @@ export const TransferModal: FC<{
 
   const onSendText = () => {
     if (rtc.current && text) {
-      sendTextMessage({ type: "text", data: text });
-      setList([...list, { type: "text", from: "self", data: text }]);
+      sendTextMessage({ key: MESSAGE_TYPE.TEXT, data: text });
+      setList([...list, { key: TRANSFER_TYPE.TEXT, from: TRANSFER_FROM.SELF, data: text }]);
       setText("");
       onScroll(listRef);
     }
@@ -159,9 +164,16 @@ export const TransferModal: FC<{
       const id = getUniqueId(ID_SIZE);
       const size = file.size;
       const total = Math.ceil(file.size / maxChunkSize);
-      sendTextMessage({ type: "file-start", id, name, size, total });
+      sendTextMessage({ key: MESSAGE_TYPE.FILE_START, id, name, size, total });
       FILE_HANDLE.set(id, file);
-      newList.push({ type: "file", from: "self", name, size, progress: 0, id } as const);
+      newList.push({
+        key: TRANSFER_TYPE.FILE,
+        from: TRANSFER_FROM.SELF,
+        name,
+        size,
+        progress: 0,
+        id,
+      } as const);
     }
     setList(newList);
     onScroll(listRef);
@@ -247,10 +259,13 @@ export const TransferModal: FC<{
         {list.map((item, index) => (
           <div
             key={index}
-            className={cs(styles.messageItem, item.from === "self" && styles.alignRight)}
+            className={cs(
+              styles.messageItem,
+              item.from === TRANSFER_FROM.SELF && styles.alignRight
+            )}
           >
             <div className={styles.messageContent}>
-              {item.type === "text" ? (
+              {item.key === TRANSFER_TYPE.TEXT ? (
                 <span>{item.data}</span>
               ) : (
                 <div className={styles.fileMessage}>

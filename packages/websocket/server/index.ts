@@ -2,14 +2,10 @@ import http from "http";
 import express from "express";
 import process from "process";
 import { Server } from "socket.io";
-import {
-  CLINT_EVENT,
-  SERVER_EVENT,
-  ServerHandler,
-  ClientHandler,
-  SocketEventParams,
-} from "../types/websocket";
-import { CONNECTION_STATE, ERROR_TYPE, Member, ServerSocket } from "../types/server";
+import type { ServerHandler, ClientHandler, SocketEventParams } from "../types/websocket";
+import { CLINT_EVENT, SERVER_EVENT } from "../types/websocket";
+import type { Member, ServerSocket } from "../types/server";
+import { CONNECTION_STATE, ERROR_TYPE } from "../types/server";
 import { getLocalIp, updateMember } from "./utils";
 
 const app = express();

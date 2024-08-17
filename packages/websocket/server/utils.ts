@@ -1,4 +1,4 @@
-import { Member } from "../types/server";
+import type { Member } from "../types/server";
 export { getLocalIp } from "@ft/webrtc/server/utils.ts";
 
 export const updateMember = <T extends keyof Member>(

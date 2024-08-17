@@ -1,12 +1,15 @@
-import styles from "./index.module.scss";
-import { FC, useLayoutEffect, useRef, useState } from "react";
+import styles from "../styles/index.module.scss";
+import type { FC } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { IconGithub } from "@arco-design/web-react/icon";
 import { BoardCastIcon, ComputerIcon, PhoneIcon } from "../layout/icon";
 import { useMemoFn } from "laser-utils";
 import { WebRTC } from "../bridge/webrtc";
-import { WebRTCApi } from "../../types/webrtc";
-import { SERVER_EVENT, ServerFn } from "../../types/signaling";
-import { CONNECTION_STATE, DEVICE_TYPE, Member } from "../../types/client";
+import type { WebRTCApi } from "../../types/webrtc";
+import type { ServerFn } from "../../types/signaling";
+import { SERVER_EVENT } from "../../types/signaling";
+import type { ConnectionState, Member } from "../../types/client";
+import { CONNECTION_STATE, DEVICE_TYPE } from "../../types/client";
 import { TransferModal } from "./modal";
 import { Message } from "@arco-design/web-react";
 import { ERROR_TYPE } from "../../types/server";
@@ -18,7 +21,7 @@ export const App: FC = () => {
   const [peerId, setPeerId] = useState("");
   const [visible, setVisible] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
-  const [state, setState] = useState(CONNECTION_STATE.INIT);
+  const [state, setState] = useState<ConnectionState>(CONNECTION_STATE.INIT);
 
   // === RTC Connection Event ===
   const onOpen = useMemoFn(event => {

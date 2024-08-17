@@ -1,5 +1,5 @@
-import type { DEVICE_TYPE } from "./client";
-import type { ERROR_TYPE } from "./server";
+import type { DeviceType } from "./client";
+import type { ErrorType } from "./server";
 
 const CLINT_EVENT_BASE = [
   "JOIN_ROOM",
@@ -9,11 +9,6 @@ const CLINT_EVENT_BASE = [
   "SEND_ICE",
   "SEND_ERROR",
 ] as const;
-export type ClientEventKeys = typeof CLINT_EVENT_BASE[number];
-export const CLINT_EVENT = CLINT_EVENT_BASE.reduce(
-  (acc, cur) => ({ ...acc, [cur]: cur }),
-  {} as { [K in ClientEventKeys]: K }
-);
 
 const SERVER_EVENT_BASE = [
   "JOINED_ROOM",
@@ -24,17 +19,37 @@ const SERVER_EVENT_BASE = [
   "FORWARD_ICE",
   "NOTIFY_ERROR",
 ] as const;
-export type ServerEventKeys = typeof SERVER_EVENT_BASE[number];
+
+export const CLINT_EVENT = CLINT_EVENT_BASE.reduce(
+  (acc, cur) => ({ ...acc, [cur]: cur }),
+  {} as { [K in ClientEventKeys]: K }
+);
+
 export const SERVER_EVENT = SERVER_EVENT_BASE.reduce(
   (acc, cur) => ({ ...acc, [cur]: cur }),
   {} as { [K in ServerEventKeys]: K }
 );
 
+export type ClientFn<T extends ClientEventKeys> = (
+  payload: SocketEventParams[T],
+  callback?: (state: CallBackState) => void
+) => void;
+export type ClientEventKeys = typeof CLINT_EVENT_BASE[number];
+export type CallBackState = { code: number; message: string };
+export type ClientHandler = { [K in ClientEventKeys]: ClientFn<K> };
+
+export type ServerFn<T extends ServerEventKeys> = (
+  payload: SocketEventParams[T],
+  callback?: (state: CallBackState) => void
+) => void;
+export type ServerEventKeys = typeof SERVER_EVENT_BASE[number];
+export type ServerHandler = { [K in ServerEventKeys]: ServerFn<K> };
+
 export interface SocketEventParams {
   // CLIENT
   [CLINT_EVENT.JOIN_ROOM]: {
     id: string;
-    device: DEVICE_TYPE;
+    device: DeviceType;
   };
   [CLINT_EVENT.LEAVE_ROOM]: {
     id: string;
@@ -57,19 +72,19 @@ export interface SocketEventParams {
   [CLINT_EVENT.SEND_ERROR]: {
     origin: string;
     target: string;
-    code: ERROR_TYPE;
+    code: ErrorType;
     message: string;
   };
 
   // SERVER
   [SERVER_EVENT.JOINED_ROOM]: {
     id: string;
-    device: DEVICE_TYPE;
+    device: DeviceType;
   };
   [SERVER_EVENT.JOINED_MEMBER]: {
     initialization: {
       id: string;
-      device: DEVICE_TYPE;
+      device: DeviceType;
     }[];
   };
   [SERVER_EVENT.LEFT_ROOM]: {
@@ -91,20 +106,7 @@ export interface SocketEventParams {
     ice: RTCIceCandidateInit;
   };
   [SERVER_EVENT.NOTIFY_ERROR]: {
-    code: ERROR_TYPE;
+    code: ErrorType;
     message: string;
   };
 }
-
-export type CallBackState = { code: number; message: string };
-export type ClientFn<T extends ClientEventKeys> = (
-  payload: SocketEventParams[T],
-  callback?: (state: CallBackState) => void
-) => void;
-export type ClientHandler = { [K in ClientEventKeys]: ClientFn<K> };
-
-export type ServerFn<T extends ServerEventKeys> = (
-  payload: SocketEventParams[T],
-  callback?: (state: CallBackState) => void
-) => void;
-export type ServerHandler = { [K in ServerEventKeys]: ServerFn<K> };

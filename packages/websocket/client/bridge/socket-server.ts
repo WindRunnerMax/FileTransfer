@@ -1,6 +1,6 @@
-import io, { Socket } from "socket.io-client";
-import {
-  CLINT_EVENT,
+import type { Socket } from "socket.io-client";
+import io from "socket.io-client";
+import type {
   CallBackState,
   ClientEventKeys,
   ClientHandler,
@@ -9,6 +9,7 @@ import {
   ServerHandler,
   SocketEventParams,
 } from "../../types/websocket";
+import { CLINT_EVENT } from "../../types/websocket";
 import { IS_MOBILE } from "laser-utils";
 import { DEVICE_TYPE } from "../../types/client";
 import { getUniqueId } from "laser-utils";

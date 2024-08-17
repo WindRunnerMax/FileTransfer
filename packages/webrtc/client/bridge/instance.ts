@@ -1,6 +1,7 @@
-import { CLINT_EVENT, SERVER_EVENT, SocketEventParams } from "../../types/signaling";
-import { SignalingServer } from "./signaling";
-import { WebRTCInstanceOptions } from "../../types/webrtc";
+import type { SocketEventParams } from "../../types/signaling";
+import { CLINT_EVENT, SERVER_EVENT } from "../../types/signaling";
+import type { SignalingServer } from "./signaling";
+import type { WebRTCInstanceOptions } from "../../types/webrtc";
 import { ERROR_TYPE } from "../../types/server";
 
 export class WebRTCInstance {

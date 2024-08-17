@@ -1,5 +1,5 @@
-import { ChunkType, FileMeta } from "../../types/client";
-import { WebRTCApi } from "../../types/webrtc";
+import type { BufferType, FileMeta } from "../../types/client";
+import type { WebRTCApi } from "../../types/webrtc";
 
 // 12B = 96bit - [A-Z] * 12
 export const ID_SIZE = 12;
@@ -7,7 +7,7 @@ export const ID_SIZE = 12;
 export const CHUNK_SIZE = 4;
 export const STEAM_TYPE = "application/octet-stream";
 export const FILE_HANDLE: Map<string, Blob> = new Map();
-export const FILE_MAPPER: Map<string, ChunkType[]> = new Map();
+export const FILE_MAPPER: Map<string, BufferType[]> = new Map();
 export const FILE_STATE: Map<string, FileMeta & { series: number }> = new Map();
 
 export const getMaxMessageSize = (
@@ -44,7 +44,7 @@ export const getNextChunk = (
 };
 
 let isSending = false;
-const QUEUE_TASK: ChunkType[] = [];
+const QUEUE_TASK: BufferType[] = [];
 const start = async (rtc: React.MutableRefObject<WebRTCApi | null>) => {
   isSending = true;
   const chunkSize = getMaxMessageSize(rtc, true);
@@ -69,13 +69,13 @@ const start = async (rtc: React.MutableRefObject<WebRTCApi | null>) => {
 
 export const sendChunkMessage = async (
   rtc: React.MutableRefObject<WebRTCApi | null>,
-  chunk: ChunkType
+  chunk: BufferType
 ) => {
   QUEUE_TASK.push(chunk);
   !isSending && start(rtc);
 };
 
-export const destructureChunk = async (chunk: ChunkType) => {
+export const destructureChunk = async (chunk: BufferType) => {
   const buffer = chunk instanceof Blob ? await chunk.arrayBuffer() : chunk;
   const id = new Uint8Array(buffer.slice(0, ID_SIZE));
   const series = new Uint8Array(buffer.slice(ID_SIZE, ID_SIZE + CHUNK_SIZE));
