@@ -22,6 +22,7 @@ import {
   getNextChunk,
   sendChunkMessage,
 } from "../utils/binary";
+import { WorkerEvent } from "../worker/event";
 
 export const TransferModal: FC<{
   stream?: boolean;
@@ -82,12 +83,14 @@ export const TransferModal: FC<{
         // 收到 发送方 传输起始消息 准备接收数据
         const { id, name, size, total } = data;
         FILE_STATE.set(id, { series: 0, ...data });
-        // 通知 发送方 发送首个块
-        sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: 0, size, total });
+
         setList([
           ...list,
           { key: TRANSFER_TYPE.FILE, from: TRANSFER_FROM.PEER, name, size, progress: 0, id },
         ]);
+        // 通知 发送方 发送首个块
+        sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: 0, size, total });
+        stream && WorkerEvent.start(id, name, size, total);
       } else if (data.key === MESSAGE_TYPE.FILE_NEXT) {
         // 收到 接收方 的准备接收块数据消息
         const { id, series, total } = data;
@@ -114,11 +117,17 @@ export const TransferModal: FC<{
         if (series >= total) {
           // 数据接收完毕 通知 发送方 接收完毕
           sendTextMessage({ key: MESSAGE_TYPE.FILE_FINISH, id });
+          stream && WorkerEvent.close(id);
         } else {
           // 数据块序列号 [0, TOTAL)
-          const mapper = FILE_MAPPER.get(id) || [];
-          mapper[series] = data;
-          FILE_MAPPER.set(id, mapper);
+          if (stream) {
+            WorkerEvent.post(blob);
+          } else {
+            // 在内存中存储块数据
+            const mapper = FILE_MAPPER.get(id) || [];
+            mapper[series] = data;
+            FILE_MAPPER.set(id, mapper);
+          }
           // 通知 发送方 发送下一个序列块
           sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: series + 1, size, total });
         }
@@ -289,12 +298,14 @@ export const TransferModal: FC<{
                       </div>
                       <div>{formatBytes(item.size)}</div>
                     </div>
-                    <div
-                      className={cs(styles.fileDownload, item.progress !== 100 && styles.disable)}
-                      onClick={() => item.progress === 100 && onDownloadFile(item.id, item.name)}
-                    >
-                      <IconToBottom />
-                    </div>
+                    {!stream && (
+                      <div
+                        className={cs(styles.fileDownload, item.progress !== 100 && styles.disable)}
+                        onClick={() => item.progress === 100 && onDownloadFile(item.id, item.name)}
+                      >
+                        <IconToBottom />
+                      </div>
+                    )}
                   </div>
                   <Progress color="#fff" trailColor="#aaa" percent={item.progress}></Progress>
                 </div>

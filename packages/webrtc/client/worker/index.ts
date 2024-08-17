@@ -24,7 +24,9 @@ self.onmessage = event => {
     const stream = map.get(id);
     if (!stream) return void 0;
     const [, controller, size] = stream;
-    controller.enqueue(data);
+    // 需要处理 BackPressure 而 TransformStream 解决了问题
+    // 不能直接写入 ArrayBuffer 必须要写入 TypedArray 类型
+    controller.enqueue(new Uint8Array(data));
     // 数据块序列号 [0, TOTAL)
     if (series === size - 1) {
       controller.close();
@@ -34,14 +36,14 @@ self.onmessage = event => {
 };
 
 self.onfetch = event => {
-  const headers = event.request.headers;
-  const fileId = headers.get(HEADER_KEY.FILE_ID);
-  const fileName = headers.get(HEADER_KEY.FILE_NAME);
-  const fileSize = headers.get(HEADER_KEY.FILE_SIZE);
-  if (fileId && fileName && fileSize) {
-    const newFileName = encodeURIComponent(fileName)
-      .replace(/['()]/g, escape)
-      .replace(/\*/g, "%2A");
+  const url = new URL(event.request.url);
+  const search = url.searchParams;
+  const fileId = search.get(HEADER_KEY.FILE_ID);
+  const fileName = search.get(HEADER_KEY.FILE_NAME);
+  const fileSize = search.get(HEADER_KEY.FILE_SIZE);
+  const fileTotal = search.get(HEADER_KEY.FILE_TOTAL);
+  if (fileId && fileName && fileSize && fileTotal) {
+    const newFileName = decodeURIComponent(fileName);
     let controller: ReadableStreamDefaultController | null = null;
     const readable = new ReadableStream({
       start(ctr) {
@@ -51,21 +53,22 @@ self.onfetch = event => {
         console.log("ReadableStream Aborted", reason);
       },
     });
-    map.set(fileId, [readable, controller!, Number(fileSize)]);
+    map.set(fileId, [readable, controller!, Number(fileTotal)]);
+    const responseHeader = new Headers({
+      [HEADER_KEY.FILE_ID]: fileId,
+      [HEADER_KEY.FILE_SIZE]: fileSize,
+      [HEADER_KEY.FILE_NAME]: newFileName,
+      "Content-Type": "application/octet-stream; charset=utf-8",
+      "Content-Security-Policy": "default-src 'none'",
+      "X-Content-Security-Policy": "default-src 'none'",
+      "X-WebKit-CSP": "default-src 'none'",
+      "X-XSS-Protection": "1; mode=block",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Content-Disposition": "attachment; filename*=UTF-8''" + newFileName,
+      "Content-Length": fileSize,
+    });
     const response = new Response(readable, {
-      headers: {
-        [HEADER_KEY.FILE_ID]: fileId,
-        [HEADER_KEY.FILE_NAME]: newFileName,
-        [HEADER_KEY.FILE_SIZE]: fileSize,
-        "Content-Type": "application/octet-stream; charset=utf-8",
-        "Content-Security-Policy": "default-src 'none'",
-        "X-Content-Security-Policy": "default-src 'none'",
-        "X-WebKit-CSP": "default-src 'none'",
-        "X-XSS-Protection": "1; mode=block",
-        "Cross-Origin-Embedder-Policy": "require-corp",
-        "Content-Disposition": "attachment; filename*=UTF-8''" + newFileName,
-        "Content-Length": fileSize,
-      },
+      headers: responseHeader,
     });
     return event.respondWith(response);
   }

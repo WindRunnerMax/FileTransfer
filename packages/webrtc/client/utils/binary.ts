@@ -53,7 +53,7 @@ const start = async (rtc: React.MutableRefObject<WebRTCApi | null>) => {
   while (QUEUE_TASK.length) {
     const next = QUEUE_TASK.shift();
     if (next && channel && rtc.current) {
-      if (channel.bufferedAmount >= chunkSize) {
+      if (channel.bufferedAmount >= chunkSize * 2) {
         await new Promise(resolve => {
           channel.onbufferedamountlow = () => resolve(0);
         });
@@ -79,7 +79,7 @@ export const destructureChunk = async (chunk: BufferType) => {
   const buffer = chunk instanceof Blob ? await chunk.arrayBuffer() : chunk;
   const id = new Uint8Array(buffer.slice(0, ID_SIZE));
   const series = new Uint8Array(buffer.slice(ID_SIZE, ID_SIZE + CHUNK_SIZE));
-  const data = chunk.slice(ID_SIZE + CHUNK_SIZE);
+  const data = buffer.slice(ID_SIZE + CHUNK_SIZE);
   const idString = String.fromCharCode(...id);
   const seriesNumber = (series[0] << 24) | (series[1] << 16) | (series[2] << 8) | series[3];
   return { id: idString, series: seriesNumber, data };
