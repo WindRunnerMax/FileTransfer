@@ -15,7 +15,13 @@ export const getMaxMessageSize = (
   origin = false
 ) => {
   const instance = rtc.current?.getInstance();
-  const maxSize = instance?.connection.sctp?.maxMessageSize || 64 * 1024;
+  let maxSize = instance?.connection.sctp?.maxMessageSize || 64 * 1024;
+  // https://developer.mozilla.org/en-US/docs/Web/API/RTCSctpTransport/maxMessageSize
+  // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Using_data_channels
+  // 在 FireFox 本机传输会出现超大的值 1073741807 约 1GB 1073741824byte
+  // officially up to 256 KiB, but Firefox's implementation caps them at a whopping 1 GiB
+  // 因此在这里需要将其限制为最大 256KB 以保证正确的文件传输以及 WebStream 的正常工作
+  maxSize = Math.min(maxSize, 256 * 1024);
   if (origin) {
     return maxSize;
   }

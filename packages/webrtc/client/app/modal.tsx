@@ -70,7 +70,7 @@ export const TransferModal: FC<{
     }
   };
 
-  const onMessage = useMemoFn((event: MessageEvent<string | BufferType>) => {
+  const onMessage = useMemoFn(async (event: MessageEvent<string | BufferType>) => {
     console.log("onMessage", event);
     if (isString(event.data)) {
       // String - 接收文本类型数据
@@ -83,7 +83,6 @@ export const TransferModal: FC<{
         // 收到 发送方 传输起始消息 准备接收数据
         const { id, name, size, total } = data;
         FILE_STATE.set(id, { series: 0, ...data });
-
         setList([
           ...list,
           { key: TRANSFER_TYPE.FILE, from: TRANSFER_FROM.PEER, name, size, progress: 0, id },
@@ -108,30 +107,29 @@ export const TransferModal: FC<{
     } else {
       // Binary - 接收 发送方 ArrayBuffer 数据
       const blob = event.data;
-      deserializeChunk(blob).then(({ id, series, data }) => {
-        const state = FILE_STATE.get(id);
-        if (!state) return void 0;
-        const { size, total } = state;
-        const progress = Math.floor((series / total) * 100);
-        updateFileProgress(id, progress);
-        if (series >= total) {
-          // 数据接收完毕 通知 发送方 接收完毕
-          sendTextMessage({ key: MESSAGE_TYPE.FILE_FINISH, id });
-          stream && WorkerEvent.close(id);
+      const { id, series, data } = await deserializeChunk(blob);
+      const state = FILE_STATE.get(id);
+      if (!state) return void 0;
+      const { size, total } = state;
+      const progress = Math.floor((series / total) * 100);
+      updateFileProgress(id, progress);
+      if (series >= total) {
+        // 数据接收完毕 通知 发送方 接收完毕
+        sendTextMessage({ key: MESSAGE_TYPE.FILE_FINISH, id });
+        stream && WorkerEvent.close(id);
+      } else {
+        // 数据块序列号 [0, TOTAL)
+        if (stream) {
+          await WorkerEvent.post(id, data);
         } else {
-          // 数据块序列号 [0, TOTAL)
-          if (stream) {
-            WorkerEvent.post(id, data);
-          } else {
-            // 在内存中存储块数据
-            const mapper = FILE_MAPPER.get(id) || [];
-            mapper[series] = data;
-            FILE_MAPPER.set(id, mapper);
-          }
-          // 通知 发送方 发送下一个序列块
-          sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: series + 1, size, total });
+          // 在内存中存储块数据
+          const mapper = FILE_MAPPER.get(id) || [];
+          mapper[series] = data;
+          FILE_MAPPER.set(id, mapper);
         }
-      });
+        // 通知 发送方 发送下一个序列块
+        sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: series + 1, size, total });
+      }
     }
     onScroll(listRef);
   });
@@ -185,6 +183,7 @@ export const TransferModal: FC<{
       const id = getUniqueId(ID_SIZE);
       const size = file.size;
       const total = Math.ceil(file.size / maxChunkSize);
+      console.log("object :>> ", maxChunkSize, file.size, total);
       sendTextMessage({ key: MESSAGE_TYPE.FILE_START, id, name, size, total });
       FILE_HANDLE.set(id, file);
       newList.push({

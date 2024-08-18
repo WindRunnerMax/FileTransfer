@@ -39,11 +39,12 @@ export class WorkerEvent {
         WorkerEvent.channel.port2,
       ]);
     }
-    const ts = new TransformStream({
-      transform(chunk, controller) {
-        controller.enqueue(chunk);
-      },
-    });
+    // 在 TransformStream 不可用的情况下 https://caniuse.com/?search=TransformStream
+    // 需要在 Service Worker 中使用 ReadableStream 写入数据 fa28d9d757ddeda9c93645362
+    // 通过 controller.enqueue 将 ArrayBuffer 数据写入即可
+    // 直接使用 ReadableStream 需要主动处理 BackPressure
+    // 而 TransformStream 实际上内部实现了背压的自动处理机制
+    const ts = new TransformStream();
     WorkerEvent.channel.port1.postMessage(
       <MessageType>{
         key: MESSAGE_TYPE.TRANSFER_START,
@@ -69,9 +70,12 @@ export class WorkerEvent {
     document.body.appendChild(iframe);
   }
 
-  public static post(fileId: string, data: ArrayBuffer) {
+  public static async post(fileId: string, data: ArrayBuffer) {
     const ts = WorkerEvent.writer.get(fileId);
-    ts?.write(new Uint8Array(data));
+    if (!ts) return void 0;
+    // 感知 BackPressure 需要主动 await ready
+    await ts.ready;
+    return ts.write(new Uint8Array(data));
   }
 
   public static close(fileId: string) {

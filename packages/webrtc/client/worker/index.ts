@@ -24,8 +24,6 @@ self.onmessage = event => {
     const payload = event.data as MessageType;
     if (!payload) return void 0;
     if (payload.key === MESSAGE_TYPE.TRANSFER_START) {
-      // 直接使用 ReadableStream 需要处理 BackPressure 而 TransformStream 解决了问题
-      // controller.enqueue 不能直接写入 ArrayBuffer 必须要写入 TypedArray 类型
       const { id, readable } = payload;
       map.set(id, [readable]);
     }
