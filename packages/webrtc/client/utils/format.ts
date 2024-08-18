@@ -5,7 +5,7 @@ export const formatBytes = (bytes: number) => {
   return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
 };
 
-export const onScroll = (listRef: React.RefObject<HTMLDivElement>) => {
+export const scrollToBottom = (listRef: React.RefObject<HTMLDivElement>) => {
   if (listRef.current) {
     const el = listRef.current;
     Promise.resolve().then(() => {

@@ -10,7 +10,7 @@ import type { WebRTC } from "../bridge/webrtc";
 import { useMemoFn } from "laser-utils";
 import { cs, getUniqueId, isString } from "laser-utils";
 import { TSON } from "../utils/tson";
-import { formatBytes, onScroll } from "../utils/format";
+import { formatBytes, scrollToBottom } from "../utils/format";
 import {
   FILE_MAPPER,
   FILE_HANDLE,
@@ -71,10 +71,11 @@ export const TransferModal: FC<{
   };
 
   const onMessage = useMemoFn(async (event: MessageEvent<string | BufferType>) => {
-    console.log("onMessage", event);
+    scrollToBottom(listRef);
     if (isString(event.data)) {
       // String - 接收文本类型数据
       const data = TSON.decode(event.data);
+      console.log("OnTextMessage", data);
       if (!data) return void 0;
       if (data.key === MESSAGE_TYPE.TEXT) {
         // 收到 发送方 的文本消息
@@ -104,10 +105,15 @@ export const TransferModal: FC<{
         FILE_STATE.delete(id);
         updateFileProgress(id, 100);
       }
-    } else {
+      return void 0;
+    }
+    if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
       // Binary - 接收 发送方 ArrayBuffer 数据
       const blob = event.data;
       const { id, series, data } = await deserializeChunk(blob);
+      // 在此处只打印关键信息即可 如果全部打印会导致内存占用上升
+      // 控制台会实际持有 Buffer 数据 传输文件时会导致占用大量内存
+      console.log("OnBinaryMessage", { id, series });
       const state = FILE_STATE.get(id);
       if (!state) return void 0;
       const { size, total } = state;
@@ -130,8 +136,8 @@ export const TransferModal: FC<{
         // 通知 发送方 发送下一个序列块
         sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: series + 1, size, total });
       }
+      return void 0;
     }
-    onScroll(listRef);
   });
 
   const onConnectionStateChange = useMemoFn((pc: RTCPeerConnection) => {
@@ -171,7 +177,7 @@ export const TransferModal: FC<{
       sendTextMessage({ key: MESSAGE_TYPE.TEXT, data: text });
       setList([...list, { key: TRANSFER_TYPE.TEXT, from: TRANSFER_FROM.SELF, data: text }]);
       setText("");
-      onScroll(listRef);
+      scrollToBottom(listRef);
     }
   };
 
@@ -183,7 +189,6 @@ export const TransferModal: FC<{
       const id = getUniqueId(ID_SIZE);
       const size = file.size;
       const total = Math.ceil(file.size / maxChunkSize);
-      console.log("object :>> ", maxChunkSize, file.size, total);
       sendTextMessage({ key: MESSAGE_TYPE.FILE_START, id, name, size, total });
       FILE_HANDLE.set(id, file);
       newList.push({
@@ -196,7 +201,7 @@ export const TransferModal: FC<{
       } as const);
     }
     setList(newList);
-    onScroll(listRef);
+    scrollToBottom(listRef);
   };
 
   const onSendFile = () => {

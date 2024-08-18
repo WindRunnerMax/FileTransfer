@@ -134,7 +134,9 @@ export const App: FC = () => {
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.boardCastIcon}>{BoardCastIcon}</div>
-        <div>Local ID: {id}</div>
+        <div>
+          {streamMode && "STREAM - "}Local ID: {id}
+        </div>
         <div className={styles.manualEntry} onClick={onManualRequest}>
           Request To Establish P2P Connection By ID
         </div>

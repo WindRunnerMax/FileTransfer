@@ -13,7 +13,7 @@ import { Button, Input, Modal, Progress } from "@arco-design/web-react";
 import { IconFile, IconSend, IconToBottom } from "@arco-design/web-react/icon";
 import { useMemoFn } from "laser-utils";
 import { cs, getUniqueId } from "laser-utils";
-import { base64ToBlob, formatBytes, getChunkByIndex, onScroll } from "../utils/format";
+import { base64ToBlob, formatBytes, getChunkByIndex, scrollToBottom } from "../utils/format";
 import type { SocketClient } from "../bridge/socket-server";
 import type { ServerFn } from "../../types/websocket";
 import { CLINT_EVENT, SERVER_EVENT } from "../../types/websocket";
@@ -102,7 +102,7 @@ export const TransferModal: FC<{
       const { id } = data;
       updateFileProgress(id, 100);
     }
-    onScroll(listRef);
+    scrollToBottom(listRef);
   });
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export const TransferModal: FC<{
     sendMessage({ key: MESSAGE_TYPE.TEXT, data: text });
     setList([...list, { key: MESSAGE_TYPE.TEXT, from: TRANSFER_FROM.SELF, data: text }]);
     setText("");
-    onScroll(listRef);
+    scrollToBottom(listRef);
   };
 
   const sendFilesBySlice = async (files: FileList) => {
@@ -139,7 +139,7 @@ export const TransferModal: FC<{
       } as const);
     }
     setList(newList);
-    onScroll(listRef);
+    scrollToBottom(listRef);
   };
 
   const onSendFile = () => {

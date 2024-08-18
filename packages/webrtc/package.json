@@ -8,7 +8,7 @@
     "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
     "build": "rimraf build && npm run build:fe && rollup -c rollup.server.js",
     "deploy": "npm run build && node build/server.js",
-    "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit"
+    "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json"
   },
   "repository": {
     "type": "git",

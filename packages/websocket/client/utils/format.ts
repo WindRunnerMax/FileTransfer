@@ -1,7 +1,7 @@
 import { CHUNK_SIZE } from "../../types/client";
 import pako from "pako";
 import { Base64 } from "js-base64";
-export { formatBytes, onScroll } from "@ft/webrtc/client/utils/format";
+export { formatBytes, scrollToBottom } from "@ft/webrtc/client/utils/format";
 
 export const blobToBase64 = async (blob: Blob) => {
   return new Promise<string>((resolve, reject) => {

@@ -87,6 +87,7 @@ const Worker = {
   entry: {
     worker: "./client/worker/index.ts",
   },
+  devtool: isDev ? "source-map" : false,
   output: {
     clean: true,
     filename: "[name].js",
