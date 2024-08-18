@@ -34,34 +34,44 @@ export const App: FC = () => {
     setVisible(true);
     setState(CONNECTION_STATE.CONNECTED);
   });
+
   const onClose = useMemoFn((event: Event) => {
     console.log("OnClose", event);
     setVisible(false);
     setPeerId("");
     setState(CONNECTION_STATE.READY);
   });
+
   const onError = useMemoFn((event: RTCErrorEvent) => {
     console.log("OnError", event);
   });
+
   const onJoinRoom: ServerFn<typeof SERVER_EVENT.JOINED_ROOM> = useMemoFn(member => {
     console.log("JOIN ROOM", member);
     setMembers([...members, member]);
   });
+
   const onJoinedMember: ServerFn<typeof SERVER_EVENT.JOINED_MEMBER> = useMemoFn(event => {
     const { initialization } = event;
     console.log("JOINED MEMBER", initialization);
     setMembers([...initialization]);
   });
+
   const onLeftRoom: ServerFn<typeof SERVER_EVENT.LEFT_ROOM> = useMemoFn(event => {
-    const { id } = event;
-    console.log("LEFT ROOM", id);
-    if (id === peerId) {
+    const { id: leaveId } = event;
+    console.log("LEFT ROOM", leaveId);
+    const instance = rtc.current?.getInstance();
+    // fix: 移动端切换后台可能会导致 signaling 关闭
+    // 但是此时 RTC 仍处于连接活跃状态 需要等待信令切换到前台重连
+    // 这种情况下后续的状态控制由 RTC 的 OnClose 等事件来处理更新
+    if (leaveId === peerId && instance?.connection.connectionState !== "connected") {
       rtc.current?.close();
       setVisible(false);
       setPeerId("");
     }
-    setMembers(members.filter(member => member.id !== id));
+    setMembers(members.filter(member => member.id !== leaveId));
   });
+
   const onReceiveOffer: ServerFn<typeof SERVER_EVENT.FORWARD_OFFER> = useMemoFn(event => {
     const { origin } = event;
     if (!peerId && !visible) {
@@ -70,6 +80,7 @@ export const App: FC = () => {
       setState(CONNECTION_STATE.CONNECTING);
     }
   });
+
   const onNotifyError: ServerFn<typeof SERVER_EVENT.NOTIFY_ERROR> = useMemoFn(event => {
     const { code, message } = event;
     Message.error(message);

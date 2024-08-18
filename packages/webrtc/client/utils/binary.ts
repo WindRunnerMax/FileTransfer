@@ -59,7 +59,7 @@ const start = async (rtc: React.MutableRefObject<WebRTCApi | null>) => {
   while (QUEUE_TASK.length) {
     const next = QUEUE_TASK.shift();
     if (next && channel && rtc.current) {
-      if (channel.bufferedAmount >= chunkSize * 2) {
+      if (channel.bufferedAmount >= chunkSize) {
         await new Promise(resolve => {
           channel.onbufferedamountlow = () => resolve(0);
         });

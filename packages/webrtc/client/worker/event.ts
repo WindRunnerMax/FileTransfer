@@ -6,7 +6,11 @@ export class WorkerEvent {
   public static worker: ServiceWorkerRegistration | null = null;
   public static writer: Map<string, WritableStreamDefaultWriter<Uint8Array>> = new Map();
 
-  public static async register(): Promise<ServiceWorkerRegistration> {
+  public static async register(): Promise<ServiceWorkerRegistration | null> {
+    if (!navigator.serviceWorker) {
+      console.warn("Service Worker Not Supported");
+      return Promise.resolve(null);
+    }
     try {
       const serviceWorker = await navigator.serviceWorker.getRegistration("./");
       if (serviceWorker) {
@@ -20,8 +24,8 @@ export class WorkerEvent {
       WorkerEvent.worker = worker;
       return worker;
     } catch (error) {
-      console.error("Service Worker Register Error", error);
-      return Promise.reject(error);
+      console.warn("Service Worker Register Error", error);
+      return Promise.resolve(null);
     }
   }
 

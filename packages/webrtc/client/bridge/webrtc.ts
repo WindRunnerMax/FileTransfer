@@ -54,6 +54,11 @@ export class WebRTC {
   };
 
   private onConnection = () => {
+    // fix: 当 RTC 保持连接但是信令断开重连时不重置实例状态
+    // 在移动端浏览器置于后台再切换到前台时可能会导致这个情况的发生
+    if (this.instance && this.instance.connection.connectionState === "connected") {
+      return void 0;
+    }
     if (!this.instance) {
       this.instance = this.createInstance();
     }
