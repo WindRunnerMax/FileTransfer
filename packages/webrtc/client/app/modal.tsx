@@ -51,6 +51,7 @@ export const TransferModal: FC<{
   const [text, setText] = useState("");
   const [toConnectId, setToConnectId] = useState("");
   const [list, setList] = useState<TransferType[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   const onCancel = () => {
     rtc.current?.close();
@@ -244,6 +245,14 @@ export const TransferModal: FC<{
     }
   };
 
+  const onDropFiles = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    files && sendFilesBySlice(files);
+  };
+
   const enableTransfer = state === CONNECTION_STATE.CONNECTED;
 
   return (
@@ -318,36 +327,46 @@ export const TransferModal: FC<{
           </div>
         ))}
       </div>
-      <div className={styles.modalFooter}>
+      <div
+        className={styles.modalFooter}
+        onDragEnter={() => peerId && setIsDragging(true)}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={onDropFiles}
+        onDragOver={e => e.preventDefault()}
+      >
         {peerId ? (
-          <Fragment>
-            <Button
-              disabled={!enableTransfer}
-              type="primary"
-              icon={<IconFile />}
-              className={styles.sendFile}
-              onClick={onSendFile}
-            >
-              File
-            </Button>
-            <Input
-              value={text}
-              onChange={setText}
-              disabled={!enableTransfer}
-              allowClear
-              placeholder="Send Message"
-              onPressEnter={onSendText}
-            />
-            <Button
-              onClick={onSendText}
-              disabled={!enableTransfer}
-              type="primary"
-              status="success"
-              icon={<IconSend />}
-            >
-              Send
-            </Button>
-          </Fragment>
+          isDragging ? (
+            <Fragment>Drop Files To Upload</Fragment>
+          ) : (
+            <Fragment>
+              <Button
+                disabled={!enableTransfer}
+                type="primary"
+                icon={<IconFile />}
+                className={styles.sendFile}
+                onClick={onSendFile}
+              >
+                File
+              </Button>
+              <Input
+                value={text}
+                onChange={setText}
+                disabled={!enableTransfer}
+                allowClear
+                placeholder="Send Message"
+                onPressEnter={onSendText}
+              />
+              <Button
+                onClick={onSendText}
+                disabled={!enableTransfer}
+                type="primary"
+                status="success"
+                icon={<IconSend />}
+              >
+                Send
+              </Button>
+            </Fragment>
+          )
         ) : (
           <Fragment>
             <Input
