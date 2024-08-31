@@ -2,12 +2,12 @@
   "name": "file-transfer",
   "version": "1.0.0",
   "scripts": {
-    "dev:webrtc": "pnpm --filter file-transfer-webrtc run dev",
-    "build:webrtc": "pnpm --filter file-transfer-webrtc run build",
-    "deploy:webrtc": "pnpm --filter file-transfer-webrtc run deploy",
-    "dev:websocket": "pnpm --filter file-transfer-websocket run dev",
-    "build:websocket": "pnpm --filter file-transfer-websocket run build",
-    "deploy:websocket": "pnpm --filter file-transfer-websocket run deploy",
+    "dev:webrtc": "pnpm --filter @ft/webrtc run dev",
+    "build:webrtc": "pnpm --filter @ft/webrtc run build",
+    "deploy:webrtc": "pnpm --filter @ft/webrtc run deploy",
+    "dev:websocket": "pnpm --filter @ft/websocket run dev",
+    "build:websocket": "pnpm --filter @ft/websocket run build",
+    "deploy:websocket": "pnpm --filter @ft/websocket run deploy",
     "lint:ts": "pnpm --filter '*' run lint:ts"
   },
   "repository": {

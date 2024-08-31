@@ -13,12 +13,16 @@ export class WebRTCInstance {
     const RTCPeerConnection =
       // @ts-expect-error RTCPeerConnection
       window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    // https://icetest.info/
+    // https://gist.github.com/mondain/b0ec1cf5f60ae726202e
+    // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
+    const urls = [
+      "stun:stun.services.mozilla.com",
+      "stun:stunserver2024.stunprotocol.org",
+      "stun:stun.l.google.com:19302",
+    ];
     const connection = new RTCPeerConnection({
-      // https://icetest.info/
-      // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
-      iceServers: options.ice
-        ? [{ urls: options.ice }]
-        : [{ urls: ["stun:stunserver.stunprotocol.org:3478", "stun:stun.l.google.com:19302"] }],
+      iceServers: options.ice ? [{ urls: options.ice }] : [{ urls }],
     });
     this.id = options.id;
     this.signaling = options.signaling;
