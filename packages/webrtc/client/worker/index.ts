@@ -1,3 +1,4 @@
+/// <reference lib="webworker" />
 declare let self: ServiceWorkerGlobalScope;
 import type { MessageType } from "../../types/worker";
 import { HEADER_KEY, MESSAGE_TYPE } from "../../types/worker";
@@ -42,11 +43,11 @@ self.onfetch = event => {
   const fileSize = search.get(HEADER_KEY.FILE_SIZE);
   const fileTotal = search.get(HEADER_KEY.FILE_TOTAL);
   if (!fileId || !fileName || !fileSize || !fileTotal) {
-    return fetch(event.request);
+    return void 0;
   }
   const transfer = map.get(fileId);
   if (!transfer) {
-    return null;
+    return event.respondWith(new Response(null, { status: 404 }));
   }
   const [readable] = transfer;
   const newFileName = decodeURIComponent(fileName);
