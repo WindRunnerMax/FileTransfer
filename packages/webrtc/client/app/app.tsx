@@ -13,6 +13,7 @@ import { CONNECTION_STATE, DEVICE_TYPE } from "../../types/client";
 import { TransferModal } from "./modal";
 import { Message } from "@arco-design/web-react";
 import { ERROR_TYPE } from "../../types/server";
+import { WorkerEvent } from "../worker/event";
 
 export const App: FC = () => {
   const rtc = useRef<WebRTCApi | null>(null);
@@ -146,7 +147,7 @@ export const App: FC = () => {
       <div className={styles.content}>
         <div className={styles.boardCastIcon}>{BoardCastIcon}</div>
         <div>
-          {streamMode && "STREAM - "}Local ID: {id}
+          {streamMode && WorkerEvent.isTrustEnv() && "STREAM - "}Local ID: {id}
         </div>
         <div className={styles.manualEntry} onClick={onManualRequest}>
           Request To Establish P2P Connection By ID

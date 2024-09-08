@@ -1,3 +1,4 @@
+/// <reference lib="esnext" />
 /// <reference lib="webworker" />
 declare let self: ServiceWorkerGlobalScope;
 import type { MessageType } from "../../types/worker";
@@ -5,12 +6,14 @@ import { HEADER_KEY, MESSAGE_TYPE } from "../../types/worker";
 
 self.addEventListener("install", () => {
   // 跳过等待 直接激活
+  // 新的 Service Worker 安装完成后会进入等待阶段
+  // 直到旧的 Service Worker 被完全卸载后 再进行激活
   self.skipWaiting();
   console.log("Service Worker Installed");
 });
 
 self.addEventListener("activate", event => {
-  // 激活后立即开始控制所有页面
+  // 激活后立即接管所有的客户端页面 无需等待页面刷新
   event.waitUntil(self.clients.claim());
   console.log("Service Worker Activate");
 });
@@ -50,7 +53,7 @@ self.onfetch = event => {
     return event.respondWith(new Response(null, { status: 404 }));
   }
   const [readable] = transfer;
-  const newFileName = decodeURIComponent(fileName);
+  const newFileName = encodeURIComponent(fileName).replace(/['()]/g, escape).replace(/\*/g, "%2A");
   const responseHeader = new Headers({
     [HEADER_KEY.FILE_ID]: fileId,
     [HEADER_KEY.FILE_SIZE]: fileSize,

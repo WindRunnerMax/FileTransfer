@@ -59,18 +59,16 @@ export class WorkerEvent {
       [ts.readable]
     );
     WorkerEvent.writer.set(fileId, ts.writable.getWriter());
-    const newFileName = encodeURIComponent(fileName)
-      .replace(/['()]/g, escape)
-      .replace(/\*/g, "%2A");
     // 需要通过 iframe 发起下载请求 在 Service Worker 中拦截请求
     // 这里如果 A 的 DOM 上引用了 B 的 iframe 框架
     // 此时 B 中存在的 SW 可以拦截 A 的 iframe 创建的请求
+    // 当然前提是 A 创建的 iframe 请求是请求的 B 源下的地址
     const src =
       `/${fileId}` +
       `?${HEADER_KEY.FILE_ID}=${fileId}` +
       `&${HEADER_KEY.FILE_SIZE}=${fileSize}` +
       `&${HEADER_KEY.FILE_TOTAL}=${fileTotal}` +
-      `&${HEADER_KEY.FILE_NAME}=${newFileName}`;
+      `&${HEADER_KEY.FILE_NAME}=${fileName}`;
     const iframe = document.createElement("iframe");
     iframe.hidden = true;
     iframe.src = src;
@@ -79,11 +77,11 @@ export class WorkerEvent {
   }
 
   public static async post(fileId: string, data: ArrayBuffer) {
-    const ts = WorkerEvent.writer.get(fileId);
-    if (!ts) return void 0;
+    const writer = WorkerEvent.writer.get(fileId);
+    if (!writer) return void 0;
     // 感知 BackPressure 需要主动 await ready
-    await ts.ready;
-    return ts.write(new Uint8Array(data));
+    await writer.ready;
+    return writer.write(new Uint8Array(data));
   }
 
   public static close(fileId: string) {
@@ -93,9 +91,9 @@ export class WorkerEvent {
       key: MESSAGE_TYPE.TRANSFER_CLOSE,
       id: fileId,
     });
-    const ts = WorkerEvent.writer.get(fileId);
+    const writer = WorkerEvent.writer.get(fileId);
     // 必须关闭 Writer 否则浏览器无法感知下载完成
-    ts?.close();
+    writer?.close();
     WorkerEvent.writer.delete(fileId);
   }
 }

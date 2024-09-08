@@ -1,7 +1,7 @@
 import type { BufferType, FileMeta } from "../../types/client";
 import type { WebRTCApi } from "../../types/webrtc";
 
-// 12B = 96bit - [A-Z] * 12
+// 12B = 96bit => [A-Z] * 12
 export const ID_SIZE = 12;
 // 4B = 32bit = 2^32 = 4294967296
 export const CHUNK_SIZE = 4;
@@ -25,7 +25,8 @@ export const getMaxMessageSize = (
   if (origin) {
     return maxSize;
   }
-  // `1KB = 1024B 1B = 8bit 0-255`
+  // 1KB = 1024B
+  // 1B = 8bit => 0-255 00-FF
   return maxSize - (ID_SIZE + CHUNK_SIZE);
 };
 
@@ -39,14 +40,16 @@ export const serializeNextChunk = (
   if (!file) return new Blob([new ArrayBuffer(chunkSize)]);
   const start = series * chunkSize;
   const end = Math.min(start + chunkSize, file.size);
-  const idBlob = new Uint8Array(id.split("").map(char => char.charCodeAt(0)));
-  const seriesBlob = new Uint8Array(4);
-  // `0xff = 1111 1111`
-  seriesBlob[0] = (series >> 24) & 0xff;
-  seriesBlob[1] = (series >> 16) & 0xff;
-  seriesBlob[2] = (series >> 8) & 0xff;
-  seriesBlob[3] = series & 0xff;
-  return new Blob([idBlob, seriesBlob, file.slice(start, end)]);
+  // 创建 12 字节用于存储 id [12B = 96bit]
+  const idBytes = new Uint8Array(id.split("").map(char => char.charCodeAt(0)));
+  // 创建 4 字节用于存储序列号 [4B = 32bit]
+  const serialBytes = new Uint8Array(4);
+  // 0xff = 1111 1111 确保结果只包含低 8 位
+  serialBytes[0] = (series >> 24) & 0xff;
+  serialBytes[1] = (series >> 16) & 0xff;
+  serialBytes[2] = (series >> 8) & 0xff;
+  serialBytes[3] = series & 0xff;
+  return new Blob([idBytes, serialBytes, file.slice(start, end)]);
 };
 
 let isSending = false;
