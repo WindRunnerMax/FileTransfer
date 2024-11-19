@@ -13,7 +13,7 @@ export default async () => {
       file: "./build/server.js",
       format: "cjs",
     },
-    external: ["socket.io", "http", "os", "express", "process"],
+    external: ["socket.io", "http", "os", "express", "process", "path"],
     plugins: [
       resolve(),
       esbuild({

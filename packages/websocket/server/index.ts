@@ -1,4 +1,5 @@
 import http from "http";
+import path from "path";
 import express from "express";
 import process from "process";
 import { Server } from "socket.io";
@@ -9,7 +10,7 @@ import { CONNECTION_STATE, ERROR_TYPE } from "../types/server";
 import { getLocalIp, updateMember } from "./utils";
 
 const app = express();
-app.use(express.static("build/static"));
+app.use(express.static(path.resolve(__dirname, "static")));
 const httpServer = http.createServer(app);
 const io = new Server<ClientHandler, ServerHandler>(httpServer);
 
