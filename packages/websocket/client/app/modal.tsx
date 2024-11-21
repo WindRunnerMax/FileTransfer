@@ -60,6 +60,7 @@ export const TransferModal: FC<{
     if (data.key === MESSAGE_TYPE.TEXT) {
       // 收到 发送方 的文本消息
       setList([...list, { from: TRANSFER_FROM.PEER, ...data }]);
+      scrollToBottom(listRef);
     } else if (data.key === MESSAGE_TYPE.FILE_START) {
       // 收到 发送方 传输起始消息 准备接收数据
       const { id, name, size, total } = data;
@@ -70,6 +71,7 @@ export const TransferModal: FC<{
       ]);
       // 通知 发送方 发送首个块
       sendMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, current: 0, size, total });
+      scrollToBottom(listRef);
     } else if (data.key === MESSAGE_TYPE.FILE_CHUNK) {
       // 收到 接收方 的文件块数据
       const { id, current, total, size, chunk } = data;
@@ -102,7 +104,6 @@ export const TransferModal: FC<{
       const { id } = data;
       updateFileProgress(id, 100);
     }
-    scrollToBottom(listRef);
   });
 
   useEffect(() => {

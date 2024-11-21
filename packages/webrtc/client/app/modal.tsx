@@ -72,7 +72,6 @@ export const TransferModal: FC<{
   };
 
   const onMessage = useMemoFn(async (event: MessageEvent<string | BufferType>) => {
-    scrollToBottom(listRef);
     if (isString(event.data)) {
       // String - 接收文本类型数据
       const data = TSON.decode(event.data);
@@ -81,6 +80,7 @@ export const TransferModal: FC<{
       if (data.key === MESSAGE_TYPE.TEXT) {
         // 收到 发送方 的文本消息
         setList([...list, { from: TRANSFER_FROM.PEER, ...data }]);
+        scrollToBottom(listRef);
       } else if (data.key === MESSAGE_TYPE.FILE_START) {
         // 收到 发送方 传输起始消息 准备接收数据
         const { id, name, size, total } = data;
@@ -92,6 +92,7 @@ export const TransferModal: FC<{
         // 通知 发送方 发送首个块
         sendTextMessage({ key: MESSAGE_TYPE.FILE_NEXT, id, series: 0, size, total });
         stream && WorkerEvent.start(id, name, size, total);
+        scrollToBottom(listRef);
       } else if (data.key === MESSAGE_TYPE.FILE_NEXT) {
         // 收到 接收方 的准备接收块数据消息
         const { id, series, total } = data;
