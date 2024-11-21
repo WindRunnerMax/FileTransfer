@@ -16,13 +16,22 @@ export class WebRTCInstance {
     // https://icetest.info/
     // https://gist.github.com/mondain/b0ec1cf5f60ae726202e
     // https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
-    const urls = [
-      "stun:stun.services.mozilla.com",
-      "stun:stunserver2024.stunprotocol.org",
-      "stun:stun.l.google.com:19302",
+    const defaultIces: RTCIceServer[] = [
+      {
+        urls: [
+          "stun:stun.services.mozilla.com",
+          "stun:stunserver2024.stunprotocol.org",
+          "stun:stun.l.google.com:19302",
+        ],
+      },
+      {
+        urls: ["turn:pairdrop.net:5349", "turns:turn.pairdrop.net:5349"],
+        username: "qhyDYD7PmT1a",
+        credential: "6uX4JSBdncNLmUmoGau97Ft",
+      },
     ];
     const connection = new RTCPeerConnection({
-      iceServers: options.ice ? [{ urls: options.ice }] : [{ urls }],
+      iceServers: options.ice ? [{ urls: options.ice }] : defaultIces,
     });
     this.id = options.id;
     this.signaling = options.signaling;
