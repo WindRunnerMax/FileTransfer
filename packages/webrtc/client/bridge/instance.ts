@@ -5,10 +5,19 @@ import type { WebRTCInstanceOptions } from "../../types/webrtc";
 import { ERROR_TYPE } from "../../types/server";
 
 export class WebRTCInstance {
+  /** 连接 id */
   public readonly id: string;
+  /** 数据传输信道 */
   public readonly channel: RTCDataChannel;
+  /** RTC 连接实例 */
   public readonly connection: RTCPeerConnection;
+  /** 信令实例 */
   private readonly signaling: SignalingServer;
+  /** 主动连接建立信号 */
+  public ready: Promise<void>;
+  /** 连接建立信号解析器 */
+  private _resolver: () => void;
+
   constructor(options: WebRTCInstanceOptions) {
     const RTCPeerConnection =
       // @ts-expect-error RTCPeerConnection
@@ -50,7 +59,12 @@ export class WebRTCInstance {
       channel.onerror = options.onError || null;
       channel.onclose = options.onClose || null;
     };
+    this._resolver = () => null;
+    this.ready = new Promise(r => (this._resolver = r));
     this.connection.onconnectionstatechange = () => {
+      if (this.connection.connectionState === "connected") {
+        this._resolver();
+      }
       options.onConnectionStateChange(connection);
     };
     this.signaling.on(SERVER_EVENT.FORWARD_OFFER, this.onReceiveOffer);
@@ -60,6 +74,7 @@ export class WebRTCInstance {
 
   public createRemoteConnection = async (target: string) => {
     console.log("Send Offer To:", target);
+    this.ready = new Promise(r => (this._resolver = r));
     this.connection.onicecandidate = async event => {
       if (!event.candidate) return void 0;
       console.log("Local ICE", event.candidate);

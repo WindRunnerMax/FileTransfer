@@ -5,7 +5,7 @@ export type WebRTCOptions = { wss: string; ice?: string };
 export type WebRTCCallback = (p: { signaling: SignalingServer; rtc: WebRTCApi }) => void;
 
 export type WebRTCApi = {
-  connect: (id: string) => void;
+  connect: (id: string) => Promise<void>;
   send: (message: string | ArrayBuffer) => void;
   close: () => void;
   getInstance: () => WebRTCInstance | null;
