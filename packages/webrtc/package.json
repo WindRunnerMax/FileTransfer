@@ -2,11 +2,13 @@
   "name": "@ft/webrtc",
   "version": "1.0.0",
   "scripts": {
-    "build:fe": "rspack build -c rspack.client.js",
     "dev:fe": "cross-env NODE_ENV=development rspack build -c rspack.client.js --watch",
+    "build:fe": "rspack build -c rspack.client.js",
     "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
-    "dev": "npm run build:fe && concurrently \"npm run dev:fe\" \"npm run server\"",
-    "build": "rimraf build && npm run build:fe && rollup -c rollup.server.js",
+    "dev:server": "nodemon --watch server --ext ts --exec \"npm run server\"",
+    "build:server": "mkdir -p build && rollup -c rollup.server.js",
+    "dev": "concurrently \"npm run dev:fe\" \"npm run dev:server\"",
+    "build": "rimraf build && npm run build:fe && npm run build:server",
     "deploy": "npm run build && node build/server.js",
     "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json"
   },
@@ -49,6 +51,7 @@
     "rollup": "2.75.7",
     "rollup-plugin-esbuild": "6.1.0",
     "sass": "1.52.3",
+    "nodemon": "3.0.1",
     "sass-loader": "13.3.2"
   }
 }

@@ -1,5 +1,5 @@
 import type { WebRTCApi } from "../../types/webrtc";
-import styles from "../styles/index.module.scss";
+import styles from "../styles/modal.module.scss";
 import type { FC } from "react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import type { BufferType, ConnectionState, MessageType, TransferType } from "../../types/client";

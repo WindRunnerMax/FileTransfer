@@ -162,7 +162,7 @@ export const App: FC = () => {
             <div className={styles.icon}>
               {member.device === DEVICE_TYPE.MOBILE ? PhoneIcon : ComputerIcon}
             </div>
-            <div className={styles.name}>{member.id.slice(0, 7)}</div>
+            <div className={styles.name}>{member.id}</div>
           </div>
         ))}
       </div>
