@@ -1,7 +1,8 @@
 import path from "path";
 import esbuild from "rollup-plugin-esbuild";
 
-process.env.NODE_ENV === "production";
+process.env.NODE_ENV = "production";
+
 export default async () => {
   return {
     input: "./server/index.ts",

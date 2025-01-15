@@ -10,6 +10,7 @@
     "dev": "concurrently \"npm run dev:fe\" \"npm run dev:server\"",
     "build": "rimraf build && npm run build:fe && npm run build:server",
     "deploy": "npm run build && node build/server.js",
+    "build:deploy": "npm run build && pnpm -F . --prod deploy ../../output",
     "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json"
   },
   "repository": {
@@ -53,5 +54,9 @@
     "sass": "1.52.3",
     "nodemon": "3.0.1",
     "sass-loader": "13.3.2"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "pnpm": ">=8.11.0"
   }
 }
