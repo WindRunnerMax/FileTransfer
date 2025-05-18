@@ -36,17 +36,18 @@ export const TransferModal: FC<{
   setState: (state: ConnectionState) => void;
   visible: boolean;
   setVisible: (visible: boolean) => void;
-}> = ({
-  stream = false,
-  connection,
-  rtc,
-  state,
-  peerId,
-  visible,
-  setVisible,
-  setPeerId,
-  setState,
-}) => {
+}> = props => {
+  const {
+    stream = false,
+    connection,
+    rtc,
+    state,
+    peerId,
+    visible,
+    setVisible,
+    setPeerId,
+    setState,
+  } = props;
   const listRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState("");
   const [toConnectId, setToConnectId] = useState("");
@@ -113,7 +114,7 @@ export const TransferModal: FC<{
       // Binary - 接收 发送方 ArrayBuffer 数据
       const blob = event.data;
       const { id, series, data } = await deserializeChunk(blob);
-      // 在此处只打印关键信息即可 如果全部打印会导致内存占用上升
+      // FIX: 在此处只打印关键信息即可 如果全部打印会导致内存占用上升
       // 控制台会实际持有 Buffer 数据 传输文件时会导致占用大量内存
       console.log("OnBinaryMessage", { id, series });
       const state = FILE_STATE.get(id);

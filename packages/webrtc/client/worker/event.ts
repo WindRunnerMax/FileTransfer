@@ -45,9 +45,9 @@ export class WorkerEvent {
     }
     // 在 TransformStream 不可用的情况下 https://caniuse.com/?search=TransformStream
     // 需要在 Service Worker 中使用 ReadableStream 写入数据 fa28d9d757ddeda9c93645362
-    // 通过 controller.enqueue 将 ArrayBuffer 数据写入即可
-    // 直接使用 ReadableStream 需要主动处理 BackPressure 时降低写频率
-    // 而 TransformStream 实际上内部实现了 BackPressure 的自动处理机制
+    // 相当于通过 controller.enqueue 将 ArrayBuffer 数据写入即可
+    // 而直接使用 ReadableStream 需要主动处理 BackPressure 时降低写频率
+    // 此时使用 TransformStream 实际上是内部实现了 BackPressure 的自动处理机制
     const ts = new TransformStream();
     WorkerEvent.channel.port1.postMessage(
       <MessageType>{
@@ -59,7 +59,7 @@ export class WorkerEvent {
       [ts.readable]
     );
     WorkerEvent.writer.set(fileId, ts.writable.getWriter());
-    // 需要通过 iframe 发起下载请求 在 Service Worker 中拦截请求
+    // 需要通过 iframe 发起下载请求, 在 Service Worker 中拦截请求
     // 这里如果 A 的 DOM 上引用了 B 的 iframe 框架
     // 此时 B 中存在的 SW 可以拦截 A 的 iframe 创建的请求
     // 当然前提是 A 创建的 iframe 请求是请求的 B 源下的地址

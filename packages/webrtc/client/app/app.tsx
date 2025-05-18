@@ -62,7 +62,7 @@ export const App: FC = () => {
     const { id: leaveId } = event;
     console.log("LEFT ROOM", leaveId);
     const instance = rtc.current?.getInstance();
-    // fix: 移动端切换后台可能会导致 signaling 关闭
+    // FIX: 移动端切换后台可能会导致 signaling 关闭
     // 但是此时 RTC 仍处于连接活跃状态 需要等待信令切换到前台重连
     // 这种情况下后续的状态控制由 RTC 的 OnClose 等事件来处理更新
     if (leaveId === peerId && instance?.connection.connectionState !== "connected") {
