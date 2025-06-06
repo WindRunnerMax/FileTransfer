@@ -6,6 +6,7 @@ const isDev = process.env.NODE_ENV === "development";
 
 /**
  * @type {import("@rspack/cli").Configuration}
+ * @link https://www.rspack.dev/
  */
 module.exports = {
   context: __dirname,
@@ -73,5 +74,3 @@ module.exports = {
     path: path.resolve(__dirname, "build/static"),
   },
 };
-
-// https://www.rspack.dev/

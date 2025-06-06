@@ -142,6 +142,91 @@ importers:
         specifier: 13.3.2
         version: 13.3.2(sass@1.52.3)(webpack@5.76.0)
 
+  packages/webrtc-im:
+    dependencies:
+      '@arco-design/web-react':
+        specifier: 2.56.1
+        version: 2.56.1(@types/react@17.0.2)(react-dom@17.0.2)(react@17.0.2)
+      '@block-kit/utils':
+        specifier: 1.0.6
+        version: 1.0.6
+      express:
+        specifier: 4.18.2
+        version: 4.18.2
+      jotai:
+        specifier: 2.12.5
+        version: 2.12.5(@types/react@17.0.2)(react@17.0.2)
+      react:
+        specifier: 17.0.2
+        version: 17.0.2
+      react-dom:
+        specifier: 17.0.2
+        version: 17.0.2(react@17.0.2)
+      socket.io:
+        specifier: 4.7.2
+        version: 4.7.2
+      socket.io-client:
+        specifier: 4.7.2
+        version: 4.7.2
+    devDependencies:
+      '@rspack/cli':
+        specifier: 0.2.5
+        version: 0.2.5(@types/express@4.17.21)(esbuild@0.19.6)(react-refresh@0.14.0)(webpack@5.76.0)
+      '@rspack/plugin-html':
+        specifier: 0.2.5
+        version: 0.2.5(@rspack/core@0.2.5)
+      '@types/express':
+        specifier: 4.17.21
+        version: 4.17.21
+      '@types/react':
+        specifier: 17.0.2
+        version: 17.0.2
+      '@types/react-dom':
+        specifier: 17.0.2
+        version: 17.0.2
+      concurrently:
+        specifier: 8.2.2
+        version: 8.2.2
+      copy-webpack-plugin:
+        specifier: '5'
+        version: 5.1.2(webpack@5.76.0)
+      cross-env:
+        specifier: 7.0.3
+        version: 7.0.3
+      esbuild:
+        specifier: 0.19.6
+        version: 0.19.6
+      less:
+        specifier: 3.0.0
+        version: 3.0.0
+      less-loader:
+        specifier: 6.0.0
+        version: 6.0.0(webpack@5.76.0)
+      nodemon:
+        specifier: 3.0.1
+        version: 3.0.1
+      postcss:
+        specifier: 8.3.3
+        version: 8.3.3
+      prettier:
+        specifier: 2.4.1
+        version: 2.4.1
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      rollup:
+        specifier: 2.75.7
+        version: 2.75.7
+      rollup-plugin-esbuild:
+        specifier: 6.1.0
+        version: 6.1.0(esbuild@0.19.6)(rollup@2.75.7)
+      sass:
+        specifier: 1.52.3
+        version: 1.52.3
+      sass-loader:
+        specifier: 13.3.2
+        version: 13.3.2(sass@1.52.3)(webpack@5.76.0)
+
   packages/websocket:
     dependencies:
       '@arco-design/web-react':
@@ -292,6 +377,12 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.0
+
+  /@block-kit/utils@1.0.6:
+    resolution: {integrity: sha512-cZ7e6UztpYCCfkLCKMvEHzKGVw+RetF8XO8V4Z31AIsoGj5dnYnozB87JxeaY3nI01I1XKtZ6Te3rNzaQraAQA==}
+    dependencies:
+      laser-utils: 0.0.5-alpha.22
+    dev: false
 
   /@discoveryjs/json-ext@0.5.7:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
@@ -904,6 +995,7 @@ packages:
 
   /@rspack/plugin-html@0.2.5(@rspack/core@0.2.5):
     resolution: {integrity: sha512-02hpGronedrgv39lfpHHz4dK3nL4r2A6D1OPipLGBJYrR7ulo90kSaXjQs1xaopoaO6Gik8X/5i14OxIA9fAGw==}
+    deprecated: deprecated
     peerDependencies:
       '@rspack/core': 0.2.5
     peerDependenciesMeta:
@@ -945,7 +1037,7 @@ packages:
     resolution: {integrity: sha512-n6Cr2xS1h4uAulPRdlw6Jl6s1oG8KrVilPN2yUITEs+K48EzMJJ3W1xy8K5eWuFvjp3R74AOIGSmp2UfBJ8HFw==}
     dependencies:
       '@types/express-serve-static-core': 4.17.33
-      '@types/node': 18.11.18
+      '@types/node': 22.4.0
     dev: true
 
   /@types/connect@3.4.35:
@@ -975,7 +1067,7 @@ packages:
     resolution: {integrity: sha512-f5ORu2hcBbKei97U73mf+l9t4zTGl74IqZ0GQk4oVea/VS8tQZYkUveSYojk+frraAVYId0V2WC9O4PTNru2FQ==}
     dependencies:
       '@types/estree': 1.0.0
-      '@types/json-schema': 7.0.11
+      '@types/json-schema': 7.0.15
     dev: true
 
   /@types/estree@0.0.39:
@@ -1078,7 +1170,7 @@ packages:
   /@types/react-dom@17.0.2:
     resolution: {integrity: sha512-Icd9KEgdnFfJs39KyRyr0jQ7EKhq8U6CcHRMGAS45fp5qgUvxL3ujUCfWFttUK2UErqZNj97t9gsVPNAqcwoCg==}
     dependencies:
-      '@types/react': 17.0.53
+      '@types/react': 17.0.2
     dev: true
 
   /@types/react@17.0.2:
@@ -1086,14 +1178,6 @@ packages:
     dependencies:
       '@types/prop-types': 15.7.5
       csstype: 3.1.1
-
-  /@types/react@17.0.53:
-    resolution: {integrity: sha512-1yIpQR2zdYu1Z/dc1OxC+MA6GR240u3gcnP4l6mvj/PJiVaqHsQPmWttsvHsfnhfPbU2FuGmo0wSITPygjBmsw==}
-    dependencies:
-      '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.2
-      csstype: 3.1.1
-    dev: true
 
   /@types/resolve@1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
@@ -1103,10 +1187,6 @@ packages:
 
   /@types/retry@0.12.0:
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
-    dev: true
-
-  /@types/scheduler@0.16.2:
-    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
     dev: true
 
   /@types/semver@7.5.6:
@@ -4107,6 +4187,22 @@ packages:
       supports-color: 8.1.1
     dev: true
 
+  /jotai@2.12.5(@types/react@17.0.2)(react@17.0.2):
+    resolution: {integrity: sha512-G8m32HW3lSmcz/4mbqx0hgJIQ0ekndKWiYP7kWVKi0p6saLXdSoye+FZiOFyonnd7Q482LCzm8sMDl7Ar1NWDw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      '@types/react': 17.0.2
+      react: 17.0.2
+    dev: false
+
   /js-base64@3.7.5:
     resolution: {integrity: sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==}
     dev: false
@@ -4218,6 +4314,10 @@ packages:
 
   /laser-utils@0.0.5-alpha.1:
     resolution: {integrity: sha512-iu7i7AUfCaxn2lQuITqQWujGUxBI2xRBHu3gjV17SniCslzzZQ+VDizOMjB8X//XDfoX349tkWTTRaK4HZOUlw==}
+    dev: false
+
+  /laser-utils@0.0.5-alpha.22:
+    resolution: {integrity: sha512-LtHzkd0IhrqPGcG5bGP0jxtRQXxCBcuXNdBGTyx7i0hjKCjivvztyYCirEb4hdjHXvpZ2NkAI29iPIbFhsKabA==}
     dev: false
 
   /launch-editor@2.6.1:
@@ -5579,7 +5679,7 @@ packages:
     resolution: {integrity: sha512-SHiNtMOUGWBQJwzISiVYKu82GiV4QYGePp3odlY1tuKO7gPtphAT5R/py0fA6xtbgLL/RvtJZnU9b8s0F1q0Xg==}
     engines: {node: '>= 8.9.0'}
     dependencies:
-      '@types/json-schema': 7.0.11
+      '@types/json-schema': 7.0.15
       ajv: 6.12.6
       ajv-keywords: 3.5.2(ajv@6.12.6)
     dev: true

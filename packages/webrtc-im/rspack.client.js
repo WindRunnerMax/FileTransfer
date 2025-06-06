@@ -1,7 +1,7 @@
 const path = require("path");
 const { default: HtmlPlugin } = require("@rspack/plugin-html");
 const CopyPlugin = require("copy-webpack-plugin");
-const { getId } = require("laser-utils");
+const { getId } = require("@block-kit/utils");
 
 const PUBLIC_PATH = "/";
 const RANDOM_ID = getId();
@@ -11,7 +11,7 @@ const isDev = process.env.NODE_ENV === "development";
  * @type {import("@rspack/cli").Configuration}
  * @link https://www.rspack.dev/
  */
-const Main = {
+module.exports = {
   context: __dirname,
   entry: {
     index: "./client/index.tsx",
@@ -79,21 +79,3 @@ const Main = {
     path: path.resolve(__dirname, "build/static"),
   },
 };
-
-/**
- * @type {import("@rspack/cli").Configuration}
- */
-const Worker = {
-  context: __dirname,
-  entry: {
-    worker: "./client/worker/index.ts",
-  },
-  devtool: isDev ? "source-map" : false,
-  output: {
-    clean: true,
-    filename: "[name].js",
-    path: path.resolve(__dirname, "build/static"),
-  },
-};
-
-module.exports = [Main, Worker];
