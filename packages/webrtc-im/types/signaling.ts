@@ -8,6 +8,7 @@ export const CLINT_EVENT = {
   SEND_OFFER: "SEND_OFFER",
   SEND_ANSWER: "SEND_ANSWER",
   SEND_ICE: "SEND_ICE",
+  SEND_ERROR: "SEND_ERROR",
 } as const;
 
 /** 服务端发起的消息 */
@@ -26,6 +27,7 @@ export type ClientEvent = {
   [CLINT_EVENT.SEND_OFFER]: ClientSendOfferEvent;
   [CLINT_EVENT.SEND_ANSWER]: ClientSendAnswerEvent;
   [CLINT_EVENT.SEND_ICE]: ClientSendIceEvent;
+  [SERVER_EVENT.SEND_ERROR]: ClientSendError;
 };
 
 export type ServerEvent = {
@@ -34,34 +36,36 @@ export type ServerEvent = {
   [SERVER_EVENT.SEND_OFFER]: ServerSendOfferEvent;
   [SERVER_EVENT.SEND_ANSWER]: ServerSendAnswerEvent;
   [SERVER_EVENT.SEND_ICE]: ServerSendIceEvent;
-  [SERVER_EVENT.SEND_ERROR]: ErrorEvent;
+  [SERVER_EVENT.SEND_ERROR]: CallbackEvent;
 };
 
-export type IceSDP = RTCSessionDescriptionInit;
+export type ICE = RTCIceCandidate;
+export type SDP = RTCSessionDescriptionInit;
 export type ClientEventKeys = O.Keys<ClientEvent>;
 export type ClientJoinRoomEvent = { device: DeviceType };
 export type ClientLeaveRoomEvent = { id: string };
-export type ClientSendOfferEvent = { from: string; to: string; sdp: IceSDP };
-export type ClientSendAnswerEvent = { from: string; to: string; sdp: IceSDP };
-export type ClientSendIceEvent = { from: string; to: string; sdp: IceSDP };
+export type ClientSendOfferEvent = { to: string; sdp: SDP };
+export type ClientSendAnswerEvent = { to: string; sdp: SDP };
+export type ClientSendIceEvent = { to: string; ice: ICE };
+export type ClientSendError = { to: string } & CallbackEvent;
 
 export type ServerEventKeys = O.Keys<ServerEvent>;
-export type ServerJoinRoomEvent = { id: string; device: DeviceType; self: boolean; ip: string };
+export type ServerJoinRoomEvent = { id: string; device: DeviceType; ip: string; hash: string }[];
 export type ServerLeaveRoomEvent = { id: string };
-export type ServerSendOfferEvent = { from: string; to: string; sdp: IceSDP };
-export type ServerSendAnswerEvent = { from: string; to: string; sdp: IceSDP };
-export type ServerSendIceEvent = { from: string; to: string; sdp: IceSDP };
+export type ServerSendOfferEvent = { from: string; to: string; sdp: SDP };
+export type ServerSendAnswerEvent = { from: string; to: string; sdp: SDP };
+export type ServerSendIceEvent = { from: string; to: string; ice: ICE };
 
 export type ClientFunc<T extends ClientEventKeys> = (
   payload: ClientEvent[T],
-  callback?: (state: ErrorEvent) => void
+  callback?: (state: CallbackEvent) => void
 ) => void;
 
 export type ServerFunc<T extends ServerEventKeys> = (
   payload: ServerEvent[T],
-  callback?: (state: ErrorEvent) => void
+  callback?: (state: CallbackEvent) => void
 ) => void;
 
-export type ErrorEvent = { code: number; message: string };
+export type CallbackEvent = { code: number; message: string };
 export type ClientHandler = { [K in ClientEventKeys]: ClientFunc<K> };
 export type ServerHandler = { [K in ServerEventKeys]: ServerFunc<K> };

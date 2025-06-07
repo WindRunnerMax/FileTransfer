@@ -3,11 +3,11 @@ import path from "path";
 import express from "express";
 import process from "process";
 import { Server } from "socket.io";
-import type { ServerHandler, ClientHandler } from "../types/signaling";
+import type { ServerHandler, ClientHandler, ServerJoinRoomEvent } from "../types/signaling";
 import { CLINT_EVENT, SERVER_EVENT } from "../types/signaling";
 import type { ServerSocket, SocketMember } from "../types/server";
 import { ERROR_CODE } from "../types/server";
-import { getIpByRequest, getLocalIp } from "./utils";
+import { getSocketIp, getLocalIp } from "./utils";
 import { getId } from "@block-kit/utils";
 
 const app = express();
@@ -19,26 +19,36 @@ const sockets = new WeakMap<ServerSocket, string>();
 const users = new Map<string, SocketMember>();
 
 io.on("connection", socket => {
-  const socketId = getId(10);
+  const userId = getId(10);
+  const { ip: userIp, hash: userIpHash } = getSocketIp(socket.request);
 
-  socket.on(CLINT_EVENT.JOIN_ROOM, payload => {
+  socket.on(CLINT_EVENT.JOIN_ROOM, (payload, callback) => {
     const user: SocketMember = {
-      id: socketId,
+      id: userId,
       socket: socket,
       connected: true,
       device: payload.device,
-      ip: getIpByRequest(socket.request),
+      ip: userIp,
+      hash: userIpHash,
     };
-    users.set(socketId, user);
+    const currentUsers: ServerJoinRoomEvent = [...users.values()].map(user => ({
+      ip: user.ip,
+      id: user.id,
+      hash: user.hash,
+      device: user.device,
+    }));
+    socket.emit(SERVER_EVENT.JOIN_ROOM, currentUsers);
+    const newUser: ServerJoinRoomEvent[number] = {
+      id: userId,
+      ip: user.ip,
+      hash: user.hash,
+      device: payload.device,
+    };
     users.forEach(user => {
-      const initialization = {
-        ip: user.ip,
-        id: socketId,
-        device: user.device,
-        self: user.id === socketId,
-      };
-      user.socket.emit(SERVER_EVENT.JOIN_ROOM, initialization);
+      user.socket.emit(SERVER_EVENT.JOIN_ROOM, [newUser]);
     });
+    users.set(userId, user);
+    callback && callback({ code: ERROR_CODE.OK, message: userId });
   });
 
   socket.on(CLINT_EVENT.SEND_OFFER, payload => {
@@ -51,14 +61,14 @@ io.on("connection", socket => {
       });
       return void 0;
     }
-    targetUser.socket.emit(SERVER_EVENT.SEND_OFFER, payload);
+    targetUser.socket.emit(SERVER_EVENT.SEND_OFFER, { ...payload, from: userId });
   });
 
   socket.on(CLINT_EVENT.SEND_ICE, payload => {
     const { to } = payload;
     const targetUser = users.get(to);
     if (targetUser) {
-      targetUser.socket.emit(SERVER_EVENT.SEND_ICE, payload);
+      targetUser.socket.emit(SERVER_EVENT.SEND_ICE, { ...payload, from: userId });
     }
   });
 
@@ -66,7 +76,15 @@ io.on("connection", socket => {
     const { to } = payload;
     const targetUser = users.get(to);
     if (targetUser) {
-      targetUser.socket.emit(SERVER_EVENT.SEND_ANSWER, payload);
+      targetUser.socket.emit(SERVER_EVENT.SEND_ANSWER, { ...payload, from: userId });
+    }
+  });
+
+  socket.on(CLINT_EVENT.SEND_ERROR, payload => {
+    const { to, code, message } = payload;
+    const targetUser = users.get(to);
+    if (targetUser) {
+      targetUser.socket.emit(SERVER_EVENT.SEND_ERROR, { code, message });
     }
   });
 

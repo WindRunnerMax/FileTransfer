@@ -66,7 +66,7 @@ export class EventBus<E> {
       handler.push({ listener, priority, once });
     }
     handler.sort((a, b) => a.priority - b.priority);
-    this.listeners[key] = <Listeners<E>[T]>handler;
+    this.listeners[key] = <Handler<E, T>[]>handler;
   }
 
   /**
@@ -79,7 +79,7 @@ export class EventBus<E> {
     if (!handler) return void 0;
     // COMPAT: 不能直接`splice` 可能会导致`trigger`时打断`forEach`
     const next = handler.filter(item => item.listener !== listener);
-    this.listeners[key] = <Listeners<E>[T]>next;
+    this.listeners[key] = <Handler<E, T>[]>next;
   }
 
   /**

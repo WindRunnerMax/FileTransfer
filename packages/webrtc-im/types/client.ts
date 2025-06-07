@@ -1,5 +1,11 @@
 import type { O } from "@block-kit/utils/dist/es/types";
 
+export const CONNECTION_STATE = {
+  READY: "READY",
+  CONNECTING: "CONNECTING",
+  CONNECTED: "CONNECTED",
+} as const;
+
 export const DEVICE_TYPE = {
   MOBILE: "MOBILE",
   PC: "PC",
@@ -26,3 +32,4 @@ export type DeviceType = O.Values<typeof DEVICE_TYPE>;
 export type TransferFrom = O.Values<typeof TRANSFER_FROM>;
 export type MessageTypeMap = O.Values<typeof MESSAGE_TYPE>;
 export type TransferTypeMap = O.Values<typeof TRANSFER_TYPE>;
+export type ConnectionState = O.Values<typeof CONNECTION_STATE>;

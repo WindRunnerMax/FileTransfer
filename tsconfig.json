@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "newLine": "lf",
     "allowJs": true,
     "skipLibCheck": true,
@@ -22,5 +18,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "experimentalDecorators": true
   }
 }
