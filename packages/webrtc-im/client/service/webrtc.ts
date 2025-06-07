@@ -21,7 +21,7 @@ export class WebRTCService {
   /** RTC 连接实例 */
   public connection: RTCPeerConnection;
 
-  constructor(private signal: SignalService, private atoms: AtomsService) {
+  constructor(public signal: SignalService, public atoms: AtomsService) {
     const rtc = this.createRTCPeerConnection();
     this.channel = rtc.channel;
     this.connection = rtc.connection;
@@ -40,6 +40,9 @@ export class WebRTCService {
     this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
   }
 
+  /**
+   * 发起连接
+   */
   public async connect(peerUserId: string) {
     this.atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
     console.log("Send Offer To:", peerUserId);
@@ -56,6 +59,9 @@ export class WebRTCService {
     this.signal.emit(CLINT_EVENT.SEND_OFFER, payload);
   }
 
+  /**
+   * 断开连接
+   */
   public async disconnect() {
     this.channel?.close();
     this.connection.close();
@@ -66,6 +72,9 @@ export class WebRTCService {
     this.connection = rtc.connection;
   }
 
+  /**
+   * 等待连接
+   */
   public connected() {
     if (!this.connectedPromise) return Promise.resolve();
     return this.connectedPromise;

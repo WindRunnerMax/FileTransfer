@@ -29,7 +29,7 @@ export class SignalService {
   /** 连接成功 Promise */
   private connectedPromise: PromiseWithResolve<void> | null;
 
-  constructor(wss: string, private atoms: AtomsService) {
+  constructor(wss: string, public atoms: AtomsService) {
     this.id = "";
     this.connectedPromise = createConnectReadyPromise();
     const socket = io(wss, { transports: ["websocket"] });
@@ -46,6 +46,9 @@ export class SignalService {
     this.socket.off("disconnect", this.onDisconnect);
   }
 
+  /**
+   * 等待连接
+   */
   public connected() {
     if (!this.connectedPromise) return Promise.resolve();
     return this.connectedPromise;

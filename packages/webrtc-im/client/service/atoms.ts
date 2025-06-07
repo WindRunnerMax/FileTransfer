@@ -3,7 +3,7 @@ import type { Atom, WritableAtom } from "jotai";
 import { getDefaultStore } from "jotai";
 
 export class AtomsService {
-  private store: F.Return<typeof getDefaultStore>;
+  public store: F.Return<typeof getDefaultStore>;
   constructor() {
     this.store = getDefaultStore();
   }
