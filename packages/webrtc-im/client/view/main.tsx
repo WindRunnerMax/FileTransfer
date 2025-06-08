@@ -8,28 +8,50 @@ import { TransferService } from "../service/transfer";
 import styles from "../styles/main.m.scss";
 import { TabBar } from "./tab-bar";
 import { Contacts } from "./contacts";
+import { GlobalContext } from "../store/global";
+import { IconGithub } from "@arco-design/web-react/icon";
+import { StoreService } from "../service/store";
+import { ConfigProvider } from "@arco-design/web-react";
+import enUS from "@arco-design/web-react/es/locale/en-US";
+import { MessageService } from "../service/message";
+import { Message } from "./message";
 
 export const App: FC = () => {
   const context = useMemo(() => {
     const signal = new SignalService(location.host);
     const rtc = new WebRTCService(signal);
     const transfer = new TransferService(signal, rtc);
-    return { signal, rtc, transfer };
+    const store = new StoreService();
+    const message = new MessageService(signal, rtc);
+    return { signal, rtc, transfer, store, message };
   }, []);
 
   useEffect(() => {
     return () => {
       context.rtc.destroy();
       context.signal.destroy();
+      context.message.destroy();
     };
   }, [context]);
 
   return (
-    <Provider store={atoms.store}>
-      <div className={styles.main}>
-        <TabBar></TabBar>
-        <Contacts></Contacts>
-      </div>
-    </Provider>
+    <ConfigProvider locale={enUS}>
+      <Provider store={atoms.store}>
+        <GlobalContext.Provider value={context}>
+          <div className={styles.main}>
+            <TabBar></TabBar>
+            <Contacts></Contacts>
+            <Message></Message>
+          </div>
+          <a
+            className={styles.github}
+            href="https://github.com/WindrunnerMax/FileTransfer"
+            target="_blank"
+          >
+            <IconGithub />
+          </a>
+        </GlobalContext.Provider>
+      </Provider>
+    </ConfigProvider>
   );
 };

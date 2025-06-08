@@ -1,4 +1,70 @@
+@import '../../node_modules/@block-kit/utils/dist//style/vars.scss';
+
 .container {
   border-right: 1px solid var(--color-border-2);
-  width: 230px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 5px;
+  position: relative;
+  width: 250px;
+}
+
+.search {
+  box-sizing: border-box;
+  margin-top: 7px;
+  padding: 0 15px;
+}
+
+.empty {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.users {
+  @include no-scrollbar;
+
+  flex: 1 0;
+  margin-top: 10px;
+  overflow-y: auto;
+}
+
+.user {
+  align-items: center;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  margin-bottom: 3px;
+  padding: 8px 10px;
+
+  &:hover,
+  &.active {
+    background-color: var(--color-fill-1);
+  }
+
+  .avatar {
+    margin-right: 10px;
+  }
+
+  .captain {
+    margin-top: 3px;
+  }
+
+  .name {
+    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  .ip {
+    color: var(--color-text-2);
+    font-size: 12px;
+  }
+}
+
+.divide {
+  background-color: var(--color-border-1);
+  box-sizing: border-box;
+  height: 1px;
+  margin: 3px;
 }

@@ -1,5 +1,5 @@
-import ReactDOM from "react-dom";
 import "@arco-design/web-react/es/style/index.less";
+import ReactDOM from "react-dom";
 import { App } from "./view/main";
 
 const darkThemeMatch = window.matchMedia("(prefers-color-scheme: dark)");

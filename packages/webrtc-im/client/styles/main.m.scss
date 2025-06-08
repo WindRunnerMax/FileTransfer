@@ -6,7 +6,7 @@ html,
 }
 
 body {
-  background-color: var(--color-fill-2);
+  background-color: rgb(var(--arcoblue-1));
   color: var(--color-text-1);
   overflow: hidden;
 
@@ -25,9 +25,18 @@ body {
   height: 70%;
   left: 50%;
   max-width: 1000px;
+  min-width: 800px;
   overflow: hidden;
   position: fixed;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
+}
+
+.github {
+  color: var(--color-text-1);
+  font-size: 23px;
+  position: fixed;
+  right: 12px;
+  top: 6px;
 }

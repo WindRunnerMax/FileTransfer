@@ -21,6 +21,7 @@ export const MESSAGE_TYPE = {
 export const TRANSFER_TYPE = {
   TEXT: "TEXT",
   FILE: "FILE",
+  SYSTEM: "SYSTEM",
 } as const;
 
 export const TRANSFER_FROM = {
@@ -28,11 +29,17 @@ export const TRANSFER_FROM = {
   PEER: "PEER",
 } as const;
 
+export const NET_TYPE = {
+  LAN: "LAN",
+  WAN: "WAN",
+} as const;
+
 export type DeviceType = O.Values<typeof DEVICE_TYPE>;
 export type TransferFrom = O.Values<typeof TRANSFER_FROM>;
 export type MessageType = O.Values<typeof MESSAGE_TYPE>;
 export type TransferType = O.Values<typeof TRANSFER_TYPE>;
 export type ConnectionState = O.Values<typeof CONNECTION_STATE>;
+export type NetType = O.Values<typeof NET_TYPE>;
 
 type _Spread<T extends O.Key, M extends Record<O.Key, unknown>> = {
   [P in T]: unknown extends M[P] ? never : M[P] & { key: P };
@@ -63,4 +70,5 @@ export type MessageEntryMap = {
 export type TransferEntryMap = {
   [TRANSFER_TYPE.TEXT]: TransferEntryText;
   [TRANSFER_TYPE.FILE]: TransferEntryFile;
+  [TRANSFER_TYPE.SYSTEM]: Omit<TransferEntryText, "from">;
 };

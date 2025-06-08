@@ -2,13 +2,12 @@
   "name": "@ft/webrtc-im",
   "version": "1.0.0",
   "scripts": {
-    "dev:fe": "cross-env NODE_ENV=development rspack build -c rspack.client.js --watch",
-    "build:fe": "rspack build -c rspack.client.js",
-    "server": "mkdir -p build && rollup -c rollup.server.js && node build/server.js",
-    "dev:server": "nodemon --watch server --ext ts --exec \"npm run server\"",
+    "dev:client": "rspack dev -c rspack.client.js",
+    "build:client": "rspack build -c rspack.client.js",
+    "dev:server": "nodemon --watch server --ext ts --exec \"tsx server/index.ts\"",
     "build:server": "mkdir -p build && rollup -c rollup.server.js",
-    "dev": "concurrently \"npm run dev:fe\" \"npm run dev:server\"",
-    "build": "rimraf build && npm run build:fe && npm run build:server",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "build": "rimraf build && npm run build:client && npm run build:server",
     "deploy": "npm run build && node build/server.js",
     "build:deploy": "npm run build && pnpm -F . --prod deploy ../../output",
     "lint:ts": "../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json"
@@ -53,7 +52,8 @@
     "rollup": "2.75.7",
     "rollup-plugin-esbuild": "6.1.0",
     "sass": "1.52.3",
-    "sass-loader": "13.3.2"
+    "sass-loader": "13.3.2",
+    "tsx": "4.19.4"
   },
   "engines": {
     "node": ">=14.0.0",

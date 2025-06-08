@@ -20,9 +20,10 @@ const users = new Map<string, SocketMember>();
 
 io.on("connection", socket => {
   const userId = getId(10);
+  sockets.set(socket, userId);
   const { ip: userIp, hash: userIpHash } = getSocketIp(socket.request);
 
-  socket.on(CLINT_EVENT.JOIN_ROOM, (payload, callback) => {
+  socket.on(CLINT_EVENT.JOIN_ROOM, payload => {
     const user: SocketMember = {
       id: userId,
       socket: socket,
@@ -31,13 +32,6 @@ io.on("connection", socket => {
       ip: userIp,
       hash: userIpHash,
     };
-    const currentUsers: ServerJoinRoomEvent = [...users.values()].map(user => ({
-      ip: user.ip,
-      id: user.id,
-      hash: user.hash,
-      device: user.device,
-    }));
-    socket.emit(SERVER_EVENT.JOIN_ROOM, currentUsers);
     const newUser: ServerJoinRoomEvent[number] = {
       id: userId,
       ip: user.ip,
@@ -45,11 +39,17 @@ io.on("connection", socket => {
       device: payload.device,
     };
     socket.emit(SERVER_EVENT.INIT_USER, newUser);
+    const currentUsers: ServerJoinRoomEvent = [...users.values()].map(user => ({
+      ip: user.ip,
+      id: user.id,
+      hash: user.hash,
+      device: user.device,
+    }));
+    socket.emit(SERVER_EVENT.JOIN_ROOM, currentUsers);
     users.forEach(user => {
       user.socket.emit(SERVER_EVENT.JOIN_ROOM, [newUser]);
     });
     users.set(userId, user);
-    callback && callback({ code: ERROR_CODE.OK, message: userId });
   });
 
   socket.on(CLINT_EVENT.SEND_OFFER, payload => {
@@ -87,6 +87,13 @@ io.on("connection", socket => {
     if (targetUser) {
       targetUser.socket.emit(SERVER_EVENT.SEND_ERROR, { code, message });
     }
+  });
+
+  socket.on(CLINT_EVENT.LEAVE_ROOM, () => {
+    users.delete(userId);
+    users.forEach(user => {
+      user.socket.emit(SERVER_EVENT.LEAVE_ROOM, { id: userId });
+    });
   });
 
   socket.on("disconnect", () => {

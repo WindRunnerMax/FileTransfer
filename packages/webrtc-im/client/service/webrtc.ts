@@ -75,7 +75,7 @@ export class WebRTCService {
   /**
    * 等待连接
    */
-  public connected() {
+  public isConnected() {
     if (!this.connectedPromise) return Promise.resolve();
     return this.connectedPromise;
   }
@@ -118,7 +118,7 @@ export class WebRTCService {
       const channel = event.channel;
       channel.onopen = e => this.onOpen && this.onOpen(e);
       channel.onmessage = e => this.onMessage && this.onMessage(e);
-      channel.onerror = e => this.onError && this.onError(e);
+      channel.onerror = e => this.onError && this.onError(e as RTCErrorEvent);
       channel.onclose = e => this.onClose && this.onClose(e);
     };
     connection.onconnectionstatechange = () => {
@@ -136,7 +136,7 @@ export class WebRTCService {
     console.log("Receive Offer From:", from, sdp);
     if (this.connection.currentLocalDescription || this.connection.currentRemoteDescription) {
       this.signal.emit(CLINT_EVENT.SEND_ERROR, {
-        to: origin,
+        to: from,
         code: ERROR_CODE.BUSY,
         message: `peer user ${this.signal.id} is busy`,
       });
@@ -145,28 +145,30 @@ export class WebRTCService {
     this.connection.onicecandidate = async event => {
       if (!event.candidate) return void 0;
       console.log("Local ICE", event.candidate);
-      const payload = { from: this.signal.id, ice: event.candidate, to: origin };
+      const payload = { from: this.signal.id, ice: event.candidate, to: from };
       this.signal.emit(CLINT_EVENT.SEND_ICE, payload);
     };
     await this.connection.setRemoteDescription(sdp);
     const answer = await this.connection.createAnswer();
     await this.connection.setLocalDescription(answer);
     console.log("Answer SDP", answer);
-    const payload = { from: this.signal.id, sdp: answer, to: origin };
+    const payload = { from: this.signal.id, sdp: answer, to: from };
     this.signal.emit(CLINT_EVENT.SEND_ANSWER, payload);
   }
 
+  @Bind
   private async onReceiveIce(params: ServerEvent["SEND_ICE"]) {
     const { ice: sdp, from } = params;
     console.log("Receive ICE From:", from, sdp);
     await this.connection.addIceCandidate(sdp);
   }
 
-  private onReceiveAnswer = async (params: ServerEvent["SEND_ANSWER"]) => {
+  @Bind
+  private async onReceiveAnswer(params: ServerEvent["SEND_ANSWER"]) {
     const { sdp, from } = params;
     console.log("Receive Answer From:", from, sdp);
     if (!this.connection.currentRemoteDescription) {
       this.connection.setRemoteDescription(sdp);
     }
-  };
+  }
 }

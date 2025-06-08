@@ -69,13 +69,25 @@ module.exports = {
       },
     ],
   },
-  target: "es5",
+  target: isDev ? undefined : "es5",
   devtool: isDev ? "source-map" : false,
   output: {
     publicPath: PUBLIC_PATH,
     chunkLoading: "jsonp",
     chunkFormat: "array-push",
-    filename: "[name].[hash].js",
     path: path.resolve(__dirname, "build/static"),
+    filename: isDev ? "[name].bundle.js" : "[name].[contenthash].js",
+    chunkFilename: isDev ? "[name].chunk.js" : "[name].[contenthash].js",
+    assetModuleFilename: isDev ? "[name].[ext]" : "[name].[contenthash].[ext]",
+  },
+  devServer: {
+    port: 8080,
+    proxy: {
+      "/socket.io": {
+        target: "ws://localhost:3000",
+        changeOrigin: true,
+        ws: true,
+      },
+    },
   },
 };
