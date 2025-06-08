@@ -15,9 +15,9 @@ import { CLINT_EVENT } from "../../types/signaling";
 import { Bind, IS_MOBILE } from "@block-kit/utils";
 import type { ConnectionState } from "../../types/client";
 import { CONNECTION_STATE, DEVICE_TYPE } from "../../types/client";
-import type { AtomsService } from "./atoms";
 import type { PromiseWithResolve } from "../utils/connection";
 import { createConnectReadyPromise } from "../utils/connection";
+import { atoms } from "../store/atoms";
 
 export class SignalService {
   /** 连接状态 */
@@ -29,7 +29,7 @@ export class SignalService {
   /** 连接成功 Promise */
   private connectedPromise: PromiseWithResolve<void> | null;
 
-  constructor(wss: string, public atoms: AtomsService) {
+  constructor(wss: string) {
     this.id = "";
     this.connectedPromise = createConnectReadyPromise();
     const socket = io(wss, { transports: ["websocket"] });
@@ -77,7 +77,7 @@ export class SignalService {
   private onConnected() {
     this.connectedPromise && this.connectedPromise.resolve();
     this.connectedPromise = null;
-    this.atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
+    atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
     const payload = {
       device: IS_MOBILE ? DEVICE_TYPE.MOBILE : DEVICE_TYPE.PC,
     };
@@ -88,7 +88,7 @@ export class SignalService {
 
   @Bind
   private onDisconnect() {
-    this.atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
+    atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
     this.connectedPromise = createConnectReadyPromise();
   }
 }

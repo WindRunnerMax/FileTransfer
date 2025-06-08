@@ -1,6 +1,5 @@
 import type { BufferType } from "../utils/binary";
 import { CHUNK_SIZE, ID_SIZE } from "../utils/binary";
-import type { AtomsService } from "./atoms";
 import type { SignalService } from "./signal";
 import type { WebRTCService } from "./webrtc";
 
@@ -10,7 +9,7 @@ export class TransferService {
   /** 分片传输队列 */
   public tasks: BufferType[];
 
-  constructor(public signal: SignalService, public rtc: WebRTCService, public atoms: AtomsService) {
+  constructor(public signal: SignalService, public rtc: WebRTCService) {
     this.isSending = false;
     this.tasks = [];
   }
@@ -21,6 +20,14 @@ export class TransferService {
   public enqueue(chunk: BufferType) {
     this.tasks.push(chunk);
     !this.isSending && this.startSendBuffer();
+  }
+
+  /**
+   * 重置传输状态
+   */
+  public reset() {
+    this.isSending = false;
+    this.tasks = [];
   }
 
   /**

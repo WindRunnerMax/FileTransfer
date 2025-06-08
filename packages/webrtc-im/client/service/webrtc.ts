@@ -2,7 +2,6 @@ import type { PrimitiveAtom } from "jotai";
 import { atom } from "jotai";
 import type { ConnectionState } from "../../types/client";
 import { CONNECTION_STATE } from "../../types/client";
-import type { AtomsService } from "./atoms";
 import type { PromiseWithResolve } from "../utils/connection";
 import { createConnectReadyPromise } from "../utils/connection";
 import type { SignalService } from "./signal";
@@ -10,6 +9,7 @@ import type { ServerEvent } from "../../types/signaling";
 import { CLINT_EVENT, SERVER_EVENT } from "../../types/signaling";
 import { Bind } from "@block-kit/utils";
 import { ERROR_CODE } from "../../types/server";
+import { atoms } from "../store/atoms";
 
 export class WebRTCService {
   /** 连接状态 */
@@ -21,7 +21,7 @@ export class WebRTCService {
   /** RTC 连接实例 */
   public connection: RTCPeerConnection;
 
-  constructor(public signal: SignalService, public atoms: AtomsService) {
+  constructor(public signal: SignalService) {
     const rtc = this.createRTCPeerConnection();
     this.channel = rtc.channel;
     this.connection = rtc.connection;
@@ -44,7 +44,7 @@ export class WebRTCService {
    * 发起连接
    */
   public async connect(peerUserId: string) {
-    this.atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
+    atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
     console.log("Send Offer To:", peerUserId);
     this.connection.onicecandidate = async event => {
       if (!event.candidate) return void 0;
@@ -65,7 +65,7 @@ export class WebRTCService {
   public async disconnect() {
     this.channel?.close();
     this.connection.close();
-    this.atoms.set(this.stateAtom, CONNECTION_STATE.READY);
+    atoms.set(this.stateAtom, CONNECTION_STATE.READY);
     // 重新创建, 等待新的连接
     const rtc = this.createRTCPeerConnection();
     this.channel = rtc.channel;
@@ -114,16 +114,16 @@ export class WebRTCService {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
     });
-    this.connection.ondatachannel = event => {
+    connection.ondatachannel = event => {
       const channel = event.channel;
       channel.onopen = e => this.onOpen && this.onOpen(e);
       channel.onmessage = e => this.onMessage && this.onMessage(e);
       channel.onerror = e => this.onError && this.onError(e);
       channel.onclose = e => this.onClose && this.onClose(e);
     };
-    this.connection.onconnectionstatechange = () => {
+    connection.onconnectionstatechange = () => {
       if (this.connection.connectionState === "connected") {
-        this.atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
+        atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
       }
       this.onConnectionStateChange && this.onConnectionStateChange();
     };

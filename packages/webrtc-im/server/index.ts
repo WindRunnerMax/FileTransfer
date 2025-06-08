@@ -44,6 +44,7 @@ io.on("connection", socket => {
       hash: user.hash,
       device: payload.device,
     };
+    socket.emit(SERVER_EVENT.INIT_USER, newUser);
     users.forEach(user => {
       user.socket.emit(SERVER_EVENT.JOIN_ROOM, [newUser]);
     });

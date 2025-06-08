@@ -1,0 +1,33 @@
+@import '../../node_modules/@block-kit/utils/dist//style/vars.scss';
+
+html,
+:global(.root) {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-fill-2);
+  color: var(--color-text-1);
+  overflow: hidden;
+
+  /* stylelint-disable-next-line selector-no-qualifying-type */
+  &[arco-theme='dark'] {
+    background-color: var(--color-bg-3);
+  }
+}
+
+.main {
+  @include frame-box;
+
+  background-color: var(--color-bg-2);
+  border-radius: 10px;
+  display: flex;
+  height: 70%;
+  left: 50%;
+  max-width: 1000px;
+  overflow: hidden;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+}

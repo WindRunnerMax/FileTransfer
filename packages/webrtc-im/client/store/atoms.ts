@@ -1,11 +1,11 @@
 import type { F } from "@block-kit/utils/dist/es/types";
 import type { Atom, WritableAtom } from "jotai";
-import { getDefaultStore } from "jotai";
+import { createStore } from "jotai";
 
-export class AtomsService {
-  public store: F.Return<typeof getDefaultStore>;
+export class Atoms {
+  public store: F.Return<typeof createStore>;
   constructor() {
-    this.store = getDefaultStore();
+    this.store = createStore();
   }
 
   public get<T>(atom: Atom<T>): T {
@@ -19,3 +19,5 @@ export class AtomsService {
     return this.store.set(atom, ...args);
   }
 }
+
+export const atoms = new Atoms();

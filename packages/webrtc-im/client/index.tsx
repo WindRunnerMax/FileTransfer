@@ -1,4 +1,10 @@
 import ReactDOM from "react-dom";
 import "@arco-design/web-react/es/style/index.less";
+import { App } from "./view/main";
 
-ReactDOM.render(<div>1</div>, document.getElementById("root"));
+const darkThemeMatch = window.matchMedia("(prefers-color-scheme: dark)");
+if (darkThemeMatch.matches) {
+  document.body.setAttribute("arco-theme", "dark");
+}
+
+ReactDOM.render(<App></App>, document.getElementById("root"));

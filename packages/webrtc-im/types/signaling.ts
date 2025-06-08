@@ -13,6 +13,7 @@ export const CLINT_EVENT = {
 
 /** 服务端发起的消息 */
 export const SERVER_EVENT = {
+  INIT_USER: "INIT_USER",
   JOIN_ROOM: "JOIN_ROOM",
   LEAVE_ROOM: "LEAVE_ROOM",
   SEND_OFFER: "SEND_OFFER",
@@ -31,6 +32,7 @@ export type ClientEvent = {
 };
 
 export type ServerEvent = {
+  [SERVER_EVENT.INIT_USER]: ServerJoinRoomEvent[number];
   [SERVER_EVENT.JOIN_ROOM]: ServerJoinRoomEvent;
   [SERVER_EVENT.LEAVE_ROOM]: ServerLeaveRoomEvent;
   [SERVER_EVENT.SEND_OFFER]: ServerSendOfferEvent;
