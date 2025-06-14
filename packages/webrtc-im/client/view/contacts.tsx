@@ -20,10 +20,10 @@ import { cs } from "@block-kit/utils";
 
 export const Contacts: FC = () => {
   const { signal, store, message, rtc } = useGlobalContext();
-  const [list, setList] = useState<ServerJoinRoomEvent>([]);
   const [search, setSearch] = useState("");
   const netType = useAtomValue(store.netTypeAtom);
   const [peerId, setPeerId] = useAtom(store.peerIdAtom);
+  const [list, setList] = useAtom(store.userListAtom);
 
   const onInitUser = useMemoFn(() => {
     setList([]);
@@ -51,7 +51,7 @@ export const Contacts: FC = () => {
     let isLan = signal.hash === user.hash;
     // 本地部署应用时, ip 地址可能是 ::1 或 ::ffff:
     if (
-      (!isLan && signal.ip === ":*:*") ||
+      signal.ip === ":*:*" ||
       signal.ip.startsWith("192.168") ||
       signal.ip.startsWith("10.") ||
       signal.ip.startsWith("172.") ||
@@ -67,21 +67,24 @@ export const Contacts: FC = () => {
     rtc.disconnect();
     message.clearEntries();
     setPeerId(userId);
-    await signal.isConnected();
     message.addSystemEntry("Connecting " + userId);
+    await signal.isConnected();
     rtc.connect(userId);
   };
 
   const onReceiveOffer = useMemoFn(async (event: ServerSendOfferEvent) => {
     const { from } = event;
+    // 这个实际上是先于实际 setRemoteDescription 的, 事件调用优先级会更高
     if (
-      rtc.connection.connectionState !== "connected" &&
-      rtc.connection.connectionState !== "connecting"
+      peerId === from ||
+      rtc.connection.connectionState === "new" ||
+      rtc.connection.connectionState === "failed" ||
+      rtc.connection.connectionState === "disconnected" ||
+      rtc.connection.connectionState === "closed"
     ) {
-      message.clearEntries();
       setPeerId(from);
+      message.clearEntries();
       message.addSystemEntry("Connecting " + from);
-      await signal.isConnected();
     }
   });
 

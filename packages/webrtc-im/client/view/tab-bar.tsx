@@ -7,6 +7,7 @@ import { CONNECT_DOT } from "../utils/connection";
 import { IconCloud, IconUser } from "@arco-design/web-react/icon";
 import { cs } from "@block-kit/utils";
 import { NET_TYPE } from "../../types/client";
+import { EllipsisTooltip } from "../component/ellipsis";
 
 export const TabBar: FC = () => {
   const { signal, store } = useGlobalContext();
@@ -18,9 +19,10 @@ export const TabBar: FC = () => {
       <Avatar id={signal.id}>
         <div className={styles.dot} style={{ backgroundColor: CONNECT_DOT[signalState] }}></div>
       </Avatar>
-      <div className={styles.name}>{signal.id ? signal.id.slice(0, 3) : "..."}</div>
+      <div className={styles.name}>
+        <EllipsisTooltip text={signal.id || "..."} tooltip={signal.id}></EllipsisTooltip>{" "}
+      </div>
       <div
-        style={{ marginTop: 20 }}
         onClick={() => setTab(NET_TYPE.LAN)}
         className={cs(styles.netTab, tab === NET_TYPE.LAN && styles.active)}
       >

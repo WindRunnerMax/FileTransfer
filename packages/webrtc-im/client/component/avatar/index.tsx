@@ -28,7 +28,7 @@ export const Avatar: FC<{
     for (let i = 0; i < rows; i++) {
       map[i] = [];
       for (let k = 0; k < halfRows; k++) {
-        map[i][k] = num % (i * k + 1) > 2 ? color : "";
+        map[i][k] = num % (i * k + 1) > 1 ? color : "";
       }
       for (let k = halfRows; k < rows; k++) {
         map[i][k] = map[i][rows - 1 - k];

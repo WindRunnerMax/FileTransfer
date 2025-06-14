@@ -7,35 +7,34 @@ import type { WebRTCService } from "./webrtc";
 import { atoms } from "../store/atoms";
 import { Bind } from "@block-kit/utils";
 import { SERVER_EVENT } from "../../types/signaling";
+import { WEBRTC_EVENT } from "../../types/webrtc";
 
 export class MessageService {
   public readonly listAtom: PrimitiveAtom<TransferEntry[]>;
 
   constructor(public signal: SignalService, public rtc: WebRTCService) {
     this.listAtom = atom<TransferEntry[]>([]);
-    this.rtc.onConnectionStateChange = this.onRTCStateChange;
     this.signal.socket.on("connect", this.onSignalConnected);
     this.signal.socket.on("disconnect", this.onSignalDisconnected);
     this.signal.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
+    this.signal.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
     this.signal.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.rtc.bus.on(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
   }
 
   public destroy() {
-    this.rtc.onConnectionStateChange = void 0;
     this.signal.socket.off("connect", this.onSignalConnected);
     this.signal.socket.off("disconnect", this.onSignalDisconnected);
     this.signal.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
+    this.signal.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
     this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.rtc.bus.off(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
   }
 
   public addEntry(entry: TransferEntry) {
     const currentList = atoms.get(this.listAtom);
     const newList = [...currentList, entry];
     atoms.set(this.listAtom, newList);
-  }
-
-  public clearEntries() {
-    atoms.set(this.listAtom, []);
   }
 
   public addSystemEntry(data: string) {
@@ -48,6 +47,10 @@ export class MessageService {
 
   public addFileEntry(data: TransferEntryFile) {
     this.addEntry({ key: TRANSFER_TYPE.FILE, ...data });
+  }
+
+  public clearEntries() {
+    atoms.set(this.listAtom, []);
   }
 
   @Bind
@@ -78,11 +81,16 @@ export class MessageService {
 
   @Bind
   private onReceiveOffer() {
-    this.addSystemEntry(`Received RTC Offer`);
+    this.addSystemEntry("Received RTC Offer");
+  }
+
+  @Bind
+  private onReceiveIce() {
+    this.addSystemEntry("Received RTC ICE");
   }
 
   @Bind
   private onReceiveAnswer() {
-    this.addSystemEntry(`Received RTC Answer`);
+    this.addSystemEntry("Received RTC Answer");
   }
 }

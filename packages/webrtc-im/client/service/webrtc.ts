@@ -10,6 +10,9 @@ import { CLINT_EVENT, SERVER_EVENT } from "../../types/signaling";
 import { Bind } from "@block-kit/utils";
 import { ERROR_CODE } from "../../types/server";
 import { atoms } from "../store/atoms";
+import { EventBus } from "../utils/event-bus";
+import type { WebRTCEvent } from "../../types/webrtc";
+import { WEBRTC_EVENT } from "../../types/webrtc";
 
 export class WebRTCService {
   /** 连接状态 */
@@ -20,11 +23,14 @@ export class WebRTCService {
   public channel: RTCDataChannel;
   /** RTC 连接实例 */
   public connection: RTCPeerConnection;
+  /** 事件总线 */
+  public bus: EventBus<WebRTCEvent>;
 
   constructor(public signal: SignalService) {
     const rtc = this.createRTCPeerConnection();
     this.channel = rtc.channel;
     this.connection = rtc.connection;
+    this.bus = new EventBus<WebRTCEvent>();
     this.connectedPromise = createConnectReadyPromise();
     this.stateAtom = atom<ConnectionState>(CONNECTION_STATE.READY);
     this.signal.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
@@ -80,12 +86,6 @@ export class WebRTCService {
     return this.connectedPromise;
   }
 
-  public onOpen?: (event: Event) => void;
-  public onMessage?: (event: MessageEvent) => void;
-  public onError?: (event: RTCErrorEvent) => void;
-  public onClose?: (event: Event) => void;
-  public onConnectionStateChange?: () => void;
-
   private createRTCPeerConnection(ice?: string) {
     const RTCPeerConnection =
       // @ts-expect-error RTCPeerConnection
@@ -116,16 +116,16 @@ export class WebRTCService {
     });
     connection.ondatachannel = event => {
       const channel = event.channel;
-      channel.onopen = e => this.onOpen && this.onOpen(e);
-      channel.onmessage = e => this.onMessage && this.onMessage(e);
-      channel.onerror = e => this.onError && this.onError(e as RTCErrorEvent);
-      channel.onclose = e => this.onClose && this.onClose(e);
+      channel.onopen = e => this.bus.emit(WEBRTC_EVENT.OPEN, e);
+      channel.onmessage = e => this.bus.emit(WEBRTC_EVENT.MESSAGE, e);
+      channel.onerror = e => this.bus.emit(WEBRTC_EVENT.ERROR, e as RTCErrorEvent);
+      channel.onclose = e => this.bus.emit(WEBRTC_EVENT.CLOSE, e);
     };
     connection.onconnectionstatechange = () => {
       if (this.connection.connectionState === "connected") {
         atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
       }
-      this.onConnectionStateChange && this.onConnectionStateChange();
+      this.bus.emit(WEBRTC_EVENT.STATE_CHANGE, this);
     };
     return { connection, channel };
   }
