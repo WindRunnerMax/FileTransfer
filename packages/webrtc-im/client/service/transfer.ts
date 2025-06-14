@@ -1,11 +1,11 @@
 import { Bind, getId, isString, TSON } from "@block-kit/utils";
-import type { FileMeta, MessageEntry, MessageEntryMap } from "../../types/transfer";
-import { MESSAGE_TYPE } from "../../types/transfer";
-import type { BufferType } from "../utils/binary";
-import { CHUNK_SIZE, ID_SIZE } from "../utils/binary";
-import { EventBus } from "../utils/event-bus";
+import type { FileMeta, MessageEntry, TransferEventMap } from "../../types/transfer";
+import { MESSAGE_TYPE, TRANSFER_EVENT, TRANSFER_FROM } from "../../types/transfer";
+import type { BufferType } from "../../types/transfer";
+import { CHUNK_SIZE, ID_SIZE } from "../../types/transfer";
 import type { WebRTCService } from "./webrtc";
 import { WEBRTC_EVENT } from "../../types/webrtc";
+import { EventBus } from "../utils/event-bus";
 
 export class TransferService {
   /** 正在发送数据 */
@@ -13,7 +13,7 @@ export class TransferService {
   /** 分片传输队列 */
   public tasks: BufferType[];
   /** 事件总线 */
-  public bus: EventBus<MessageEntryMap>;
+  public bus: EventBus<TransferEventMap>;
   /** 发送文件句柄 */
   public fileHandler: Map<string, Blob>;
   /** 接受文件切片 */
@@ -24,7 +24,7 @@ export class TransferService {
   constructor(private rtc: WebRTCService) {
     this.isSending = false;
     this.tasks = [];
-    this.bus = new EventBus<MessageEntryMap>();
+    this.bus = new EventBus();
     this.fileState = new Map();
     this.fileMapper = new Map();
     this.fileHandler = new Map();
@@ -33,7 +33,6 @@ export class TransferService {
 
   public destroy() {
     this.reset();
-    this.bus.clear();
     this.rtc.bus.off(WEBRTC_EVENT.MESSAGE, this.onMessage);
   }
 
@@ -48,8 +47,14 @@ export class TransferService {
     this.fileHandler = new Map();
   }
 
-  public async sendTextMessage(message: MessageEntry) {
-    this.rtc.channel.send(TSON.stringify(message)!);
+  public async sendTextMessage(message: MessageEntry | string) {
+    const entry: MessageEntry = isString(message)
+      ? { key: MESSAGE_TYPE.TEXT, data: message }
+      : message;
+    if (entry.key === MESSAGE_TYPE.TEXT) {
+      this.bus.emit(TRANSFER_EVENT.TEXT, { data: entry.data, from: TRANSFER_FROM.SELF });
+    }
+    this.rtc.channel.send(TSON.stringify(entry)!);
   }
 
   public async startSendFileList(files: FileList) {
@@ -59,8 +64,15 @@ export class TransferService {
       const id = getId(ID_SIZE);
       const size = file.size;
       const total = Math.ceil(file.size / maxChunkSize);
-      this.sendTextMessage({ key: MESSAGE_TYPE.FILE_START, id, name, size, total });
+      this.bus.emit(TRANSFER_EVENT.FILE_START, {
+        id,
+        size,
+        name,
+        progress: 0,
+        from: TRANSFER_FROM.SELF,
+      });
       this.fileHandler.set(id, file);
+      this.sendTextMessage({ key: MESSAGE_TYPE.FILE_START, id, name, size, total });
     }
   }
 
@@ -70,7 +82,9 @@ export class TransferService {
    */
   @Bind
   private async onMessage(event: MessageEvent<string | BufferType>) {
-    const { FILE_NEXT } = MESSAGE_TYPE;
+    const { TEXT, FILE_NEXT } = MESSAGE_TYPE;
+    const { FILE_START, FILE_PROCESS } = TRANSFER_EVENT;
+    const { PEER } = TRANSFER_FROM;
     // String - 接收文本类型数据
     if (isString(event.data)) {
       const data = TSON.decode<MessageEntry>(event.data);
@@ -78,32 +92,33 @@ export class TransferService {
       if (!data || !data.key) return void 0;
       // 收到 发送方 的文本消息
       if (data.key === MESSAGE_TYPE.TEXT) {
-        this.bus.emit(MESSAGE_TYPE.TEXT, data);
+        this.bus.emit(TEXT, { data: data.data, from: PEER });
         return void 0;
       }
       // 收到 发送方 传输起始消息 准备接收数据
       if (data.key === MESSAGE_TYPE.FILE_START) {
-        const { id, size, total } = data;
+        const { id, size, total, name } = data;
         this.fileState.set(id, { series: 0, ...data });
         // 通知 发送方 发送首个块
         this.sendTextMessage({ key: FILE_NEXT, id, series: 0, size, total });
-        this.bus.emit(MESSAGE_TYPE.FILE_START, data);
+        this.bus.emit(FILE_START, { id, name, size, progress: 0, from: PEER });
         return void 0;
       }
-      // 收到 接收方 的准备接收块数据消息
+      // 收到 接收方 的准备接收目标块数据消息
       if (data.key === MESSAGE_TYPE.FILE_NEXT) {
-        const { id, series } = data;
+        const { id, series, total } = data;
         const nextChunk = await this.serialize(id, series);
         // 向目标 接收方 发送块数据
         this.enqueue(nextChunk);
-        this.bus.emit(MESSAGE_TYPE.FILE_NEXT, data);
+        const progress = Math.floor((series / total) * 100);
+        this.bus.emit(FILE_PROCESS, { id, process: progress });
         return void 0;
       }
       // 收到 接收方 的接收完成消息
       if (data.key === MESSAGE_TYPE.FILE_FINISH) {
         const { id } = data;
         this.fileState.delete(id);
-        this.bus.emit(MESSAGE_TYPE.FILE_FINISH, data);
+        this.bus.emit(FILE_PROCESS, { id, process: 100 });
         return void 0;
       }
       return void 0;
@@ -118,11 +133,12 @@ export class TransferService {
       const state = this.fileState.get(id);
       if (!state) return void 0;
       const { size, total } = state;
+      const progress = Math.floor((series / total) * 100);
+      this.bus.emit(FILE_PROCESS, { id, process: progress });
       // 数据接收完毕 通知 发送方 接收完毕
       // 数据块序列号 [0, TOTAL)
       if (series >= total) {
         this.sendTextMessage({ key: MESSAGE_TYPE.FILE_FINISH, id });
-        this.bus.emit(MESSAGE_TYPE.FILE_FINISH, { id });
         return void 0;
       }
       // 未完成传输, 在内存中存储块数据
@@ -132,7 +148,6 @@ export class TransferService {
         this.fileMapper.set(id, mapper);
         // 通知 发送方 发送下一个序列块
         this.sendTextMessage({ key: FILE_NEXT, id, series: series + 1, size, total });
-        this.bus.emit(MESSAGE_TYPE.FILE_NEXT, { id, series, size, total });
         return void 0;
       }
       return void 0;

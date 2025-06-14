@@ -1,5 +1,11 @@
 import type { O, R } from "@block-kit/utils/dist/es/types";
 
+// 12B = 96bit => [A-Z] * 12
+export const ID_SIZE = 12;
+// 4B = 32bit = 2^32 = 4294967296
+export const CHUNK_SIZE = 4;
+export const STEAM_TYPE = "application/octet-stream";
+
 export const MESSAGE_TYPE = {
   TEXT: "TEXT",
   FILE_START: "FILE_START",
@@ -16,6 +22,12 @@ export const TRANSFER_TYPE = {
 export const TRANSFER_FROM = {
   SELF: "SELF",
   PEER: "PEER",
+} as const;
+
+export const TRANSFER_EVENT = {
+  TEXT: "TEXT",
+  FILE_START: "FILE_START",
+  FILE_PROCESS: "FILE_PROCESS",
 } as const;
 
 export type TransferFrom = O.Values<typeof TRANSFER_FROM>;
@@ -45,5 +57,11 @@ export type MessageEntryMap = {
 export type TransferEntryMap = {
   [TRANSFER_TYPE.TEXT]: TransferEntryText;
   [TRANSFER_TYPE.FILE]: TransferEntryFile;
-  [TRANSFER_TYPE.SYSTEM]: Omit<TransferEntryText, "from">;
+  [TRANSFER_TYPE.SYSTEM]: Omit<TransferEntryText, "from"> & { from?: TransferFrom };
+};
+
+export type TransferEventMap = {
+  [TRANSFER_EVENT.TEXT]: TransferEntryText;
+  [TRANSFER_EVENT.FILE_START]: TransferEntryFile;
+  [TRANSFER_EVENT.FILE_PROCESS]: { id: string; process: number };
 };

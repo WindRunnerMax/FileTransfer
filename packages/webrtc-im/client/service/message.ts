@@ -1,24 +1,33 @@
 import type { PrimitiveAtom } from "jotai";
 import { atom } from "jotai";
-import type { TransferEntry, TransferEntryFile, TransferFrom } from "../../types/transfer";
-import { TRANSFER_TYPE } from "../../types/transfer";
+import type {
+  TransferEntry,
+  TransferEntryFile,
+  TransferEventMap,
+  TransferFrom,
+} from "../../types/transfer";
+import { TRANSFER_EVENT, TRANSFER_TYPE } from "../../types/transfer";
 import type { SignalService } from "./signal";
 import type { WebRTCService } from "./webrtc";
 import { atoms } from "../store/atoms";
-import { Bind } from "@block-kit/utils";
+import { Bind, Scroll, sleep } from "@block-kit/utils";
 import type { CallbackEvent, ServerEvent } from "../../types/signaling";
 import { SERVER_EVENT } from "../../types/signaling";
 import { WEBRTC_EVENT } from "../../types/webrtc";
 import type { StoreService } from "./store";
+import type { TransferService } from "./transfer";
 
 export class MessageService {
+  public scroll: HTMLDivElement | null;
   public readonly listAtom: PrimitiveAtom<TransferEntry[]>;
 
   constructor(
     private signal: SignalService,
     private rtc: WebRTCService,
-    private store: StoreService
+    private store: StoreService,
+    private transfer: TransferService
   ) {
+    this.scroll = null;
     this.listAtom = atom<TransferEntry[]>([]);
     this.signal.socket.on("connect", this.onSignalConnected);
     this.signal.socket.on("disconnect", this.onSignalDisconnected);
@@ -28,6 +37,9 @@ export class MessageService {
     this.signal.on(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.on(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
     this.rtc.bus.on(WEBRTC_EVENT.CONNECTING, this.onConnecting);
+    this.transfer.bus.on(TRANSFER_EVENT.TEXT, this.onTextMessage);
+    this.transfer.bus.on(TRANSFER_EVENT.FILE_START, this.onFileStart);
+    this.transfer.bus.on(TRANSFER_EVENT.FILE_PROCESS, this.onFileProcess);
   }
 
   public destroy() {
@@ -39,6 +51,9 @@ export class MessageService {
     this.signal.off(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.off(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
     this.rtc.bus.off(WEBRTC_EVENT.CONNECTING, this.onConnecting);
+    this.transfer.bus.off(TRANSFER_EVENT.TEXT, this.onTextMessage);
+    this.transfer.bus.off(TRANSFER_EVENT.FILE_START, this.onFileStart);
+    this.transfer.bus.off(TRANSFER_EVENT.FILE_PROCESS, this.onFileProcess);
   }
 
   public addEntry(entry: TransferEntry) {
@@ -49,14 +64,30 @@ export class MessageService {
 
   public addSystemEntry(data: string) {
     this.addEntry({ key: TRANSFER_TYPE.SYSTEM, data });
+    this.scroll && Scroll.scrollToBottom(this.scroll);
   }
 
-  public addTextEntry(text: string, from: TransferFrom) {
+  public async addTextEntry(text: string, from: TransferFrom) {
     this.addEntry({ key: TRANSFER_TYPE.TEXT, data: text, from: from });
+    await sleep(10);
+    this.scroll && Scroll.scrollToBottom(this.scroll);
   }
 
-  public addFileEntry(data: TransferEntryFile) {
+  public async addFileEntry(data: TransferEntryFile) {
     this.addEntry({ key: TRANSFER_TYPE.FILE, ...data });
+    await sleep(10);
+    this.scroll && Scroll.scrollToBottom(this.scroll);
+  }
+
+  public updateFileEntry(id: string, progress: number) {
+    const list = [...atoms.get(this.listAtom)];
+    const FILE_TYPE = TRANSFER_TYPE.FILE;
+    const index = list.findIndex(it => it.key === FILE_TYPE && it.id === id);
+    if (index > -1) {
+      const node = list[index] as TransferEntry;
+      list[index] = { ...node, progress } as TransferEntry;
+      atoms.set(this.listAtom, list);
+    }
   }
 
   public clearEntries() {
@@ -114,5 +145,23 @@ export class MessageService {
   @Bind
   private onReceiveError(e: CallbackEvent) {
     this.addSystemEntry(e.message);
+  }
+
+  @Bind
+  private async onTextMessage(event: TransferEventMap["TEXT"]) {
+    const { data, from } = event;
+    this.addTextEntry(data, from);
+  }
+
+  @Bind
+  private async onFileStart(event: TransferEventMap["FILE_START"]) {
+    const { id, name, size, from } = event;
+    this.addFileEntry({ id, name, size, progress: 0, from });
+  }
+
+  @Bind
+  private async onFileProcess(event: TransferEventMap["FILE_PROCESS"]) {
+    const { id, process } = event;
+    this.updateFileEntry(id, process);
   }
 }

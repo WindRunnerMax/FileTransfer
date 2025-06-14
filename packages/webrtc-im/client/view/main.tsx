@@ -22,7 +22,7 @@ export const App: FC = () => {
     const rtc = new WebRTCService(signal);
     const transfer = new TransferService(rtc);
     const store = new StoreService();
-    const message = new MessageService(signal, rtc, store);
+    const message = new MessageService(signal, rtc, store, transfer);
     return { signal, rtc, transfer, store, message };
   }, []);
 
