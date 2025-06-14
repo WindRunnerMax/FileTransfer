@@ -58,12 +58,70 @@
     font-size: 12px;
     margin-left: auto;
     margin-right: auto;
-    padding: 0 15px;
+    padding: 1px 15px;
     user-select: none;
+    zoom: 0.9;
   }
 }
 
 .inputArea {
   border-top: 1px solid var(--color-border-1);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   height: 130px;
+  padding-bottom: 3px;
+  position: relative;
+
+  .operation {
+    align-items: center;
+    color: var(--color-text-2);
+    display: flex;
+    padding: 5px;
+    padding-bottom: 2px;
+  }
+
+  .operation :global(.arco-icon) {
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 3px;
+    padding: 3px;
+  }
+
+  .operation :global(.arco-icon:hover) {
+    background-color: var(--color-fill-2);
+  }
+
+  .textarea {
+    @include min-scrollbar;
+
+    background: transparent;
+    border: unset;
+    color: var(--color-text-1);
+    flex: 1 0;
+    padding: 0 10px;
+    resize: none;
+  }
+
+  .send {
+    align-items: center;
+    background-color: rgb(var(--arcoblue-5));
+    border-radius: 50%;
+    bottom: 10px;
+    color: var(--color-white);
+    cursor: pointer;
+    display: flex;
+    font-size: 15px;
+    height: 30px;
+    justify-content: center;
+    position: absolute;
+    right: 10px;
+    width: 30px;
+
+    :global(.arco-icon) {
+      margin-left: -1px;
+      margin-top: 2px;
+    }
+  }
 }

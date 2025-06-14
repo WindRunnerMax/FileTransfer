@@ -41,12 +41,11 @@ export class TransferService {
     // officially up to 256 KiB, but Firefox's implementation caps them at a whopping 1 GiB
     // 因此在这里需要将其限制为最大 256KB 以保证正确的文件传输以及 WebStream 的正常工作
     maxSize = Math.min(maxSize, 256 * 1024);
-    if (originValue) {
-      return maxSize;
-    }
+    // 最大的原始值, 而不是实际的可用分片大小
+    if (originValue) return maxSize;
     // 1KB = 1024B
     // 1B = 8bit => 0-255 00-FF
-    return maxSize - (ID_SIZE + CHUNK_SIZE);
+    return maxSize - ID_SIZE - CHUNK_SIZE;
   }
 
   /**

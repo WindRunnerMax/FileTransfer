@@ -16,7 +16,8 @@ import { PhoneIcon } from "../component/icons/phone";
 import { PCIcon } from "../component/icons/pc";
 import { IconSearch } from "@arco-design/web-react/icon";
 import { useAtom, useAtomValue } from "jotai";
-import { cs } from "@block-kit/utils";
+import { cs, sleep } from "@block-kit/utils";
+import { atoms } from "../store/atoms";
 
 export const Contacts: FC = () => {
   const { signal, store, message, rtc } = useGlobalContext();
@@ -25,8 +26,14 @@ export const Contacts: FC = () => {
   const [peerId, setPeerId] = useAtom(store.peerIdAtom);
   const [list, setList] = useAtom(store.userListAtom);
 
-  const onInitUser = useMemoFn(() => {
+  const onInitUser = useMemoFn(async () => {
     setList([]);
+    await sleep(10);
+    if (!peerId) return void 0;
+    // 如果初始化时 peerId 已经存在, 则尝试连接
+    const list = atoms.get(store.userListAtom);
+    const peerUser = list.find(user => user.id === peerId);
+    peerUser && rtc.connect(peerId);
   });
 
   const onJoinRoom = useMemoFn((users: ServerJoinRoomEvent) => {
@@ -67,7 +74,6 @@ export const Contacts: FC = () => {
     rtc.disconnect();
     message.clearEntries();
     setPeerId(userId);
-    message.addSystemEntry("Connecting " + userId);
     await signal.isConnected();
     rtc.connect(userId);
   };
@@ -85,7 +91,6 @@ export const Contacts: FC = () => {
       rtc.disconnect();
       setPeerId(from);
       peerId !== from && message.clearEntries();
-      message.addSystemEntry("Connecting " + from);
     }
   });
 

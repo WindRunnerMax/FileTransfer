@@ -48,7 +48,7 @@ export class SignalService {
     Storage.session.set(SESSION_KEY, sessionId);
     const socket = io(wss, {
       transports: ["websocket"],
-      protocols: [sessionId],
+      auth: { sessionId },
     });
     this.socket = socket;
     this.socket.on("connect", this.onConnected);

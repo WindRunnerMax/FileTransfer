@@ -53,6 +53,7 @@ export class WebRTCService {
    */
   public async connect(peerUserId: string) {
     atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
+    this.bus.emit(WEBRTC_EVENT.CONNECTING, null);
     console.log("Send Offer To:", peerUserId);
     this.connection.onicecandidate = async event => {
       if (!event.candidate) return void 0;

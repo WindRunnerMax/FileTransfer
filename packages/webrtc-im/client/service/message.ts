@@ -1,19 +1,20 @@
 import type { PrimitiveAtom } from "jotai";
 import { atom } from "jotai";
-import type { TransferEntry, TransferEntryFile, TransferFrom } from "../../types/client";
-import { TRANSFER_TYPE } from "../../types/client";
+import type { TransferEntry, TransferEntryFile, TransferFrom } from "../../types/transfer";
+import { TRANSFER_TYPE } from "../../types/transfer";
 import type { SignalService } from "./signal";
 import type { WebRTCService } from "./webrtc";
 import { atoms } from "../store/atoms";
 import { Bind } from "@block-kit/utils";
-import type { CallbackEvent } from "../../types/signaling";
+import type { CallbackEvent, ServerEvent } from "../../types/signaling";
 import { SERVER_EVENT } from "../../types/signaling";
 import { WEBRTC_EVENT } from "../../types/webrtc";
+import type { StoreService } from "./store";
 
 export class MessageService {
   public readonly listAtom: PrimitiveAtom<TransferEntry[]>;
 
-  constructor(public signal: SignalService, public rtc: WebRTCService) {
+  constructor(public signal: SignalService, public rtc: WebRTCService, public store: StoreService) {
     this.listAtom = atom<TransferEntry[]>([]);
     this.signal.socket.on("connect", this.onSignalConnected);
     this.signal.socket.on("disconnect", this.onSignalDisconnected);
@@ -22,6 +23,7 @@ export class MessageService {
     this.signal.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
     this.signal.on(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.on(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
+    this.rtc.bus.on(WEBRTC_EVENT.CONNECTING, this.onConnecting);
   }
 
   public destroy() {
@@ -32,6 +34,7 @@ export class MessageService {
     this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
     this.signal.off(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.off(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
+    this.rtc.bus.off(WEBRTC_EVENT.CONNECTING, this.onConnecting);
   }
 
   public addEntry(entry: TransferEntry) {
@@ -67,34 +70,41 @@ export class MessageService {
   }
 
   @Bind
+  private onConnecting() {
+    const peerId = atoms.get(this.store.peerIdAtom);
+    this.addSystemEntry(`WebRTC Connecting To ${peerId}`);
+  }
+
+  @Bind
   private onRTCStateChange() {
+    const peerId = atoms.get(this.store.peerIdAtom);
     if (this.rtc.connection.connectionState === "disconnected") {
-      this.addSystemEntry("WebRTC Disconnected");
+      this.addSystemEntry(`WebRTC ${peerId} Disconnected`);
     }
     if (this.rtc.connection.connectionState === "connected") {
-      this.addSystemEntry("WebRTC Connected");
+      this.addSystemEntry(`WebRTC ${peerId} Connected`);
     }
     if (
       this.rtc.connection.connectionState === "failed" ||
       this.rtc.connection.connectionState === "closed"
     ) {
-      this.addSystemEntry("WebRTC Connection Failed");
+      this.addSystemEntry(`WebRTC ${peerId} Connection Failed`);
     }
   }
 
   @Bind
-  private onReceiveOffer() {
-    this.addSystemEntry("Received RTC Offer");
+  private onReceiveOffer(params: ServerEvent["SEND_OFFER"]) {
+    this.addSystemEntry(`Received ${params.from} RTC Offer`);
   }
 
   @Bind
-  private onReceiveIce() {
-    this.addSystemEntry("Received RTC ICE");
+  private onReceiveIce(params: ServerEvent["SEND_ICE"]) {
+    this.addSystemEntry(`Received ${params.from} RTC ICE`);
   }
 
   @Bind
-  private onReceiveAnswer() {
-    this.addSystemEntry("Received RTC Answer");
+  private onReceiveAnswer(params: ServerEvent["SEND_ANSWER"]) {
+    this.addSystemEntry(`Received ${params.from} RTC Answer`);
   }
 
   @Bind

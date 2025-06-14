@@ -20,7 +20,7 @@ const users = new Map<string, SocketMember>();
 const session = new LRUSession();
 
 io.on("connection", socket => {
-  const sessionId = socket.handshake.headers["sec-websocket-protocol"];
+  const sessionId = socket.handshake.auth.sessionId;
   const userId = session.getId(sessionId || socket.id);
   const { ip: userIp, hash: userIpHash } = getSocketIp(socket.request);
   sockets.set(socket, userId);
