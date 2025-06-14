@@ -12,7 +12,7 @@ import type {
 import type { PrimitiveAtom } from "jotai";
 import { atom } from "jotai";
 import { CLINT_EVENT, SERVER_EVENT } from "../../types/signaling";
-import { Bind, IS_MOBILE } from "@block-kit/utils";
+import { Bind, getId, IS_MOBILE, Storage } from "@block-kit/utils";
 import type { ConnectionState } from "../../types/client";
 import { CONNECTION_STATE, DEVICE_TYPE } from "../../types/client";
 import type { PromiseWithResolve } from "../utils/connection";
@@ -21,6 +21,7 @@ import { atoms } from "../store/atoms";
 import type { Listener } from "../utils/event-bus";
 import { EventBus } from "../utils/event-bus";
 import type { P } from "@block-kit/utils/dist/es/types";
+import { SESSION_KEY } from "../../types/server";
 
 export class SignalService {
   /** 连接状态 */
@@ -43,7 +44,12 @@ export class SignalService {
     this.ip = "";
     this.hash = "";
     this.connectedPromise = createConnectReadyPromise();
-    const socket = io(wss, { transports: ["websocket"] });
+    const sessionId = Storage.session.get<string>(SESSION_KEY) || getId();
+    Storage.session.set(SESSION_KEY, sessionId);
+    const socket = io(wss, {
+      transports: ["websocket"],
+      protocols: [sessionId],
+    });
     this.socket = socket;
     this.socket.on("connect", this.onConnected);
     this.socket.on("disconnect", this.onDisconnect);

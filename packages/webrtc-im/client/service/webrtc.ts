@@ -36,6 +36,7 @@ export class WebRTCService {
     this.signal.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
     this.signal.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
     this.signal.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.socket.on("disconnect", this.disconnect);
   }
 
   public destroy() {
@@ -44,6 +45,7 @@ export class WebRTCService {
     this.signal.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
     this.signal.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
     this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.socket.off("disconnect", this.disconnect);
   }
 
   /**
@@ -68,14 +70,15 @@ export class WebRTCService {
   /**
    * 断开连接
    */
+  @Bind
   public async disconnect() {
     this.channel?.close();
     this.connection.close();
-    atoms.set(this.stateAtom, CONNECTION_STATE.READY);
     // 重新创建, 等待新的连接
     const rtc = this.createRTCPeerConnection();
     this.channel = rtc.channel;
     this.connection = rtc.connection;
+    atoms.set(this.stateAtom, CONNECTION_STATE.READY);
   }
 
   /**
@@ -124,6 +127,16 @@ export class WebRTCService {
     connection.onconnectionstatechange = () => {
       if (this.connection.connectionState === "connected") {
         atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
+      }
+      if (this.connection.connectionState === "connecting") {
+        atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
+      }
+      if (
+        this.connection.connectionState === "disconnected" ||
+        this.connection.connectionState === "failed" ||
+        this.connection.connectionState === "closed"
+      ) {
+        atoms.set(this.stateAtom, CONNECTION_STATE.READY);
       }
       this.bus.emit(WEBRTC_EVENT.STATE_CHANGE, this);
     };

@@ -8,7 +8,7 @@ import { CLINT_EVENT, SERVER_EVENT } from "../types/signaling";
 import type { ServerSocket, SocketMember } from "../types/server";
 import { ERROR_CODE } from "../types/server";
 import { getSocketIp, getLocalIp } from "./utils";
-import { getId } from "@block-kit/utils";
+import { LRUSession } from "./session";
 
 const app = express();
 app.use(express.static(path.resolve(__dirname, "static")));
@@ -17,11 +17,13 @@ const io = new Server<ClientHandler, ServerHandler>(httpServer);
 
 const sockets = new WeakMap<ServerSocket, string>();
 const users = new Map<string, SocketMember>();
+const session = new LRUSession();
 
 io.on("connection", socket => {
-  const userId = getId(10);
-  sockets.set(socket, userId);
+  const sessionId = socket.handshake.headers["sec-websocket-protocol"];
+  const userId = session.getId(sessionId || socket.id);
   const { ip: userIp, hash: userIpHash } = getSocketIp(socket.request);
+  sockets.set(socket, userId);
 
   socket.on(CLINT_EVENT.JOIN_ROOM, payload => {
     const user: SocketMember = {

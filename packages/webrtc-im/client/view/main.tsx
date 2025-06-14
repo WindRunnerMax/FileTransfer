@@ -27,7 +27,9 @@ export const App: FC = () => {
   }, []);
 
   useEffect(() => {
+    window.context = context;
     return () => {
+      window.context = null;
       context.rtc.destroy();
       context.signal.destroy();
       context.message.destroy();

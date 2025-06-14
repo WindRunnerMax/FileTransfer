@@ -6,6 +6,7 @@ import type { SignalService } from "./signal";
 import type { WebRTCService } from "./webrtc";
 import { atoms } from "../store/atoms";
 import { Bind } from "@block-kit/utils";
+import type { CallbackEvent } from "../../types/signaling";
 import { SERVER_EVENT } from "../../types/signaling";
 import { WEBRTC_EVENT } from "../../types/webrtc";
 
@@ -19,6 +20,7 @@ export class MessageService {
     this.signal.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
     this.signal.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
     this.signal.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.on(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.on(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
   }
 
@@ -28,6 +30,7 @@ export class MessageService {
     this.signal.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
     this.signal.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
     this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.off(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.off(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
   }
 
@@ -68,7 +71,7 @@ export class MessageService {
     if (this.rtc.connection.connectionState === "disconnected") {
       this.addSystemEntry("WebRTC Disconnected");
     }
-    if (this.rtc.connection.connectionState !== "connected") {
+    if (this.rtc.connection.connectionState === "connected") {
       this.addSystemEntry("WebRTC Connected");
     }
     if (
@@ -92,5 +95,10 @@ export class MessageService {
   @Bind
   private onReceiveAnswer() {
     this.addSystemEntry("Received RTC Answer");
+  }
+
+  @Bind
+  private onReceiveError(e: CallbackEvent) {
+    this.addSystemEntry(e.message);
   }
 }

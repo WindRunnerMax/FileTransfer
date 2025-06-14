@@ -3,6 +3,10 @@ declare module "*.scss" {
   export default content;
 }
 
+declare interface Window {
+  context: ContextType | null;
+}
+
 declare namespace NodeJS {
   interface ProcessEnv {
     PORT: string;

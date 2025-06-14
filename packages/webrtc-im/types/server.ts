@@ -2,6 +2,8 @@ import type { Socket } from "socket.io";
 import type { ClientHandler, ServerHandler } from "./signaling";
 import type { DeviceType } from "./client";
 
+export const SESSION_KEY = "x-session-id";
+
 export const ERROR_CODE = {
   OK: 0,
   BUSY: 400,

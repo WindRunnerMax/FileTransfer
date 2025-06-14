@@ -8,22 +8,34 @@
 
 .captainArea {
   align-items: center;
-  border-bottom: 1px solid var(--color-fill-1);
+  border-bottom: 1px solid var(--color-border-1);
   box-sizing: border-box;
   display: flex;
-  gap: 10px;
   height: 60px;
+  justify-content: space-between;
   padding: 10px;
 
   .captainName {
     font-weight: bold;
-    margin-top: 1px;
+    margin-top: 2px;
+  }
+
+  .captain {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+  }
+
+  .disconnect {
+    cursor: pointer;
+    margin-right: 15px;
   }
 }
 
 .dot {
   border-radius: 50%;
   height: 8px;
+  margin-top: 3px;
   width: 8px;
 }
 
@@ -33,9 +45,25 @@
   flex: 1 0;
   overflow-y: auto;
   padding: 5px 10px;
+
+  .messageItem {
+    align-items: center;
+    display: flex;
+    margin: 10px 0;
+  }
+
+  .systemMessage {
+    background-color: var(--color-fill-2);
+    border-radius: 10px;
+    font-size: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 15px;
+    user-select: none;
+  }
 }
 
 .inputArea {
-  border-top: 1px solid var(--color-fill-1);
-  height: 100px;
+  border-top: 1px solid var(--color-border-1);
+  height: 130px;
 }

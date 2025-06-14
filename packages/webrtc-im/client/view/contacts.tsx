@@ -82,8 +82,9 @@ export const Contacts: FC = () => {
       rtc.connection.connectionState === "disconnected" ||
       rtc.connection.connectionState === "closed"
     ) {
+      rtc.disconnect();
       setPeerId(from);
-      message.clearEntries();
+      peerId !== from && message.clearEntries();
       message.addSystemEntry("Connecting " + from);
     }
   });

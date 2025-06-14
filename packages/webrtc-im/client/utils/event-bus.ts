@@ -1,13 +1,5 @@
-export type EventKeys<E> = keyof E;
-export type Listener<E, T extends EventKeys<E>> = EventFn<E, T>;
-export type Listeners<E> = { [T in EventKeys<E>]?: Handler<E, T>[] };
-export type EventFn<E, T extends EventKeys<E>> = (payload: E[T], context: EventContext) => unknown;
-
-export type Handler<E, T extends EventKeys<E>> = {
-  once: boolean;
-  priority: number;
-  listener: Listener<E, T>;
-};
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface EventBusType {}
 
 export type EventContext = {
   /** 事件名 */
@@ -22,7 +14,17 @@ export type EventContext = {
   prevent: () => void;
 };
 
-export class EventBus<E> {
+export type Handler<E, T extends EventKeys<E>> = {
+  once: boolean;
+  priority: number;
+  listener: Listener<E, T>;
+};
+
+export type EventKeys<E> = keyof E;
+export type Listeners<E> = { [T in EventKeys<E>]?: Handler<E, T>[] };
+export type Listener<E, T extends EventKeys<E>> = (payload: E[T], context: EventContext) => unknown;
+
+export class EventBus<E = EventBusType> {
   /**
    * 事件监听器
    */

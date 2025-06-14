@@ -1,15 +1,17 @@
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import styles from "../styles/message.m.scss";
 import type { FC } from "react";
 import { useMemo } from "react";
 import { useGlobalContext } from "../store/global";
 import { CONNECT_DOT } from "../utils/connection";
 import { Avatar } from "../component/avatar";
+import { TRANSFER_TYPE } from "../../types/client";
+import { IconClose } from "@arco-design/web-react/icon";
 
 export const Message: FC = () => {
   const { message, store, rtc } = useGlobalContext();
   const list = useAtomValue(message.listAtom);
-  const peerId = useAtomValue(store.peerIdAtom);
+  const [peerId, setPeerId] = useAtom(store.peerIdAtom);
   const users = useAtomValue(store.userListAtom);
   const rtcState = useAtomValue(rtc.stateAtom);
 
@@ -22,17 +24,29 @@ export const Message: FC = () => {
     return null;
   }
 
+  const onDisconnect = () => {
+    setPeerId("");
+    rtc.disconnect();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.captainArea}>
-        <Avatar id={peerUser.id} size={20} square={4}></Avatar>
-        <div className={styles.captainName}>{peerUser.id}</div>
-        <div className={styles.dot} style={{ backgroundColor: CONNECT_DOT[rtcState] }}></div>
+        <div className={styles.captain}>
+          <Avatar id={peerUser.id} size={20} square={4}></Avatar>
+          <div className={styles.captainName}>{peerUser.id}</div>
+          <div className={styles.dot} style={{ backgroundColor: CONNECT_DOT[rtcState] }}></div>
+        </div>
+        <div className={styles.disconnect} onClick={onDisconnect}>
+          <IconClose></IconClose>
+        </div>
       </div>
       <div className={styles.messageArea}>
         {list.map((item, index) => (
-          <div key={index} style={{ fontSize: 12 }}>
-            {item.key !== "FILE" && item.data}
+          <div key={index} className={styles.messageItem}>
+            {item.key === TRANSFER_TYPE.SYSTEM && (
+              <div className={styles.systemMessage}>{item.data}</div>
+            )}
           </div>
         ))}
       </div>
