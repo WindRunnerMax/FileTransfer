@@ -60,6 +60,7 @@ export class SignalService {
   }
 
   public destroy() {
+    this.bus.clear();
     this.socket.close();
     this.connectedPromise = null;
     this.socket.offAny(this.onAnyEvent);

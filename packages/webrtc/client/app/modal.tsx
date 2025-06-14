@@ -100,7 +100,7 @@ export const TransferModal: FC<{
         const progress = Math.floor((series / total) * 100);
         updateFileProgress(id, progress);
         const nextChunk = serializeNextChunk(rtc, id, series);
-        // 通知 接收方 发送块数据
+        // 向目标 接收方 发送块数据
         sendChunkMessage(rtc, nextChunk);
       } else if (data.key === MESSAGE_TYPE.FILE_FINISH) {
         // 收到 接收方 的接收完成消息

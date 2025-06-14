@@ -20,7 +20,7 @@ export const App: FC = () => {
   const context = useMemo(() => {
     const signal = new SignalService(location.host);
     const rtc = new WebRTCService(signal);
-    const transfer = new TransferService(signal, rtc);
+    const transfer = new TransferService(rtc);
     const store = new StoreService();
     const message = new MessageService(signal, rtc, store);
     return { signal, rtc, transfer, store, message };
@@ -33,6 +33,7 @@ export const App: FC = () => {
       context.rtc.destroy();
       context.signal.destroy();
       context.message.destroy();
+      context.transfer.destroy();
     };
   }, [context]);
 

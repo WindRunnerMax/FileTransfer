@@ -105,9 +105,15 @@ export class EventBus<E = EventBusType> {
       },
     };
     for (const item of handler) {
-      item.listener(payload, context);
+      try {
+        item.listener(payload, context);
+      } catch (error) {
+        console.error(`EventBus: Error for event`, item, error);
+      }
       item.once && this.off(key, item.listener);
-      if (context.stopped) break;
+      if (context.stopped) {
+        break;
+      }
     }
     return context.prevented;
   }

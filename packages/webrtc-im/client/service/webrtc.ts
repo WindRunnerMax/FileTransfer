@@ -26,7 +26,7 @@ export class WebRTCService {
   /** 事件总线 */
   public bus: EventBus<WebRTCEvent>;
 
-  constructor(public signal: SignalService) {
+  constructor(private signal: SignalService) {
     const rtc = this.createRTCPeerConnection();
     this.channel = rtc.channel;
     this.connection = rtc.connection;
@@ -40,6 +40,7 @@ export class WebRTCService {
   }
 
   public destroy() {
+    this.bus.clear();
     this.signal.destroy();
     this.connectedPromise = null;
     this.signal.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);

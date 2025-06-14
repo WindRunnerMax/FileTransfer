@@ -14,7 +14,11 @@ import type { StoreService } from "./store";
 export class MessageService {
   public readonly listAtom: PrimitiveAtom<TransferEntry[]>;
 
-  constructor(public signal: SignalService, public rtc: WebRTCService, public store: StoreService) {
+  constructor(
+    private signal: SignalService,
+    private rtc: WebRTCService,
+    private store: StoreService
+  ) {
     this.listAtom = atom<TransferEntry[]>([]);
     this.signal.socket.on("connect", this.onSignalConnected);
     this.signal.socket.on("disconnect", this.onSignalDisconnected);

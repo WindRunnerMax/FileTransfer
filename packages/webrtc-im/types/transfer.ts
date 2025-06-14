@@ -1,11 +1,5 @@
 import type { O, R } from "@block-kit/utils/dist/es/types";
 
-export const TRANSFER_EVENT = {
-  FILE_START: "FILE_START",
-  FILE_PROGRESS: "FILE_PROGRESS",
-  FILE_END: "FILE_END",
-} as const;
-
 export const MESSAGE_TYPE = {
   TEXT: "TEXT",
   FILE_START: "FILE_START",
