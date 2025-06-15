@@ -50,25 +50,6 @@ export const Contacts: FC = () => {
     }
   });
 
-  const filteredList = list.filter(user => {
-    const isMatchSearch = !search || user.id.toLowerCase().includes(search.toLowerCase());
-    if (netType === NET_TYPE.WAN) {
-      return isMatchSearch;
-    }
-    let isLan = signal.hash === user.hash;
-    // 本地部署应用时, ip 地址可能是 ::1 或 ::ffff:
-    if (
-      signal.ip === ":*:*" ||
-      signal.ip.startsWith("192.168") ||
-      signal.ip.startsWith("10.") ||
-      signal.ip.startsWith("172.") ||
-      signal.ip.startsWith("::ffff:192.168")
-    ) {
-      isLan = true;
-    }
-    return isLan && isMatchSearch;
-  });
-
   const connectUser = async (userId: string) => {
     if (peerId === userId) return void 0;
     rtc.disconnect();
@@ -95,17 +76,37 @@ export const Contacts: FC = () => {
   });
 
   useEffect(() => {
-    signal.on(SERVER_EVENT.INIT_USER, onInitUser);
-    signal.on(SERVER_EVENT.JOIN_ROOM, onJoinRoom);
-    signal.on(SERVER_EVENT.LEAVE_ROOM, onLeaveRoom);
-    signal.on(SERVER_EVENT.SEND_OFFER, onReceiveOffer, 10);
+    signal.bus.on(SERVER_EVENT.INIT_USER, onInitUser);
+    signal.bus.on(SERVER_EVENT.JOIN_ROOM, onJoinRoom);
+    signal.bus.on(SERVER_EVENT.LEAVE_ROOM, onLeaveRoom);
+    signal.bus.on(SERVER_EVENT.SEND_OFFER, onReceiveOffer, 10);
     return () => {
-      signal.off(SERVER_EVENT.INIT_USER, onInitUser);
-      signal.off(SERVER_EVENT.JOIN_ROOM, onJoinRoom);
-      signal.off(SERVER_EVENT.LEAVE_ROOM, onLeaveRoom);
-      signal.off(SERVER_EVENT.SEND_OFFER, onReceiveOffer);
+      signal.bus.off(SERVER_EVENT.INIT_USER, onInitUser);
+      signal.bus.off(SERVER_EVENT.JOIN_ROOM, onJoinRoom);
+      signal.bus.off(SERVER_EVENT.LEAVE_ROOM, onLeaveRoom);
+      signal.bus.off(SERVER_EVENT.SEND_OFFER, onReceiveOffer);
     };
   }, [onInitUser, onJoinRoom, onLeaveRoom, onReceiveOffer, signal]);
+
+  const filteredList = list.filter(user => {
+    const isMatchSearch = !search || user.id.toLowerCase().includes(search.toLowerCase());
+    if (netType === NET_TYPE.WAN) {
+      return isMatchSearch;
+    }
+    let isLan = signal.hash === user.hash;
+    // 本地部署应用时, ip 地址可能是 ::1 或 ::ffff:
+    if (
+      isLan === true ||
+      signal.ip === ":*:*" ||
+      signal.ip.startsWith("192.168") ||
+      signal.ip.startsWith("10.") ||
+      signal.ip.startsWith("172.") ||
+      signal.ip.startsWith("::ffff:192.168")
+    ) {
+      isLan = true;
+    }
+    return isLan && isMatchSearch;
+  });
 
   return (
     <div className={styles.container}>

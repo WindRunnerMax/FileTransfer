@@ -18,7 +18,6 @@ import { CONNECTION_STATE, DEVICE_TYPE } from "../../types/client";
 import type { PromiseWithResolve } from "../utils/connection";
 import { createConnectReadyPromise } from "../utils/connection";
 import { atoms } from "../store/atoms";
-import type { Listener } from "../utils/event-bus";
 import { EventBus } from "../utils/event-bus";
 import type { P } from "@block-kit/utils/dist/es/types";
 import { SESSION_KEY } from "../../types/server";
@@ -32,12 +31,12 @@ export class SignalService {
   public ip: string;
   /** 客户端 ip hash */
   public hash: string;
+  /** 事件总线 */
+  public bus: EventBus<ServerEvent>;
   /** Socket 实例 */
   public readonly socket: Socket<ServerHandler, ClientHandler>;
   /** 连接成功 Promise */
   private connectedPromise: PromiseWithResolve<void> | null;
-  /** 内建事件总线 */
-  private bus: EventBus<ServerEvent>;
 
   constructor(wss: string) {
     this.id = "";
@@ -75,15 +74,6 @@ export class SignalService {
   public isConnected() {
     if (!this.connectedPromise) return Promise.resolve();
     return this.connectedPromise;
-  }
-
-  public on<T extends ServerEventKeys>(key: T, cb: Listener<ServerEvent, T>, priority?: number) {
-    // 再分发主要是加入优先级, 对于消息传递非常有用
-    this.bus.on(key, cb, priority);
-  }
-
-  public off<T extends ServerEventKeys>(key: T, cb: Listener<ServerEvent, T>) {
-    this.bus.off(key, cb);
   }
 
   public emit<T extends ClientEventKeys>(

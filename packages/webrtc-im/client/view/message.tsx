@@ -12,7 +12,7 @@ import { cs, Format, isNil, KEY_CODE, preventNativeEvent } from "@block-kit/util
 import { Progress } from "@arco-design/web-react";
 
 export const Message: FC = () => {
-  const { message, store, rtc, transfer } = useGlobalContext();
+  const { signal, message, store, rtc, transfer } = useGlobalContext();
   const list = useAtomValue(message.listAtom);
   const [peerId, setPeerId] = useAtom(store.peerIdAtom);
   const users = useAtomValue(store.userListAtom);
@@ -38,15 +38,19 @@ export const Message: FC = () => {
     rtc.disconnect();
   };
 
-  const sendTextMessage = () => {
+  const sendTextMessage = async () => {
     const textarea = textareaRef.current;
     const text = textarea && textarea.value.trim();
     if (isNil(text)) return void 0;
+    await signal.isConnected();
+    await rtc.isConnected();
     transfer.sendTextMessage(text);
     textareaRef.current && (textareaRef.current.value = "");
   };
 
-  const sendFileListMessage = (files: FileList) => {
+  const sendFileListMessage = async (files: FileList) => {
+    await signal.isConnected();
+    await rtc.isConnected();
     transfer.startSendFileList(files);
   };
 
@@ -136,13 +140,13 @@ export const Message: FC = () => {
                     <div>{Format.bytes(item.size)}</div>
                   </div>
                   <div
-                    className={cs(styles.fileDownload, item.progress < 100 && styles.disable)}
-                    onClick={() => item.progress >= 100 && onDownloadFile(item.id, item.name)}
+                    className={cs(styles.fileDownload, item.process < 100 && styles.disable)}
+                    onClick={() => item.process >= 100 && onDownloadFile(item.id, item.name)}
                   >
                     <IconToBottom />
                   </div>
                 </div>
-                <Progress color="#fff" trailColor="#aaa" percent={item.progress}></Progress>
+                <Progress color="#fff" trailColor="#aaa" percent={item.process}></Progress>
               </div>
             )}
           </div>

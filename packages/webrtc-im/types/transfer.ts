@@ -43,7 +43,7 @@ export type TransferEntryFile = {
   id: string;
   size: number;
   name: string;
-  progress: number;
+  process: number;
   from: TransferFrom;
 };
 

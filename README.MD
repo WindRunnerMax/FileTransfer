@@ -26,6 +26,7 @@ https://github.com/WindrunnerMax/FileTransfer/assets/33169019/b1d8d455-84e9-47c1
 ```bash
 $ pnpm install --frozen-lockfile
 $ npm run dev:webrtc
+$ npm run dev:webrtc-im
 $ npm run dev:websocket
 ```
 ## Deployment
@@ -33,5 +34,6 @@ $ npm run dev:websocket
 ```bash 
 $ pnpm install --frozen-lockfile
 $ npm run deploy:webrtc
+$ npm run deploy:webrtc-im
 $ npm run deploy:websocket
 ```

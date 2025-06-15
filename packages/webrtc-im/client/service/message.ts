@@ -1,11 +1,6 @@
 import type { PrimitiveAtom } from "jotai";
 import { atom } from "jotai";
-import type {
-  TransferEntry,
-  TransferEntryFile,
-  TransferEventMap,
-  TransferFrom,
-} from "../../types/transfer";
+import type { TransferEntry, TransferEventMap, TransferFrom } from "../../types/transfer";
 import { TRANSFER_EVENT, TRANSFER_TYPE } from "../../types/transfer";
 import type { SignalService } from "./signal";
 import type { WebRTCService } from "./webrtc";
@@ -31,10 +26,10 @@ export class MessageService {
     this.listAtom = atom<TransferEntry[]>([]);
     this.signal.socket.on("connect", this.onSignalConnected);
     this.signal.socket.on("disconnect", this.onSignalDisconnected);
-    this.signal.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
-    this.signal.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
-    this.signal.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
-    this.signal.on(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
+    this.signal.bus.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
+    this.signal.bus.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
+    this.signal.bus.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.bus.on(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.on(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
     this.rtc.bus.on(WEBRTC_EVENT.CONNECTING, this.onConnecting);
     this.transfer.bus.on(TRANSFER_EVENT.TEXT, this.onTextMessage);
@@ -45,10 +40,10 @@ export class MessageService {
   public destroy() {
     this.signal.socket.off("connect", this.onSignalConnected);
     this.signal.socket.off("disconnect", this.onSignalDisconnected);
-    this.signal.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
-    this.signal.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
-    this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
-    this.signal.off(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
+    this.signal.bus.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
+    this.signal.bus.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
+    this.signal.bus.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.bus.off(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.off(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
     this.rtc.bus.off(WEBRTC_EVENT.CONNECTING, this.onConnecting);
     this.transfer.bus.off(TRANSFER_EVENT.TEXT, this.onTextMessage);
@@ -71,23 +66,6 @@ export class MessageService {
     this.addEntry({ key: TRANSFER_TYPE.TEXT, data: text, from: from });
     await sleep(10);
     this.scroll && Scroll.scrollToBottom(this.scroll);
-  }
-
-  public async addFileEntry(data: TransferEntryFile) {
-    this.addEntry({ key: TRANSFER_TYPE.FILE, ...data });
-    await sleep(10);
-    this.scroll && Scroll.scrollToBottom(this.scroll);
-  }
-
-  public updateFileEntry(id: string, progress: number) {
-    const list = [...atoms.get(this.listAtom)];
-    const FILE_TYPE = TRANSFER_TYPE.FILE;
-    const index = list.findIndex(it => it.key === FILE_TYPE && it.id === id);
-    if (index > -1) {
-      const node = list[index] as TransferEntry;
-      list[index] = { ...node, progress } as TransferEntry;
-      atoms.set(this.listAtom, list);
-    }
   }
 
   public clearEntries() {
@@ -155,13 +133,22 @@ export class MessageService {
 
   @Bind
   private async onFileStart(event: TransferEventMap["FILE_START"]) {
-    const { id, name, size, from } = event;
-    this.addFileEntry({ id, name, size, progress: 0, from });
+    const { id, name, size, from, process } = event;
+    this.addEntry({ key: TRANSFER_TYPE.FILE, id, name, size, process, from });
+    await sleep(10);
+    this.scroll && Scroll.scrollToBottom(this.scroll);
   }
 
   @Bind
   private async onFileProcess(event: TransferEventMap["FILE_PROCESS"]) {
     const { id, process } = event;
-    this.updateFileEntry(id, process);
+    const list = [...atoms.get(this.listAtom)];
+    const FILE_TYPE = TRANSFER_TYPE.FILE;
+    const index = list.findIndex(it => it.key === FILE_TYPE && it.id === id);
+    if (index > -1) {
+      const node = list[index] as TransferEntry;
+      list[index] = { ...node, process } as TransferEntry;
+      atoms.set(this.listAtom, list);
+    }
   }
 }

@@ -64,15 +64,10 @@ export class TransferService {
       const id = getId(ID_SIZE);
       const size = file.size;
       const total = Math.ceil(file.size / maxChunkSize);
-      this.bus.emit(TRANSFER_EVENT.FILE_START, {
-        id,
-        size,
-        name,
-        progress: 0,
-        from: TRANSFER_FROM.SELF,
-      });
       this.fileHandler.set(id, file);
+      const { SELF } = TRANSFER_FROM;
       this.sendTextMessage({ key: MESSAGE_TYPE.FILE_START, id, name, size, total });
+      this.bus.emit(TRANSFER_EVENT.FILE_START, { id, size, name, process: 0, from: SELF });
     }
   }
 
@@ -101,7 +96,7 @@ export class TransferService {
         this.fileState.set(id, { series: 0, ...data });
         // 通知 发送方 发送首个块
         this.sendTextMessage({ key: FILE_NEXT, id, series: 0, size, total });
-        this.bus.emit(FILE_START, { id, name, size, progress: 0, from: PEER });
+        this.bus.emit(FILE_START, { id, name, size, process: 0, from: PEER });
         return void 0;
       }
       // 收到 接收方 的准备接收目标块数据消息

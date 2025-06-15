@@ -48,7 +48,7 @@
 
   .messageItem {
     align-items: center;
-    color: var(--color-white);
+    color: var(--color-text-1);
     display: flex;
     justify-content: flex-end;
     margin: 10px 0;
@@ -89,6 +89,7 @@
 
   .fileMessage {
     align-items: unset;
+    color: var(--color-white);
     display: flex;
     flex-direction: column;
     max-width: 80%;
@@ -116,9 +117,8 @@
 
     .fileDownload {
       align-items: center;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
       border-radius: 20px;
-      color: #fff;
       cursor: pointer;
       display: flex;
       flex-shrink: 0;

@@ -33,9 +33,9 @@ export class WebRTCService {
     this.bus = new EventBus<WebRTCEvent>();
     this.connectedPromise = createConnectReadyPromise();
     this.stateAtom = atom<ConnectionState>(CONNECTION_STATE.READY);
-    this.signal.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
-    this.signal.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
-    this.signal.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.bus.on(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
+    this.signal.bus.on(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
+    this.signal.bus.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
     this.signal.socket.on("disconnect", this.disconnect);
   }
 
@@ -43,9 +43,9 @@ export class WebRTCService {
     this.bus.clear();
     this.signal.destroy();
     this.connectedPromise = null;
-    this.signal.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
-    this.signal.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
-    this.signal.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
+    this.signal.bus.off(SERVER_EVENT.SEND_OFFER, this.onReceiveOffer);
+    this.signal.bus.off(SERVER_EVENT.SEND_ICE, this.onReceiveIce);
+    this.signal.bus.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
     this.signal.socket.off("disconnect", this.disconnect);
   }
 
@@ -115,34 +115,47 @@ export class WebRTCService {
     const connection = new RTCPeerConnection({
       iceServers: ice ? [{ urls: ice }] : defaultIces,
     });
+    if (!this.connectedPromise) {
+      this.connectedPromise = createConnectReadyPromise();
+    }
     const channel = connection.createDataChannel("file-transfer", {
       ordered: true, // 保证传输顺序
       maxRetransmits: 50, // 最大重传次数
     });
     connection.ondatachannel = event => {
       const channel = event.channel;
-      channel.onopen = e => this.bus.emit(WEBRTC_EVENT.OPEN, e);
+      channel.onopen = this.onDataChannelOpen;
       channel.onmessage = e => this.bus.emit(WEBRTC_EVENT.MESSAGE, e);
       channel.onerror = e => this.bus.emit(WEBRTC_EVENT.ERROR, e as RTCErrorEvent);
       channel.onclose = e => this.bus.emit(WEBRTC_EVENT.CLOSE, e);
     };
-    connection.onconnectionstatechange = () => {
-      if (this.connection.connectionState === "connected") {
-        atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
-      }
-      if (this.connection.connectionState === "connecting") {
-        atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
-      }
-      if (
-        this.connection.connectionState === "disconnected" ||
-        this.connection.connectionState === "failed" ||
-        this.connection.connectionState === "closed"
-      ) {
-        atoms.set(this.stateAtom, CONNECTION_STATE.READY);
-      }
-      this.bus.emit(WEBRTC_EVENT.STATE_CHANGE, this);
-    };
+    connection.onconnectionstatechange = this.onConnectionStateChange;
     return { connection, channel };
+  }
+
+  @Bind
+  private onDataChannelOpen(e: Event) {
+    this.connectedPromise && this.connectedPromise.resolve();
+    this.connectedPromise = null;
+    this.bus.emit(WEBRTC_EVENT.OPEN, e);
+  }
+
+  @Bind
+  private onConnectionStateChange() {
+    if (this.connection.connectionState === "connected") {
+      atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
+    }
+    if (this.connection.connectionState === "connecting") {
+      atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
+    }
+    if (
+      this.connection.connectionState === "disconnected" ||
+      this.connection.connectionState === "failed" ||
+      this.connection.connectionState === "closed"
+    ) {
+      atoms.set(this.stateAtom, CONNECTION_STATE.READY);
+    }
+    this.bus.emit(WEBRTC_EVENT.STATE_CHANGE, this);
   }
 
   @Bind
