@@ -8,7 +8,7 @@ import { Avatar } from "../component/avatar";
 import { STEAM_TYPE, TRANSFER_FROM, TRANSFER_TYPE } from "../../types/transfer";
 import { IconClose, IconFile, IconFolder, IconToBottom } from "@arco-design/web-react/icon";
 import { SendIcon } from "../component/icons/send";
-import { cs, Format, isNil, KEY_CODE, preventNativeEvent } from "@block-kit/utils";
+import { cs, Format, KEY_CODE, preventNativeEvent } from "@block-kit/utils";
 import { Progress } from "@arco-design/web-react";
 
 export const Message: FC = () => {
@@ -40,8 +40,8 @@ export const Message: FC = () => {
 
   const sendTextMessage = async () => {
     const textarea = textareaRef.current;
-    const text = textarea && textarea.value.trim();
-    if (isNil(text)) return void 0;
+    const text = textarea && textarea.value;
+    if (!text) return void 0;
     await signal.isConnected();
     await rtc.isConnected();
     transfer.sendTextMessage(text);

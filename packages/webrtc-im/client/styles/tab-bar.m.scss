@@ -8,6 +8,13 @@
   width: 60px;
 }
 
+.avatar {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
 .dot {
   border-radius: 50%;
   bottom: 0;
@@ -41,5 +48,41 @@
   &:hover,
   &.active {
     background-color: var(--color-fill-3);
+  }
+}
+
+:global(.webrtc-im-mobile) {
+  .container {
+    box-sizing: border-box;
+    flex-direction: row;
+    height: unset;
+    justify-content: space-between;
+    padding: 8px 20px;
+    width: 100%;
+
+    * {
+      // pointer 会导致移动端点击出现蓝色 highlight
+      cursor: unset !important;
+    }
+  }
+
+  .avatar {
+    height: 40px;
+    width: 60px;
+  }
+
+  .name {
+    font-size: 10px;
+    margin-top: 1px;
+  }
+
+  .netTab {
+    margin-top: unset;
+    width: 60px;
+
+    &:hover,
+    &.active {
+      background-color: var(--color-fill-3);
+    }
   }
 }

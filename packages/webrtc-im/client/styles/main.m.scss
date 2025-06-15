@@ -1,6 +1,7 @@
 @import '../../node_modules/@block-kit/utils/dist//style/vars.scss';
 
 html,
+body,
 :global(.root) {
   height: 100%;
 }
@@ -39,4 +40,19 @@ body {
   position: fixed;
   right: 12px;
   top: 6px;
+}
+
+// Mobile
+:global(.webrtc-im-mobile) {
+  ~.github {
+    display: none;
+  }
+
+  &.main {
+    flex-direction: column-reverse;
+    height: 100%;
+    max-width: unset;
+    min-width: unset;
+    width: 100%;
+  }
 }

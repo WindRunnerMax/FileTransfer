@@ -2,6 +2,7 @@ import { cs } from "@block-kit/utils";
 import type { FC } from "react";
 import { useState } from "react";
 import styles from "./index.m.scss";
+import type { TriggerProps } from "@arco-design/web-react";
 import { Tooltip } from "@arco-design/web-react";
 
 export const EllipsisTooltip: FC<{
@@ -11,6 +12,8 @@ export const EllipsisTooltip: FC<{
   text: string;
   /** ToolTip 文本/节点 */
   tooltip: React.ReactNode;
+  /** 触发器属性 */
+  triggerProps?: Partial<TriggerProps>;
 }> = props => {
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
@@ -21,7 +24,7 @@ export const EllipsisTooltip: FC<{
   };
 
   return (
-    <Tooltip disabled={!tooltipVisible} content={props.tooltip}>
+    <Tooltip disabled={!tooltipVisible} content={props.tooltip} triggerProps={props.triggerProps}>
       <span ref={onRef} className={cs(styles.text, props.className)}>
         {props.text}
       </span>

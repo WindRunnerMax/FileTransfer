@@ -15,6 +15,7 @@ import { ConfigProvider } from "@arco-design/web-react";
 import enUS from "@arco-design/web-react/es/locale/en-US";
 import { MessageService } from "../service/message";
 import { Message } from "./message";
+import { cs, IS_MOBILE } from "@block-kit/utils";
 
 export const App: FC = () => {
   const context = useMemo(() => {
@@ -23,7 +24,7 @@ export const App: FC = () => {
     const transfer = new TransferService(rtc);
     const store = new StoreService();
     const message = new MessageService(signal, rtc, store, transfer);
-    return { signal, rtc, transfer, store, message };
+    return { isMobile: IS_MOBILE, signal, rtc, transfer, store, message };
   }, []);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export const App: FC = () => {
     <ConfigProvider locale={enUS}>
       <Provider store={atoms.store}>
         <GlobalContext.Provider value={context}>
-          <div className={styles.main}>
+          <div className={cs(styles.main, context.isMobile && "webrtc-im-mobile")}>
             <TabBar></TabBar>
             <Contacts></Contacts>
             <Message></Message>

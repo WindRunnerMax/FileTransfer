@@ -68,3 +68,15 @@
   height: 1px;
   margin: 3px;
 }
+
+:global(.webrtc-im-mobile) {
+  .container {
+    flex: 1 0;
+    max-height: calc(100% - 60px);
+    width: 100%;
+
+    * {
+      cursor: unset !important;
+    }
+  }
+}

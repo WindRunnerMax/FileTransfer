@@ -6,6 +6,7 @@ import type { StoreService } from "../service/store";
 import type { MessageService } from "../service/message";
 
 export type ContextType = {
+  isMobile: boolean;
   signal: SignalService;
   rtc: WebRTCService;
   transfer: TransferService;

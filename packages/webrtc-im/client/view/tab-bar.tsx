@@ -10,17 +10,23 @@ import { NET_TYPE } from "../../types/client";
 import { EllipsisTooltip } from "../component/ellipsis";
 
 export const TabBar: FC = () => {
-  const { signal, store } = useGlobalContext();
+  const { signal, store, isMobile } = useGlobalContext();
   const signalState = useAtomValue(signal.stateAtom);
   const [tab, setTab] = useAtom(store.netTypeAtom);
 
   return (
     <div className={styles.container}>
-      <Avatar id={signal.id}>
-        <div className={styles.dot} style={{ backgroundColor: CONNECT_DOT[signalState] }}></div>
-      </Avatar>
-      <div className={styles.name}>
-        <EllipsisTooltip text={signal.id || "..."} tooltip={signal.id}></EllipsisTooltip>{" "}
+      <div className={styles.avatar}>
+        <Avatar id={signal.id} size={isMobile ? 26 : void 0} square={isMobile ? 4 : void 0}>
+          <div className={styles.dot} style={{ backgroundColor: CONNECT_DOT[signalState] }}></div>
+        </Avatar>
+        <div className={styles.name}>
+          <EllipsisTooltip
+            triggerProps={{ trigger: isMobile ? "click" : void 0, position: "top" }}
+            text={signal.id || "..."}
+            tooltip={signal.id}
+          ></EllipsisTooltip>{" "}
+        </div>
       </div>
       <div
         onClick={() => setTab(NET_TYPE.LAN)}
