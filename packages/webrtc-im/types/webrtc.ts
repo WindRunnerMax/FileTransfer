@@ -1,5 +1,3 @@
-import type { WebRTCService } from "../client/service/webrtc";
-
 export const WEBRTC_EVENT = {
   OPEN: "OPEN",
   MESSAGE: "MESSAGE",
@@ -15,5 +13,5 @@ export type WebRTCEvent = {
   [WEBRTC_EVENT.ERROR]: RTCErrorEvent;
   [WEBRTC_EVENT.CLOSE]: Event;
   [WEBRTC_EVENT.CONNECTING]: null;
-  [WEBRTC_EVENT.STATE_CHANGE]: WebRTCService;
+  [WEBRTC_EVENT.STATE_CHANGE]: RTCPeerConnection;
 };

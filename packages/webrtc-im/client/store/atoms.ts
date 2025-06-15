@@ -2,7 +2,7 @@ import type { F } from "@block-kit/utils/dist/es/types";
 import type { Atom, WritableAtom } from "jotai";
 import { createStore } from "jotai";
 
-export class Atoms {
+export class AtomsFactory {
   public store: F.Return<typeof createStore>;
   constructor() {
     this.store = createStore();
@@ -20,4 +20,4 @@ export class Atoms {
   }
 }
 
-export const atoms = new Atoms();
+export const atoms = new AtomsFactory();

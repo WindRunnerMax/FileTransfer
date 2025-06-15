@@ -16,6 +16,11 @@ module.exports = {
   entry: {
     index: "./client/index.tsx",
   },
+  externals: {
+    "react": "React",
+    "react-dom": "ReactDOM",
+    "vue": "Vue",
+  },
   plugins: [
     new CopyPlugin([{ from: "./client/static", to: "." }]),
     new HtmlPlugin({

@@ -50,11 +50,11 @@ export class SignalService {
       auth: { sessionId },
     });
     this.socket = socket;
+    this.bus = new EventBus<ServerEvent>();
     this.socket.on("connect", this.onConnected);
     this.socket.on("disconnect", this.onDisconnect);
-    this.socket.on(SERVER_EVENT.INIT_USER, this.onInitUser);
     this.socket.onAny(this.onAnyEvent);
-    this.bus = new EventBus<ServerEvent>();
+    this.bus.on(SERVER_EVENT.INIT_USER, this.onInitUser);
     this.stateAtom = atom<ConnectionState>(CONNECTION_STATE.CONNECTING);
   }
 
@@ -95,7 +95,7 @@ export class SignalService {
 
   @Bind
   private onInitUser(payload: ServerEvent["INIT_USER"]) {
-    const { id, ip, hash } = payload;
+    const { id, ip, hash } = payload.self;
     this.id = id;
     this.ip = ip;
     this.hash = hash;

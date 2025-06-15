@@ -8,9 +8,11 @@ import { IconCloud, IconUser } from "@arco-design/web-react/icon";
 import { cs } from "@block-kit/utils";
 import { NET_TYPE } from "../../types/client";
 import { EllipsisTooltip } from "../component/ellipsis";
+import { useIsMobile } from "../hooks/use-is-mobile";
 
 export const TabBar: FC = () => {
-  const { signal, store, isMobile } = useGlobalContext();
+  const { signal, store } = useGlobalContext();
+  const { isMobile } = useIsMobile();
   const signalState = useAtomValue(signal.stateAtom);
   const [tab, setTab] = useAtom(store.netTypeAtom);
 

@@ -34,22 +34,21 @@ io.on("connection", socket => {
       ip: userIp,
       hash: userIpHash,
     };
-    const newUser: ServerJoinRoomEvent[number] = {
+    const newUser: ServerJoinRoomEvent = {
       id: userId,
       ip: user.ip,
       hash: user.hash,
       device: payload.device,
     };
-    socket.emit(SERVER_EVENT.INIT_USER, newUser);
-    const currentUsers: ServerJoinRoomEvent = [...users.values()].map(user => ({
+    const currentUsers: ServerJoinRoomEvent[] = [...users.values()].map(user => ({
       ip: user.ip,
       id: user.id,
       hash: user.hash,
       device: user.device,
     }));
-    socket.emit(SERVER_EVENT.JOIN_ROOM, currentUsers);
+    socket.emit(SERVER_EVENT.INIT_USER, { self: newUser, users: currentUsers });
     users.forEach(user => {
-      user.socket.emit(SERVER_EVENT.JOIN_ROOM, [newUser]);
+      user.socket.emit(SERVER_EVENT.JOIN_ROOM, newUser);
     });
     users.set(userId, user);
   });

@@ -74,7 +74,7 @@ export class WebRTCService {
    */
   @Bind
   public async disconnect() {
-    this.channel?.close();
+    this.channel && this.channel.close();
     this.connection.close();
     // 重新创建, 等待新的连接
     const rtc = this.createRTCPeerConnection();
@@ -106,11 +106,6 @@ export class WebRTCService {
           "stun:stun.l.google.com:19302",
         ],
       },
-      {
-        urls: ["turn:pairdrop.net:5349", "turns:turn.pairdrop.net:5349"],
-        username: "qhyDYD7PmT1a",
-        credential: "6uX4JSBdncNLmUmoGau97Ft",
-      },
     ];
     const connection = new RTCPeerConnection({
       iceServers: ice ? [{ urls: ice }] : defaultIces,
@@ -125,11 +120,14 @@ export class WebRTCService {
     connection.ondatachannel = event => {
       const channel = event.channel;
       channel.onopen = this.onDataChannelOpen;
+      channel.onclose = this.onDataChannelClose;
       channel.onmessage = e => this.bus.emit(WEBRTC_EVENT.MESSAGE, e);
       channel.onerror = e => this.bus.emit(WEBRTC_EVENT.ERROR, e as RTCErrorEvent);
-      channel.onclose = e => this.bus.emit(WEBRTC_EVENT.CLOSE, e);
     };
-    connection.onconnectionstatechange = this.onConnectionStateChange;
+    connection.onconnectionstatechange = () => {
+      if (channel.readyState === "closed") return void 0;
+      this.onConnectionStateChange(connection);
+    };
     return { connection, channel };
   }
 
@@ -141,21 +139,28 @@ export class WebRTCService {
   }
 
   @Bind
-  private onConnectionStateChange() {
-    if (this.connection.connectionState === "connected") {
+  private onDataChannelClose(e: Event) {
+    atoms.set(this.stateAtom, CONNECTION_STATE.READY);
+    this.bus.emit(WEBRTC_EVENT.CLOSE, e);
+  }
+
+  @Bind
+  private onConnectionStateChange(connection: RTCPeerConnection) {
+    if (connection.connectionState === "connected") {
       atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTED);
     }
     if (this.connection.connectionState === "connecting") {
       atoms.set(this.stateAtom, CONNECTION_STATE.CONNECTING);
     }
     if (
-      this.connection.connectionState === "disconnected" ||
-      this.connection.connectionState === "failed" ||
-      this.connection.connectionState === "closed"
+      connection.connectionState === "disconnected" ||
+      connection.connectionState === "failed" ||
+      connection.connectionState === "new" ||
+      connection.connectionState === "closed"
     ) {
       atoms.set(this.stateAtom, CONNECTION_STATE.READY);
     }
-    this.bus.emit(WEBRTC_EVENT.STATE_CHANGE, this);
+    this.bus.emit(WEBRTC_EVENT.STATE_CHANGE, connection);
   }
 
   @Bind

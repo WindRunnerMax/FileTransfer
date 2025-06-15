@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { Fragment, useEffect, useState } from "react";
 import styles from "../styles/contacts.m.scss";
 import type {
-  ServerJoinRoomEvent,
+  ServerInitUserEvent,
   ServerLeaveRoomEvent,
   ServerSendOfferEvent,
 } from "../../types/signaling";
@@ -11,6 +11,7 @@ import { Empty, Input } from "@arco-design/web-react";
 import { useGlobalContext } from "../store/global";
 import { useMemoFn } from "@block-kit/utils/dist/es/hooks";
 import { Avatar } from "../component/avatar";
+import type { Users } from "../../types/client";
 import { DEVICE_TYPE, NET_TYPE } from "../../types/client";
 import { PhoneIcon } from "../component/icons/phone";
 import { PCIcon } from "../component/icons/pc";
@@ -18,6 +19,7 @@ import { IconSearch } from "@arco-design/web-react/icon";
 import { useAtom, useAtomValue } from "jotai";
 import { cs, sleep } from "@block-kit/utils";
 import { atoms } from "../store/atoms";
+import type { O } from "@block-kit/utils/dist/es/types";
 
 export const Contacts: FC = () => {
   const { signal, store, message, rtc } = useGlobalContext();
@@ -26,8 +28,8 @@ export const Contacts: FC = () => {
   const [peerId, setPeerId] = useAtom(store.peerIdAtom);
   const [list, setList] = useAtom(store.userListAtom);
 
-  const onInitUser = useMemoFn(async () => {
-    setList([]);
+  const onInitUser = useMemoFn(async (payload: ServerInitUserEvent) => {
+    setList(payload.users);
     await sleep(10);
     if (!peerId) return void 0;
     // 如果初始化时 peerId 已经存在, 则尝试连接
@@ -36,17 +38,25 @@ export const Contacts: FC = () => {
     peerUser && rtc.connect(peerId);
   });
 
-  const onJoinRoom = useMemoFn((users: ServerJoinRoomEvent) => {
-    console.log("Join Room", users);
-    setList(prev => [...prev, ...users]);
+  const onJoinRoom = useMemoFn((user: Users[number]) => {
+    console.log("Join Room", user);
+    setList(prev => {
+      const userMap: O.Map<Users[number]> = {};
+      prev.forEach(u => (userMap[u.id] = u));
+      userMap[user.id] = user;
+      return Object.values(userMap);
+    });
   });
 
   const onLeaveRoom = useMemoFn((user: ServerLeaveRoomEvent) => {
     console.log("Leave Room", user);
-    setList(prev => prev.filter(u => u.id !== user.id));
     if (user.id === peerId) {
+      // 如果离开的是当前连接的用户, 则保留当前的用户状态
       rtc.disconnect();
-      setPeerId("");
+      const peerUser = list.find(u => u.id === peerId);
+      peerUser && (peerUser.offline = true);
+    } else {
+      setList(prev => prev.filter(u => u.id !== user.id));
     }
   });
 
@@ -76,7 +86,7 @@ export const Contacts: FC = () => {
   });
 
   useEffect(() => {
-    signal.bus.on(SERVER_EVENT.INIT_USER, onInitUser);
+    signal.bus.on(SERVER_EVENT.INIT_USER, onInitUser, 105);
     signal.bus.on(SERVER_EVENT.JOIN_ROOM, onJoinRoom);
     signal.bus.on(SERVER_EVENT.LEAVE_ROOM, onLeaveRoom);
     signal.bus.on(SERVER_EVENT.SEND_OFFER, onReceiveOffer, 10);
@@ -87,6 +97,13 @@ export const Contacts: FC = () => {
       signal.bus.off(SERVER_EVENT.SEND_OFFER, onReceiveOffer);
     };
   }, [onInitUser, onJoinRoom, onLeaveRoom, onReceiveOffer, signal]);
+
+  useEffect(() => {
+    // 若 PeerId 变化, 则将通讯录的下线用户状态清除
+    const users = atoms.get(store.userListAtom);
+    const newUsers = users.filter(user => !user.offline);
+    newUsers.length !== users.length && atoms.set(store.userListAtom, newUsers);
+  }, [peerId, store.userListAtom]);
 
   const filteredList = list.filter(user => {
     const isMatchSearch = !search || user.id.toLowerCase().includes(search.toLowerCase());
@@ -140,7 +157,12 @@ export const Contacts: FC = () => {
           </Fragment>
         ))}
       </div>
-      {!filteredList.length && <Empty className={styles.empty} description="No User"></Empty>}
+      {!filteredList.length && (
+        <Empty
+          className={styles.empty}
+          description={`No ${netType === NET_TYPE.LAN ? "LAN" : "WAN"} User`}
+        ></Empty>
+      )}
     </div>
   );
 };

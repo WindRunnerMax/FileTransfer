@@ -1,6 +1,9 @@
 {
   "name": "@ft/webrtc-im",
   "version": "1.0.0",
+  "files": [
+    "build/*"
+  ],
   "scripts": {
     "dev:client": "rspack dev -c rspack.client.js",
     "build:client": "rspack build -c rspack.client.js",
@@ -20,20 +23,20 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/WindrunnerMax/FileTransfer/issues"
+    "url": "https://github.com/WindRunnerMax/FileTransfer/issues"
   },
-  "homepage": "https://github.com/WindrunnerMax/FileTransfer",
+  "homepage": "https://github.com/WindRunnerMax/FileTransfer",
   "dependencies": {
-    "@arco-design/web-react": "2.56.1",
     "@block-kit/utils": "1.0.6",
     "express": "4.18.2",
+    "socket.io": "4.7.2"
+  },
+  "devDependencies": {
+    "@arco-design/web-react": "2.56.1",
     "jotai": "2.12.5",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "socket.io": "4.7.2",
-    "socket.io-client": "4.7.2"
-  },
-  "devDependencies": {
+    "socket.io-client": "4.7.2",
     "@rspack/cli": "0.2.5",
     "@rspack/plugin-html": "0.2.5",
     "@types/express": "4.17.21",

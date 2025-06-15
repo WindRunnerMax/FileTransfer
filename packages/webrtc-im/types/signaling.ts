@@ -32,7 +32,7 @@ export type ClientEvent = {
 };
 
 export type ServerEvent = {
-  [SERVER_EVENT.INIT_USER]: ServerJoinRoomEvent[number];
+  [SERVER_EVENT.INIT_USER]: ServerInitUserEvent;
   [SERVER_EVENT.JOIN_ROOM]: ServerJoinRoomEvent;
   [SERVER_EVENT.LEAVE_ROOM]: ServerLeaveRoomEvent;
   [SERVER_EVENT.SEND_OFFER]: ServerSendOfferEvent;
@@ -52,7 +52,8 @@ export type ClientSendIceEvent = { to: string; ice: ICE };
 export type ClientSendError = { to: string } & CallbackEvent;
 
 export type ServerEventKeys = O.Keys<ServerEvent>;
-export type ServerJoinRoomEvent = { id: string; device: DeviceType; ip: string; hash: string }[];
+export type ServerJoinRoomEvent = { id: string; device: DeviceType; ip: string; hash: string };
+export type ServerInitUserEvent = { self: ServerJoinRoomEvent; users: ServerJoinRoomEvent[] };
 export type ServerLeaveRoomEvent = { id: string };
 export type ServerSendOfferEvent = { from: string; to: string; sdp: SDP };
 export type ServerSendAnswerEvent = { from: string; to: string; sdp: SDP };

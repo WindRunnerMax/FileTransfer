@@ -31,7 +31,8 @@ export class MessageService {
     this.signal.bus.on(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
     this.signal.bus.on(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.on(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
-    this.rtc.bus.on(WEBRTC_EVENT.CONNECTING, this.onConnecting);
+    this.rtc.bus.on(WEBRTC_EVENT.CONNECTING, this.onRTCConnecting);
+    this.rtc.bus.on(WEBRTC_EVENT.CLOSE, this.onRTCClose);
     this.transfer.bus.on(TRANSFER_EVENT.TEXT, this.onTextMessage);
     this.transfer.bus.on(TRANSFER_EVENT.FILE_START, this.onFileStart);
     this.transfer.bus.on(TRANSFER_EVENT.FILE_PROCESS, this.onFileProcess);
@@ -45,7 +46,8 @@ export class MessageService {
     this.signal.bus.off(SERVER_EVENT.SEND_ANSWER, this.onReceiveAnswer);
     this.signal.bus.off(SERVER_EVENT.SEND_ERROR, this.onReceiveError);
     this.rtc.bus.off(WEBRTC_EVENT.STATE_CHANGE, this.onRTCStateChange);
-    this.rtc.bus.off(WEBRTC_EVENT.CONNECTING, this.onConnecting);
+    this.rtc.bus.off(WEBRTC_EVENT.CONNECTING, this.onRTCConnecting);
+    this.rtc.bus.off(WEBRTC_EVENT.CLOSE, this.onRTCClose);
     this.transfer.bus.off(TRANSFER_EVENT.TEXT, this.onTextMessage);
     this.transfer.bus.off(TRANSFER_EVENT.FILE_START, this.onFileStart);
     this.transfer.bus.off(TRANSFER_EVENT.FILE_PROCESS, this.onFileProcess);
@@ -83,25 +85,31 @@ export class MessageService {
   }
 
   @Bind
-  private onConnecting() {
+  private onRTCConnecting() {
     const peerId = atoms.get(this.store.peerIdAtom);
     this.addSystemEntry(`WebRTC Connecting To ${peerId}`);
   }
 
   @Bind
-  private onRTCStateChange() {
+  private onRTCClose() {
     const peerId = atoms.get(this.store.peerIdAtom);
-    if (this.rtc.connection.connectionState === "disconnected") {
+    this.addSystemEntry(`WebRTC ${peerId} Closed`);
+  }
+
+  @Bind
+  private onRTCStateChange(connection: RTCPeerConnection) {
+    const peerId = atoms.get(this.store.peerIdAtom);
+    if (connection.connectionState === "disconnected") {
       this.addSystemEntry(`WebRTC ${peerId} Disconnected`);
     }
-    if (this.rtc.connection.connectionState === "connected") {
+    if (connection.connectionState === "connected") {
       this.addSystemEntry(`WebRTC ${peerId} Connected`);
     }
-    if (
-      this.rtc.connection.connectionState === "failed" ||
-      this.rtc.connection.connectionState === "closed"
-    ) {
+    if (connection.connectionState === "failed") {
       this.addSystemEntry(`WebRTC ${peerId} Connection Failed`);
+    }
+    if (connection.connectionState === "closed") {
+      this.addSystemEntry(`WebRTC ${peerId} Connection Closed`);
     }
   }
 

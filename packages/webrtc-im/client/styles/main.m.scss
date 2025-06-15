@@ -43,11 +43,11 @@ body {
 }
 
 // Mobile
-:global(.webrtc-im-mobile) {
-  ~.github {
-    display: none;
-  }
+.hidden {
+  display: none;
+}
 
+:global(.webrtc-im-mobile) {
   &.main {
     flex-direction: column-reverse;
     height: 100%;

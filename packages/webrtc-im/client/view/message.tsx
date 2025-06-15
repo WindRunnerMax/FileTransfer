@@ -10,6 +10,7 @@ import { IconClose, IconFile, IconFolder, IconToBottom } from "@arco-design/web-
 import { SendIcon } from "../component/icons/send";
 import { cs, Format, KEY_CODE, preventNativeEvent } from "@block-kit/utils";
 import { Progress } from "@arco-design/web-react";
+import { atoms } from "../store/atoms";
 
 export const Message: FC = () => {
   const { signal, message, store, rtc, transfer } = useGlobalContext();
@@ -26,6 +27,7 @@ export const Message: FC = () => {
   }, [peerId, users]);
 
   useEffect(() => {
+    // 聚焦 Textarea
     textareaRef.current && textareaRef.current.focus();
   }, [peerId]);
 
@@ -42,15 +44,23 @@ export const Message: FC = () => {
     const textarea = textareaRef.current;
     const text = textarea && textarea.value;
     if (!text) return void 0;
+    const racePeerId = atoms.get(store.peerIdAtom);
     await signal.isConnected();
     await rtc.isConnected();
+    if (racePeerId !== atoms.get(store.peerIdAtom)) {
+      return void 0;
+    }
     transfer.sendTextMessage(text);
     textareaRef.current && (textareaRef.current.value = "");
   };
 
   const sendFileListMessage = async (files: FileList) => {
+    const racePeerId = atoms.get(store.peerIdAtom);
     await signal.isConnected();
     await rtc.isConnected();
+    if (racePeerId !== atoms.get(store.peerIdAtom)) {
+      return void 0;
+    }
     transfer.startSendFileList(files);
   };
 
