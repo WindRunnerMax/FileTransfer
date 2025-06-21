@@ -47,6 +47,11 @@
     margin-right: 10px;
   }
 
+  .userInfo {
+    box-sizing: border-box;
+    width: calc(100% - 45px);
+  }
+
   .captain {
     margin-top: 3px;
   }
@@ -57,6 +62,8 @@
   }
 
   .ip {
+    @include text-ellipsis;
+
     color: var(--color-text-2);
     font-size: 12px;
   }

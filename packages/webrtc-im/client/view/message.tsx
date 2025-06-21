@@ -11,6 +11,7 @@ import { SendIcon } from "../component/icons/send";
 import { cs, Format, KEY_CODE, preventNativeEvent } from "@block-kit/utils";
 import { Progress } from "@arco-design/web-react";
 import { atoms } from "../store/atoms";
+import { CONNECTION_STATE } from "../../types/client";
 
 export const Message: FC = () => {
   const { signal, message, store, rtc, transfer } = useGlobalContext();
@@ -112,6 +113,8 @@ export const Message: FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const isConnected = rtcState === CONNECTION_STATE.CONNECTED;
+
   return (
     <div className={styles.container}>
       <div className={styles.captainArea}>
@@ -169,23 +172,28 @@ export const Message: FC = () => {
         onDrop={onDropFiles}
         onDragOver={preventNativeEvent}
       >
-        {isDragging ? (
+        {isDragging && isConnected ? (
           <div className={styles.dragging}>Drop Files To Upload</div>
         ) : (
           <Fragment>
-            <div
-              className={styles.operation}
-              onMouseDown={preventNativeEvent}
-              onClick={onPickFiles}
-            >
-              <IconFolder />
+            <div className={cs(styles.operation)} onMouseDown={preventNativeEvent}>
+              <div
+                className={cs(!isConnected && styles.disabled)}
+                onClick={isConnected ? onPickFiles : void 0}
+              >
+                <IconFolder />
+              </div>
             </div>
             <textarea
               ref={textareaRef}
               className={styles.textarea}
-              onKeyDown={onPressEnter}
+              onKeyDown={isConnected ? onPressEnter : void 0}
             ></textarea>
-            <div className={styles.send} onMouseDown={preventNativeEvent} onClick={sendTextMessage}>
+            <div
+              className={cs(styles.send, !isConnected && styles.disabled)}
+              onMouseDown={preventNativeEvent}
+              onClick={isConnected ? sendTextMessage : void 0}
+            >
               {SendIcon}
             </div>
           </Fragment>

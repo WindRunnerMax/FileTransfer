@@ -171,7 +171,7 @@ export class WebRTCService {
       this.signal.emit(CLINT_EVENT.SEND_ERROR, {
         to: from,
         code: ERROR_CODE.BUSY,
-        message: `peer user ${this.signal.id} is busy`,
+        message: `P2P Peer User ${this.signal.id} Is Busy`,
       });
       return void 0;
     }
