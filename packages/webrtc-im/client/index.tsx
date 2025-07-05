@@ -13,11 +13,7 @@ import { ConfigProvider } from "@arco-design/web-react";
 import { Provider } from "jotai";
 import { GlobalContext } from "./store/global";
 import { Main } from "./view/main";
-
-const darkThemeMatch = window.matchMedia("(prefers-color-scheme: dark)");
-if (darkThemeMatch.matches) {
-  document.body.setAttribute("arco-theme", "dark");
-}
+import { useDarkTheme } from "./hooks/use-dark-theme";
 
 const App: FC = () => {
   const context = useMemo(() => {
@@ -28,6 +24,8 @@ const App: FC = () => {
     const message = new MessageService(signal, rtc, store, transfer);
     return { signal, rtc, transfer, store, message };
   }, []);
+
+  useDarkTheme();
 
   useEffect(() => {
     window.context = context;

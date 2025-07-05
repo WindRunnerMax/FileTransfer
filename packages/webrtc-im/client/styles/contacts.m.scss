@@ -20,6 +20,11 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+
+  :global(.arco-empty-description) {
+    color: rgb(var(--gray-6));
+    font-size: 13px;
+  }
 }
 
 .users {

@@ -1,0 +1,29 @@
+.container {
+  align-items: center;
+  display: flex;
+  flex: 1 0;
+  justify-content: center;
+  pointer-events: none;
+  position: relative;
+  user-select: none;
+}
+
+.prompt {
+  color: rgba(var(--arcoblue-6), 1);
+  font-size: 15px;
+  margin-top: -140px;
+  user-select: none;
+}
+
+.boardCastIcon {
+  bottom: -1px;
+  color: rgba(var(--gray-6), 0.6);
+  font-size: 30px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.canvas {
+  position: absolute;
+}

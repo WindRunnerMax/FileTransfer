@@ -25,5 +25,5 @@ export const useIsMobile = () => {
     };
   }, []);
 
-  return { isMobile, inspect: inspectMobile };
+  return { isMobile, inspectMobile };
 };

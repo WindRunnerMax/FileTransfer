@@ -12,15 +12,20 @@ import { cs, Format, KEY_CODE, preventNativeEvent } from "@block-kit/utils";
 import { Progress } from "@arco-design/web-react";
 import { atoms } from "../store/atoms";
 import { CONNECTION_STATE } from "../../types/client";
+import { Beacon } from "../component/beacon";
+import { useIsMobile } from "../hooks/use-is-mobile";
 
 export const Message: FC = () => {
   const { signal, message, store, rtc, transfer } = useGlobalContext();
   const list = useAtomValue(message.listAtom);
-  const [peerId, setPeerId] = useAtom(store.peerIdAtom);
-  const users = useAtomValue(store.userListAtom);
   const rtcState = useAtomValue(rtc.stateAtom);
-  const [isDragging, setIsDragging] = useState(false);
+  const users = useAtomValue(store.userListAtom);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [peerId, setPeerId] = useAtom(store.peerIdAtom);
+  const [isDragging, setIsDragging] = useState(false);
+  const { isMobile } = useIsMobile();
+
+  const isConnected = rtcState === CONNECTION_STATE.CONNECTED;
 
   const peerUser = useMemo(() => {
     if (!peerId) return null;
@@ -33,7 +38,7 @@ export const Message: FC = () => {
   }, [peerId]);
 
   if (!peerId || !peerUser) {
-    return null;
+    return isMobile ? null : <Beacon />;
   }
 
   const onDisconnect = () => {
@@ -113,7 +118,17 @@ export const Message: FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const isConnected = rtcState === CONNECTION_STATE.CONNECTED;
+  const onPasteFiles = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    if (isConnected && event.clipboardData.files.length) {
+      event.preventDefault();
+      sendFileListMessage(event.clipboardData.files);
+    }
+    const clipboardData = event.clipboardData;
+    for (const item of clipboardData.items) {
+      console.log(`%c${item.type}`, "background-color: #165DFF; color: #fff; padding: 3px 5px;");
+      console.log(item.kind === "file" ? item.getAsFile() : clipboardData.getData(item.type));
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -185,6 +200,7 @@ export const Message: FC = () => {
               </div>
             </div>
             <textarea
+              onPaste={onPasteFiles}
               ref={textareaRef}
               className={styles.textarea}
               onKeyDown={isConnected ? onPressEnter : void 0}
