@@ -33,7 +33,7 @@ export const Beacon: FC = () => {
       const base = isDarkMode ? 1 : 0;
       const gradient = Math.abs(base - radius / Math.max(width, height));
       const color = Math.round(255 * gradient);
-      ctx.strokeStyle = `rgba(${color}, ${color}, ${color}, 0.1)`;
+      ctx.strokeStyle = `rgba(${color}, ${color}, ${color}, 0.07)`;
       ctx.arc(x, y, radius, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.lineWidth = 1;
@@ -59,7 +59,7 @@ export const Beacon: FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* <div className={styles.prompt}>Open Another Device On The LAN To Transfer Files</div> */}
+      <div className={styles.prompt}>Open Another Device On The LAN To Transfer Files</div>
       <div className={styles.boardCastIcon}>{BoardCastIcon}</div>
       <canvas className={styles.canvas} ref={ref}></canvas>
     </div>
