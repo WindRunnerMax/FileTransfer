@@ -41,6 +41,7 @@ export const getSessionId = () => {
     const isOpenedBefore = !!Storage.session.get<string>(SESSION_KEY);
     if (!isReload && isOpenedBefore) {
       // 如果不是刷新页面，并且之前已经打开过，则很可能是从另一个标签页复制而来的
+      // Tab 复制行为是完全拷贝而非共享, 因此在这里直接设置值是安全的, 不会共享到源
       Storage.session.set(IS_COPIED_TAB, true);
       return getId();
     }
